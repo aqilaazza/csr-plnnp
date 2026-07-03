@@ -27,7 +27,6 @@ class KelayakanController extends Controller
         return view('form.kelayakan.create', compact('proposal'));
     }
 
-    
 
     public function store(Request $request)
     {
