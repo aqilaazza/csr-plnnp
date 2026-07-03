@@ -49,6 +49,20 @@
                                         <div class="invalid-feedback">Instansi Pengajuan wajib diisi</div>
                                     @enderror
                                 </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Contact Person / No. HP Instansi</label>
+                                    <input type="text"
+                                        class="form-control @error('contact_person') is-invalid @enderror"
+                                        name="contact_person"
+                                        value="{{ old('contact_person') }}"
+                                        placeholder="Contoh: 081234567890"
+                                        required>
+
+                                    @error('contact_person')
+                                        <div class="invalid-feedback">Contact Person / No. HP Instansi wajib diisi</div>
+                                    @enderror
+                                </div>
 
 
 
@@ -60,7 +74,6 @@
                                             <option value="auto">Otomatis (Dropdown)</option>
                                             <option value="manual">Manual (Input)</option>
                                         </select>
-                                    </div>
                                     <div id="wilayah_auto" class="d-none">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Kabupaten / Kota</label>
