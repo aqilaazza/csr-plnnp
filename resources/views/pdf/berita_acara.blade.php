@@ -195,10 +195,10 @@
     <div class="section tight-top">
         <p class="indent"><span class="label">Nama</span><span class="separator">:</span><span
                 class="value">{{ $namaBisnisSupport }}</span></p>
-        <p class="indent"><span class="label">Jabatan</span><span class="separator">:</span><span class="value">Manajer
+        <p class="indent"><span class="label">Jabatan</span><span class="separator">:</span><span class="value">Manager
                 Business Support</span></p>
 
-        <p>Dalam hal ini bertindak sebagai Manajer Business Support
+        <p>Dalam hal ini bertindak sebagai Manager Business Support
             <strong>PT PLN Nusantara Power UP Paiton</strong>,
             yang selanjutnya disebut <strong>PIHAK PERTAMA</strong>.
         </p>
