@@ -17,7 +17,14 @@ class KelayakanController extends Controller
         // Ambil hanya proposal yang belum memiliki kelayakan
         $proposal = Proposal::doesntHave('kelayakan')->get();
 
-        return view('form.kelayakan.index', compact('kelayakan', 'proposal'));
+            return view('form.kelayakan.index', compact('kelayakan', 'proposal'));
+        }
+
+    public function create()
+    {
+        $proposal = Proposal::doesntHave('kelayakan')->get();
+
+            return view('form.kelayakan.create', compact('proposal'));
     }
 
     public function store(Request $request)
@@ -158,15 +165,30 @@ $pdf->getDomPDF()->getCanvas()->page_script(function ($pageNumber, $pageCount, $
             ->with('success', 'Form Analisis Kelayakan berhasil dibuat dan PDF telah disimpan.');
     }
 
+    public function edit($id)
+    {
+        $kelayakan = Kelayakan::with('proposal')->findOrFail($id);
+
+        return view('form.kelayakan.edit', compact('kelayakan'));
+    }
+
     public function update(Request $request, $id)
     {
         $request->validate([
-            'dasar_pelaksanaan' => 'required|string|max:255',
-            'latar_belakang' => 'required|string|max:255',
-            'tujuan' => 'required|string|max:255',
-            'prioritas' => 'required|in:1,2,3,4,5',
-            'dampak' => 'required|in:1,2,3,4,5',
-        ]);
+        'dasar_pelaksanaan' => 'required|string',
+        'latar_belakang' => 'required|string',
+        'tujuan' => 'required|string',
+        'indikator_lingkungan' => 'nullable|string',
+        'indikator_sosial' => 'nullable|string',
+        'jumlah_penerima_manfaat' => 'nullable|string|max:255',
+        'jenis_stakeholder' => 'nullable|string',
+        'pejabat_instansi' => 'nullable|string',
+        'data_terdahulu' => 'nullable|string',
+        'contact_person' => 'nullable|string',
+        'catatan_khusus' => 'nullable|string',
+        'prioritas' => 'required|in:1,2,3,4,5',
+        'dampak' => 'required|in:1,2,3,4,5',
+    ]);
 
         $kelayakan = Kelayakan::findOrFail($id);
 
@@ -185,6 +207,14 @@ $pdf->getDomPDF()->getCanvas()->page_script(function ($pageNumber, $pageCount, $
             'dasar_pelaksanaan' => $request->dasar_pelaksanaan,
             'latar_belakang' => $request->latar_belakang,
             'tujuan' => $request->tujuan,
+            'indikator_lingkungan' => $request->indikator_lingkungan,
+            'indikator_sosial' => $request->indikator_sosial,
+            'jumlah_penerima_manfaat' => $request->jumlah_penerima_manfaat,
+            'jenis_stakeholder' => $request->jenis_stakeholder,
+            'pejabat_instansi' => $request->pejabat_instansi,
+            'data_terdahulu' => $request->data_terdahulu,
+            'contact_person' => $request->contact_person,
+            'catatan_khusus' => $request->catatan_khusus,
             'prioritas' => $request->prioritas,
             'dampak' => $request->dampak,
             // 'revisi' => $newRevisi,
