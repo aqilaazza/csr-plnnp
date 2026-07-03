@@ -28,33 +28,19 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Kategori Instansi</label>
-                                    <select name="kategori_instansi"
-                                        class="form-select @error('kategori_instansi') is-invalid @enderror"
+                                    <select name="kategori_instansi_id"
+                                        class="form-select @error('kategori_instansi_id') is-invalid @enderror"
                                         required>
                                         <option value="">-- Pilih Kategori Instansi --</option>
-
-                                        <option value="Pemerintahan"
-                                            {{ old('kategori_instansi', $proposal->kategori_instansi) == 'Pemerintahan' ? 'selected' : '' }}>
-                                            Pemerintahan
-                                        </option>
-
-                                        <option value="APH"
-                                            {{ old('kategori_instansi', $proposal->kategori_instansi) == 'APH' ? 'selected' : '' }}>
-                                            APH (Polisi, Kejaksaan, Pengadilan)
-                                        </option>
-
-                                        <option value="TNI"
-                                            {{ old('kategori_instansi', $proposal->kategori_instansi) == 'TNI' ? 'selected' : '' }}>
-                                            TNI
-                                        </option>
-
-                                        <option value="Lembaga Masyarakat"
-                                            {{ old('kategori_instansi', $proposal->kategori_instansi) == 'Lembaga Masyarakat' ? 'selected' : '' }}>
-                                            Lembaga Masyarakat
-                                        </option>
+                                        @foreach ($kategoriInstansi as $item)
+                                            <option value="{{ $item->id }}"
+                                                {{ old('kategori_instansi_id', $proposal->kategori_instansi_id) == $item->id ? 'selected' : '' }}>
+                                                {{ $item->nama }}
+                                            </option>
+                                        @endforeach
                                     </select>
 
-                                    @error('kategori_instansi')
+                                    @error('kategori_instansi_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>

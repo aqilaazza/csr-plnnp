@@ -10,7 +10,7 @@ class Proposal extends Model
 
     protected $fillable = [
         'judul',
-        'kategori_instansi',
+        'kategori_instansi_id',
         'instansi_pengajuan',
         'contact_person',
         'kabupaten_id',
@@ -49,6 +49,11 @@ class Proposal extends Model
     public function tipologi()
     {
         return $this->belongsTo(Tipologi::class);
+    }
+
+    public function kategoriInstansi()
+    {
+        return $this->belongsTo(KategoriInstansi::class, 'kategori_instansi_id');
     }
 
     public function namaPic()
