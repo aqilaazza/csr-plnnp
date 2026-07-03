@@ -17,6 +17,7 @@ use App\Http\Controllers\TipeProsesController;
 use App\Http\Controllers\BeritaAcaraController;
 use App\Http\Controllers\BusinessSupportController;
 use App\Http\Controllers\ProposalProsesChecklistController;
+use App\Http\Controllers\KategoriInstansiController;
 
 
 /*
@@ -70,6 +71,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/export-proposals', [ProposalController::class, 'export']);
 
     Route::get('/business-support', [BusinessSupportController::class, 'index'])->name('business-support.index');
-Route::post('/business-support', [BusinessSupportController::class, 'update'])->name('business-support.update');
+    Route::post('/business-support', [BusinessSupportController::class, 'update'])->name('business-support.update');
+
+    Route::resource('kategori-instansi', KategoriInstansiController::class);
 
 });

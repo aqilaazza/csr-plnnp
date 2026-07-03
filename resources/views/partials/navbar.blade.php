@@ -91,6 +91,14 @@
                     <span class="hide-menu">Business Support</span>
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a class="sidebar-link" href="/kategori-instansi" aria-expanded="false">
+                    <span>
+                        <i class="ti ti-building"></i>
+                    </span>
+                    <span class="hide-menu">Kategori Instansi</span>
+                </a>
+            </li>
         @endif
         <li class="nav-small-cap">
             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
