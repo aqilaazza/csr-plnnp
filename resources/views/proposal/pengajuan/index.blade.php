@@ -318,7 +318,7 @@
                                             <h6 class="fw-normal mb-0">{{ $data->judul }}</h6>
                                         </td>
                                         <td>
-                                            <p class="mb-0 fw-normal">{{ $data->kategori_instansi ?? '-' }}</p>
+                                            <p class="mb-0 fw-normal">{{ $data->kategoriInstansi->nama ?? '-' }}</p>
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->instansi_pengajuan }}</p>

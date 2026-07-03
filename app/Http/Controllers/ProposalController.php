@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\ProposalExport;
 use App\Models\Proposal;
+use App\Models\KategoriInstansi;
 use App\Models\SubProses;
 use App\Models\TipeProses;
 use App\Models\Tipologi;
@@ -18,7 +19,7 @@ class ProposalController extends Controller
 
     public function index()
     {
-        $proposal = Proposal::with(['beritaAcara', 'kelayakan'])->get();
+        $proposal = Proposal::with(['beritaAcara', 'kelayakan', 'kategoriInstansi'])->get();
         return view('proposal.pengajuan.index', compact('proposal'));
     }
 
@@ -30,6 +31,7 @@ class ProposalController extends Controller
         return view('proposal.pengajuan.create', [
             'tipologi' => Tipologi::all(),
             'proses'   => TipeProses::with('subProses')->get(),
+            'kategoriInstansi' => KategoriInstansi::all(),
         ]);
     }
 
@@ -45,7 +47,7 @@ class ProposalController extends Controller
         // Validasi umum
         $rules = [
             'judul'              => 'required|string|max:255',
-            'kategori_instansi' => 'required|in:Pemerintahan,APH,TNI,Lembaga Masyarakat',
+            'kategori_instansi_id' => 'required|exists:kategori_instansi,id',
             'instansi_pengajuan' => 'required|string|max:255',
             'contact_person' => 'required|regex:/^[0-9]+$/|min:10|max:15',
             'tanggal_disposisi'  => 'required|date',
@@ -141,14 +143,13 @@ class ProposalController extends Controller
      */
     public function edit(string $id)
     {
-        $proposal = Proposal::findOrFail($id); // Ambil data proposal berdasarkan ID
+        $proposal = Proposal::findOrFail($id);
 
-        // Ambil data relasi yang dibutuhkan untuk dropdown
         $tipologi = Tipologi::all();
         $proses   = TipeProses::all();
+        $kategoriInstansi = KategoriInstansi::all();
 
-        // Kirim ke view edit
-        return view('proposal.pengajuan.edit', compact('proposal', 'tipologi', 'proses'));
+        return view('proposal.pengajuan.edit', compact('proposal', 'tipologi', 'proses', 'kategoriInstansi'));
     }
 
     /**
@@ -163,7 +164,7 @@ class ProposalController extends Controller
         // Validasi dasar
         $rules = [
             'judul'              => 'required|string|max:255',
-            'kategori_instansi' => 'required|in:Pemerintahan,APH,TNI,Lembaga Masyarakat',
+            'kategori_instansi_id' => 'required|exists:kategori_instansi,id', 
             'instansi_pengajuan' => 'required|string|max:255',
             'contact_person' => 'required|regex:/^[0-9]+$/|min:10|max:15',
             'tanggal_disposisi'  => 'required|date',
