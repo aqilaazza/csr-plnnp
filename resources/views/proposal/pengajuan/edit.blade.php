@@ -77,10 +77,13 @@
                                         name="contact_person"
                                         value="{{ old('contact_person', $proposal->contact_person) }}"
                                         placeholder="Contoh: 081234567890"
+                                        inputmode="numeric"
+                                        minlength="10"
+                                        maxlength="15"
                                         required>
 
                                     @error('contact_person')
-                                        <div class="invalid-feedback">Contact Person</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
@@ -372,6 +375,20 @@
                 });
             });
         </script>
+
+        {{-- ===================== CONTACT PERSON SCRIPT (UPDATED) ===================== --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const contactPerson = document.querySelector('input[name="contact_person"]');
+
+                if (contactPerson) {
+                    contactPerson.addEventListener('input', function () {
+                        // Hapus semua karakter selain angka saat user mengetik/paste
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                    });
+                }
+            });
+        </script>        
 
         {{-- ===================== WILAYAH SCRIPT (UPDATED) ===================== --}}
         <script>

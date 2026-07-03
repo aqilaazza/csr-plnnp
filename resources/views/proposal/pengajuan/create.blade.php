@@ -86,10 +86,12 @@
                                         name="contact_person"
                                         value="{{ old('contact_person') }}"
                                         placeholder="Contoh: 081234567890"
+                                        inputmode="numeric"
+                                        pattern="[0-9]+"
                                         required>
 
                                     @error('contact_person')
-                                        <div class="invalid-feedback">Contact Person / No. HP Instansi wajib diisi</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 

@@ -47,7 +47,7 @@ class ProposalController extends Controller
             'judul'              => 'required|string|max:255',
             'kategori_instansi' => 'required|in:Pemerintahan,APH,TNI,Lembaga Masyarakat',
             'instansi_pengajuan' => 'required|string|max:255',
-            'contact_person'     => 'required|string|max:20',
+            'contact_person' => 'required|regex:/^[0-9]+$/|min:10|max:15',
             'tanggal_disposisi'  => 'required|date',
             'nominal_pengajuan'  => 'nullable|string',
             'barang_pengajuan'   => 'nullable|string|max:255',
@@ -80,7 +80,14 @@ class ProposalController extends Controller
             ]);
         }
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'contact_person.required' => 'Contact Person / No. HP Instansi wajib diisi.',
+            'contact_person.regex'    => 'Contact Person / No. HP Instansi hanya boleh berisi angka.',
+            'contact_person.min'      => 'Contact Person / No. HP Instansi minimal 10 digit.',
+            'contact_person.max'      => 'Contact Person / No. HP Instansi maksimal 15 digit.',
+        ];
+
+       $validated = $request->validate($rules, $messages);
 
         // Normalisasi nominal
         $validated['nominal_pengajuan'] =
@@ -158,7 +165,7 @@ class ProposalController extends Controller
             'judul'              => 'required|string|max:255',
             'kategori_instansi' => 'required|in:Pemerintahan,APH,TNI,Lembaga Masyarakat',
             'instansi_pengajuan' => 'required|string|max:255',
-            'contact_person'     => 'required|string|max:20',
+            'contact_person' => 'required|regex:/^[0-9]+$/|min:10|max:15',
             'tanggal_disposisi'  => 'required|date',
             'nominal_pengajuan'  => 'nullable',
             'barang_pengajuan'   => 'nullable|string|max:255',
@@ -190,7 +197,14 @@ class ProposalController extends Controller
             ]);
         }
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'contact_person.required' => 'Contact Person / No. HP Instansi wajib diisi.',
+            'contact_person.regex'    => 'Contact Person / No. HP Instansi hanya boleh berisi angka.',
+            'contact_person.min'      => 'Contact Person / No. HP Instansi minimal 10 digit.',
+            'contact_person.max'      => 'Contact Person / No. HP Instansi maksimal 15 digit.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
         // Normalisasi nominal
         $validated['nominal_pengajuan'] = $request->nominal_pengajuan
