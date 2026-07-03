@@ -37,6 +37,20 @@
                                     @enderror
                                 </div>
 
+                                <div class="mb-3">
+                                    <label class="form-label">Contact Person / No. HP Instansi</label>
+                                    <input type="text"
+                                        class="form-control @error('contact_person') is-invalid @enderror"
+                                        name="contact_person"
+                                        value="{{ old('contact_person', $proposal->contact_person) }}"
+                                        placeholder="Contoh: 081234567890"
+                                        required>
+
+                                    @error('contact_person')
+                                        <div class="invalid-feedback">Contact Person</div>
+                                    @enderror
+                                </div>
+
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Metode Input Wilayah</label>

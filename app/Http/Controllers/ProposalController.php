@@ -154,6 +154,7 @@ class ProposalController extends Controller
         $rules = [
             'judul'              => 'required|string|max:255',
             'instansi_pengajuan' => 'required|string|max:255',
+            'contact_person'     => 'required|string|max:20',
             'tanggal_disposisi'  => 'required|date',
             'nominal_pengajuan'  => 'nullable',
             'barang_pengajuan'   => 'nullable|string|max:255',
