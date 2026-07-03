@@ -11,6 +11,7 @@ class Proposal extends Model
     protected $fillable = [
         'judul',
         'instansi_pengajuan',
+        'contact_person',
         'kabupaten_id',
         'kabupaten_nama',
         'kecamatan_id',
