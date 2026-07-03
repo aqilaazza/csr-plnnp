@@ -20,6 +20,15 @@ class KelayakanController extends Controller
         return view('form.kelayakan.index', compact('kelayakan', 'proposal'));
     }
 
+    public function create()
+    {
+        $proposal = Proposal::doesntHave('kelayakan')->get();
+
+        return view('form.kelayakan.create', compact('proposal'));
+    }
+
+    
+
     public function store(Request $request)
     {
         $request->validate([
