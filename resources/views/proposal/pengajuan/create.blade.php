@@ -303,11 +303,11 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Overdue</label>
+                                    <label class="form-label">Deadline</label>
                                     <input type="date" name="overdue"
                                         class="form-control @error('overdue') is-invalid @enderror" required>
                                     @error('overdue')
-                                        <div class="invalid-feedback">Overdue wajib diisi</div>
+                                        <div class="invalid-feedback">Deadline wajib diisi</div>
                                     @enderror
 
 
