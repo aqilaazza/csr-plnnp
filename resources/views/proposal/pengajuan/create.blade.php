@@ -95,63 +95,62 @@
 
 
 
+                                {{-- ===================== WILAYAH (UPDATED) ===================== --}}
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Metode Input Wilayah</label>
-                                        <select id="metode_input" name="metode_input" class="form-select" required>
-                                            <option value="">-- Pilih Metode --</option>
-                                            <option value="auto">Otomatis (Dropdown)</option>
-                                            <option value="manual">Manual (Input)</option>
+                                        <label class="form-label">Wilayah</label>
+                                        <select id="kabupaten"
+                                            class="form-select @error('kabupaten_id') is-invalid @enderror" required>
+                                            <option value="">-- Pilih Wilayah --</option>
+                                            <option value="3513" data-nama="Probolinggo">Kab. Probolinggo</option>
+                                            <option value="3574" data-nama="Kota Probolinggo">Kota Probolinggo</option>
+                                            <option value="3512" data-nama="Situbondo">Kab. Situbondo</option>
+                                            <option value="lainnya">Kab / Kota Lainnya</option>
                                         </select>
-                                    <div id="wilayah_auto" class="d-none">
+                                        <div class="form-text">Pilih wilayah pengajuan.</div>
+                                        @error('kabupaten_id')
+                                            <div class="invalid-feedback">Kabupaten / Kota wajib diisi</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div id="wilayah_auto" class="d-none">
+                                    <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Kabupaten / Kota</label>
-                                            <select id="kabupaten" name="kabupaten_id"
-                                                class="form-select @error('kabupaten_id') is-invalid @enderror" required>
-                                                <option value="">-- Pilih Kabupaten / Kota --</option>
+                                            <label class="form-label">Kecamatan</label>
+                                            <select id="kecamatan"
+                                                class="form-select @error('kecamatan_id') is-invalid @enderror"
+                                                required>
+                                                <option value="">-- Pilih Kecamatan --</option>
                                             </select>
-                                            <div class="form-text">Pilih Kabupaten atau Kota sesuai wilayah pengajuan.</div>
-                                            @error('kabupaten_id')
-                                                <div class="invalid-feedback">Kabupaten / Kota wajib diisi</div>
+                                            <div class="form-text">Pilih kecamatan sesuai dengan wilayah pengajuan yang
+                                                berada
+                                                di Kabupaten.</div>
+                                            @error('kecamatan_id')
+                                                <div class="invalid-feedback">Kecamatan wajib diisi</div>
                                             @enderror
                                         </div>
 
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">Kecamatan</label>
-                                                <select id="kecamatan" name="kecamatan_id"
-                                                    class="form-select @error('kecamatan_id') is-invalid @enderror"
-                                                    required>
-                                                    <option value="">-- Pilih Kecamatan --</option>
-                                                </select>
-                                                <div class="form-text">Pilih kecamatan sesuai dengan wilayah pengajuan yang
-                                                    berada
-                                                    di Kabupaten Probolinggo.</div>
-                                                @error('kecamatan_id')
-                                                    <div class="invalid-feedback">Kecamatan wajib diisi</div>
-                                                @enderror
-                                            </div>
-
-
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">Kelurahan / Desa</label>
-                                                <select id="kelurahan" name="kelurahan_id"
-                                                    class="form-select @error('kelurahan_id') is-invalid @enderror"
-                                                    required>
-                                                    <option value="">-- Pilih Kelurahan / Desa --</option>
-                                                </select>
-                                                <div class="form-text">Pilih kelurahan atau desa yang berada di dalam
-                                                    kecamatan
-                                                    yang
-                                                    telah dipilih.</div>
-                                                @error('kelurahan_id')
-                                                    <div class="invalid-feedback">Kelurahan wajib diisi</div>
-                                                @enderror
-                                            </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Kelurahan / Desa</label>
+                                            <select id="kelurahan"
+                                                class="form-select @error('kelurahan_id') is-invalid @enderror"
+                                                required>
+                                                <option value="">-- Pilih Kelurahan / Desa --</option>
+                                            </select>
+                                            <div class="form-text">Pilih kelurahan atau desa yang berada di dalam
+                                                kecamatan
+                                                yang
+                                                telah dipilih.</div>
+                                            @error('kelurahan_id')
+                                                <div class="invalid-feedback">Kelurahan wajib diisi</div>
+                                            @enderror
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div id="wilayah_manual" class="d-none">
+                                <div id="wilayah_manual" class="d-none">
+                                    <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Kabupaten / Kota</label>
                                             <input type="text" id="kabupaten_manual" name="kabupaten_manual"
@@ -183,6 +182,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                {{-- ===================== END WILAYAH (UPDATED) ===================== --}}
 
                                 <div class="mb-3">
                                     <label class="form-label">Tanggal Disposisi</label>
@@ -202,7 +202,7 @@
                                             name="nominal_pengajuan" value="{{ old('nominal_pengajuan') }}"
                                             placeholder="Masukkan Angka">
                                         <div class="form-text">Nominal Pengajuan wajib diisi. Gunakan tanda '-'
-                                            apabila data kosong.</div>
+                                            apabila data kosong.</div>
                                         @error('nominal_pengajuan')
                                         @enderror
                                     </div>
@@ -214,7 +214,7 @@
                                             name="barang_pengajuan" value="{{ old('barang_pengajuan') }}"
                                             placeholder="Contoh: 26 Papan Peringatan">
                                         <div class="form-text">Barang Pengajuan wajib diisi. Gunakan tanda '-'
-                                            apabila data kosong</div>
+                                            apabila data kosong</div>
                                         @error('barang_pengajuan')
                                         @enderror
                                     </div>
@@ -269,7 +269,7 @@
                                             name="nominal_disetujui" value="{{ old('nominal_disetujui') }}"
                                             placeholder="Masukkan Angka" required>
                                         <div class="form-text">Nominal Disetujui wajib diisi. Gunakan tanda '-' apabila
-                                            data kosong.</div>
+                                            data kosong.</div>
                                         @error('nominal_disetujui')
                                         @enderror
                                     </div>
@@ -281,7 +281,7 @@
                                             name="barang_disetujui" value="{{ old('barang_disetujui') }}"
                                             placeholder="Contoh: 26 Papan Peringatan">
                                         <div class="form-text">Barang Disetujui wajib diisi. Gunakan tanda '-' apabila
-                                            data kosong.</div>
+                                            data kosong.</div>
                                         @error('barang_disetujui')
                                         @enderror
                                     </div>
@@ -357,31 +357,20 @@
         {{-- Select2 JS --}}
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+        {{-- ===================== WILAYAH SCRIPT (UPDATED) ===================== --}}
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const metodeInput = document.getElementById('metode_input');
-                const wilayahAuto = document.getElementById('wilayah_auto');
-                const wilayahManual = document.getElementById('wilayah_manual');
-
-                metodeInput.addEventListener('change', function() {
-                    if (this.value === 'auto') {
-                        wilayahAuto.classList.remove('d-none');
-                        wilayahManual.classList.add('d-none');
-                    } else if (this.value === 'manual') {
-                        wilayahAuto.classList.add('d-none');
-                        wilayahManual.classList.remove('d-none');
-                    } else {
-                        wilayahAuto.classList.add('d-none');
-                        wilayahManual.classList.add('d-none');
-                    }
-                });
-            });
-
-            document.addEventListener('DOMContentLoaded', function() {
-                // Inisialisasi dropdown
                 const kabupatenSelect = document.getElementById('kabupaten');
                 const kecamatanSelect = document.getElementById('kecamatan');
                 const kelurahanSelect = document.getElementById('kelurahan');
+
+                const wilayahAuto = document.getElementById('wilayah_auto');
+                const wilayahManual = document.getElementById('wilayah_manual');
+
+                const kabupatenManualInput = document.getElementById('kabupaten_manual');
+                const kecamatanManualInput = document.getElementById('kecamatan_manual');
+                const kelurahanManualInput = document.getElementById('kelurahan_manual');
 
                 const kabupatenIdInput = document.getElementById('kabupaten_id');
                 const kabupatenNamaInput = document.getElementById('kabupaten_nama');
@@ -390,23 +379,11 @@
                 const kelurahanIdInput = document.getElementById('kelurahan_id');
                 const kelurahanNamaInput = document.getElementById('kelurahan_nama');
 
-                fetch('/kabupaten')
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(item => {
-                            const option = new Option(item.name, item.id);
-                            option.setAttribute('data-name', item.name);
-                            kabupatenSelect.add(option);
-                        });
-                    });
-
                 kabupatenSelect.addEventListener('change', function() {
-                    const kabupatenId = this.value;
-                    const kabupatenNama = this.options[this.selectedIndex].getAttribute('data-name');
+                    const selectedId = this.value;
+                    const selectedNama = this.options[this.selectedIndex].getAttribute('data-nama');
 
-                    kabupatenIdInput.value = kabupatenId;
-                    kabupatenNamaInput.value = kabupatenNama;
-
+                    // Reset kecamatan & kelurahan setiap kali wilayah berganti
                     kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
                     kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan / Desa --</option>';
                     kecamatanIdInput.value = '';
@@ -414,8 +391,23 @@
                     kelurahanIdInput.value = '';
                     kelurahanNamaInput.value = '';
 
-                    if (kabupatenId) {
-                        fetch(`/kecamatan/${kabupatenId}`)
+                    if (kabupatenManualInput) kabupatenManualInput.value = '';
+                    if (kecamatanManualInput) kecamatanManualInput.value = '';
+                    if (kelurahanManualInput) kelurahanManualInput.value = '';
+
+                    wilayahAuto.classList.add('d-none');
+                    wilayahManual.classList.add('d-none');
+
+                    if (selectedId === 'lainnya') {
+                        kabupatenIdInput.value = '';
+                        kabupatenNamaInput.value = '';
+                        wilayahManual.classList.remove('d-none');
+                    } else if (selectedId) {
+                        kabupatenIdInput.value = selectedId;
+                        kabupatenNamaInput.value = selectedNama;
+                        wilayahAuto.classList.remove('d-none');
+
+                        fetch(`/kecamatan/${selectedId}`)
                             .then(response => response.json())
                             .then(data => {
                                 data.forEach(item => {
@@ -424,6 +416,9 @@
                                     kecamatanSelect.add(option);
                                 });
                             });
+                    } else {
+                        kabupatenIdInput.value = '';
+                        kabupatenNamaInput.value = '';
                     }
                 });
 
@@ -459,6 +454,21 @@
                     kelurahanNamaInput.value = kelurahanNama;
                 });
 
+                // Kalau pakai wilayah manual, kabupaten_id/kecamatan_id/kelurahan_id dikosongkan
+                // dan hidden input *_nama diisi dari input manual saat submit.
+                document.getElementById('formProposal').addEventListener('submit', function() {
+                    if (kabupatenSelect.value === 'lainnya') {
+                        kabupatenNamaInput.value = kabupatenManualInput ? kabupatenManualInput.value : '';
+                        kecamatanNamaInput.value = kecamatanManualInput ? kecamatanManualInput.value : '';
+                        kelurahanNamaInput.value = kelurahanManualInput ? kelurahanManualInput.value : '';
+                    }
+                });
+            });
+        </script>
+        {{-- ===================== END WILAYAH SCRIPT (UPDATED) ===================== --}}
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
                 // Format Rupiah
                 const inputPengajuan = document.getElementById('nominal_pengajuan');
                 const inputDisetujui = document.getElementById('nominal_disetujui');
