@@ -44,6 +44,7 @@ class ProposalController extends Controller
         // Validasi umum
         $rules = [
             'judul'              => 'required|string|max:255',
+            'kategori_instansi' => 'required|in:Pemerintahan,APH,TNI,Lembaga Masyarakat',
             'instansi_pengajuan' => 'required|string|max:255',
             'contact_person'     => 'required|string|max:20',
             'tanggal_disposisi'  => 'required|date',
@@ -153,6 +154,7 @@ class ProposalController extends Controller
         // Validasi dasar
         $rules = [
             'judul'              => 'required|string|max:255',
+            'kategori_instansi' => 'required|in:Pemerintahan,APH,TNI,Lembaga Masyarakat',
             'instansi_pengajuan' => 'required|string|max:255',
             'contact_person'     => 'required|string|max:20',
             'tanggal_disposisi'  => 'required|date',

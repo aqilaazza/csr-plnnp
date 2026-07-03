@@ -250,6 +250,9 @@
                                         <span class="fw-semibold mb-0">Judul</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
+                                        <span class="fw-semibold mb-0">Kategori Instansi</span>
+                                    </th>
+                                    <th style="white-space: nowrap;" class="nowrap">
                                         <span class="fw-semibold mb-0">Instansi</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
@@ -313,6 +316,9 @@
                                         </td>
                                         <td>
                                             <h6 class="fw-normal mb-0">{{ $data->judul }}</h6>
+                                        </td>
+                                        <td>
+                                            <p class="mb-0 fw-normal">{{ $data->kategori_instansi ?? '-' }}</p>
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->instansi_pengajuan }}</p>
@@ -501,19 +507,19 @@
 
                 const table = $('#proposalTable').DataTable();
 
-                table.column(12).search(pic);
-                table.column(8).search(tipologi);
+                table.column(13).search(pic);
+                table.column(9).search(tipologi);
 
                 // Filter progress
                 if (progressFilter) {
-                    table.column(16).search('^' + progressFilter + '$', true, false);
+                    table.column(17).search('^' + progressFilter + '$', true, false);
                 } else {
                     table.column(15).search('', true, false);
                 }
 
                 // Filter tahun pada kolom tanggal (index 4)
                 if (tahun) {
-                    table.column(5).search(tahun);
+                    table.column(6).search(tahun);
                 } else {
                     table.column(4).search('');
                 }
