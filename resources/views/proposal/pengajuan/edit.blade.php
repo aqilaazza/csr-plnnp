@@ -306,7 +306,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Overdue</label>
+                                    <label class="form-label">Deadline</label>
                                     <input type="date" class="form-control @error('overdue') is-invalid @enderror"
                                         name="overdue" value="{{ old('overdue', $proposal->overdue) }}">
                                     @error('overdue')

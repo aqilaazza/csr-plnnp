@@ -289,7 +289,7 @@
                                         <span class="fw-semibold mb-0">Keterangan</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Overdue</span>
+                                        <span class="fw-semibold mb-0">Deadline</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
                                         <span class="fw-semibold mb-0">Progress (%)</span>
