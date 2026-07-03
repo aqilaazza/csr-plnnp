@@ -294,6 +294,9 @@
                                         <span class="fw-semibold mb-0">PIC</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
+                                         <span class="fw-semibold mb-0">CP</span>
+                                    </th>
+                                    <th style="white-space: nowrap;" class="nowrap">
                                         <span class="fw-semibold mb-0">Proses</span>
                                     </th>
                                     <th class="berkas-checklist">
@@ -368,6 +371,9 @@
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->namaPic->nama ?? '-' }}</p>
                                         </td>
+                                        <td>
+                                            <p class="mb-0 fw-normal">{{ $data->contact_person ?? '-' }}</p>
+                                        </td>   
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->tipeProses->nama ?? '-' }}</p>
                                         </td>
