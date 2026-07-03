@@ -253,6 +253,9 @@
                                         <span class="fw-semibold mb-0">Instansi</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
+                                        <span class="fw-semibold mb-0">Contact Person</span>
+                                    </th>
+                                    <th style="white-space: nowrap;" class="nowrap">
                                         <span class="fw-semibold mb-0">Lokasi</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
@@ -313,6 +316,9 @@
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->instansi_pengajuan }}</p>
+                                        </td>
+                                        <td>
+                                            <p class="mb-0 fw-normal">{{ $data->contact_person ?? '-' }}</p>
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">
@@ -495,19 +501,19 @@
 
                 const table = $('#proposalTable').DataTable();
 
-                table.column(11).search(pic);
-                table.column(7).search(tipologi);
+                table.column(12).search(pic);
+                table.column(8).search(tipologi);
 
                 // Filter progress
                 if (progressFilter) {
-                    table.column(15).search('^' + progressFilter + '$', true, false);
+                    table.column(16).search('^' + progressFilter + '$', true, false);
                 } else {
                     table.column(15).search('', true, false);
                 }
 
                 // Filter tahun pada kolom tanggal (index 4)
                 if (tahun) {
-                    table.column(4).search(tahun);
+                    table.column(5).search(tahun);
                 } else {
                     table.column(4).search('');
                 }
