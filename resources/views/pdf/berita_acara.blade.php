@@ -188,7 +188,7 @@
         {{ $nomorBeritaAcara }}
     </p>
 
-    <p class="tight-bottom">Pada hari ini {{ \App\Helpers\DateHelper::tanggalTerbilang() }}, yang bertanda tangan dibawah
+    <p class="tight-bottom">Pada hari ini {{ \App\Helpers\DateHelper::tanggalTerbilang() }}, yang bertanda tangan di bawah
         ini:
     </p>
 
