@@ -22,7 +22,7 @@ class BeritaAcaraController extends Controller
     }
 
 
-public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'proposal_id' => 'required|exists:proposal,id',
@@ -42,15 +42,18 @@ public function store(Request $request)
 
         // ======== GENERATE NOMOR SURAT PERMANEN =========
 
-        // Ambil nomor terakhir
-        $last = BeritaAcara::orderBy('id', 'desc')->first();
-        $nextNumber = $last ? $last->id + 1 : 1;
+        // Ambil tahun saat ini
+        $tahun = now()->format('Y');
+
+        $lastNumber = BeritaAcara::whereYear('created_at', $tahun)
+            ->get()
+            ->map(fn($item) => (int) explode('.', $item->nomor_surat)[0])
+            ->max();
+
+        $nextNumber = $lastNumber ? $lastNumber + 1 : 1;
 
         // 3 digit nomor
         $no3Digit = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-
-        // Tahun sekarang (tahun file dibuat)
-        $tahun = now()->format('Y');
 
         // Format nomor surat
         $nomorSurat = "{$no3Digit}.BA.KESP/076/UPPTN/{$tahun}";
@@ -63,7 +66,7 @@ public function store(Request $request)
             'nama_penerima' => $request->nama_penerima,
             'jabatan_penerima' => $request->jabatan_penerima,
             'bantuan' => json_encode($bantuan),
-            'nomor_surat' => $nomorSurat,  
+            'nomor_surat' => $nomorSurat,
         ]);
 
         $bantuanArray = json_decode($beritaAcara->bantuan, true);
@@ -79,7 +82,7 @@ public function store(Request $request)
             'jumlah' => $bantuanArray['jumlah'],
             'namaBisnisSupport' => $namaBisnisSupport,
             'proposal' => $proposal,
-            'nomorBeritaAcara' => $nomorSurat    
+            'nomorBeritaAcara' => $nomorSurat
         ]);
 
         $pdfName = 'berita_acara_' . $beritaAcara->id . '.pdf';
@@ -101,9 +104,9 @@ public function store(Request $request)
         $namaBisnisSupport = $businessSupport ? $businessSupport->nama : 'Sukarno';
 
         return view('pdf.berita_acara', [
-            'data'   => $beritaAcara,
-            'bantuan'   => $bantuan,
-            'jenis'  => $bantuan['jenis'] ?? [],
+            'data' => $beritaAcara,
+            'bantuan' => $bantuan,
+            'jenis' => $bantuan['jenis'] ?? [],
             'jumlah' => $bantuan['jumlah'] ?? [],
             'namaBisnisSupport' => $namaBisnisSupport
         ]);
@@ -206,19 +209,19 @@ public function store(Request $request)
     }
 
     public function getBantuan($id)
-{
-    $beritaAcara = BeritaAcara::findOrFail($id);
-    $bantuanArray = json_decode($beritaAcara->bantuan, true) ?? ['jenis' => [], 'jumlah' => []];
+    {
+        $beritaAcara = BeritaAcara::findOrFail($id);
+        $bantuanArray = json_decode($beritaAcara->bantuan, true) ?? ['jenis' => [], 'jumlah' => []];
 
-    $data = [];
-    foreach ($bantuanArray['jenis'] as $i => $jenis) {
-        $data[] = [
-            'jenis_bantuan' => $jenis,
-            'jumlah_bantuan' => $bantuanArray['jumlah'][$i] ?? '',
-        ];
+        $data = [];
+        foreach ($bantuanArray['jenis'] as $i => $jenis) {
+            $data[] = [
+                'jenis_bantuan' => $jenis,
+                'jumlah_bantuan' => $bantuanArray['jumlah'][$i] ?? '',
+            ];
+        }
+
+        return response()->json($data);
     }
-
-    return response()->json($data);
-}
 
 }
