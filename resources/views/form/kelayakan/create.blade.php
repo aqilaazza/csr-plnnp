@@ -56,11 +56,20 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="tujuan" class="form-label">Tujuan</label>
-                            <textarea class="form-control @error('tujuan') is-invalid @enderror" id="tujuan" name="tujuan"
-                                required>{{ old('tujuan') }}</textarea>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Tujuan</label>
+                                <button type="button" id="btn-add-tujuan" class="btn btn-sm" style="background-color:#78C841; color:white;">
+                                    <i class="fas fa-plus me-1"></i> Tambah
+                                </button>
+                            </div>
+
+                            <div id="tujuan-list"></div>
+
+                            {{-- Hidden input yang benar2 dikirim ke server, digabung otomatis sebelum submit --}}
+                            <input type="hidden" name="tujuan" id="tujuan-hidden" value="{{ old('tujuan') }}">
+
                             @error('tujuan')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -188,6 +197,74 @@
 
             $('#select-proposal').on('select2:open', function() {
                 $('.select2-search__field').attr('placeholder', 'Ketik untuk mencari proposal...');
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            const $list = $('#tujuan-list');
+            const $hidden = $('#tujuan-hidden');
+
+            function renumberTujuan() {
+                $list.find('.tujuan-item').each(function(index) {
+                    $(this).find('.tujuan-number').text((index + 1) + '.');
+                });
+            }
+
+            function syncTujuanHidden() {
+                let combined = [];
+                $list.find('.tujuan-item textarea').each(function(index) {
+                    const val = $(this).val().trim();
+                    if (val !== '') {
+                        combined.push((index + 1) + '. ' + val);
+                    }
+                });
+                $hidden.val(combined.join('\n'));
+            }
+
+            function addTujuanRow(text = '') {
+                const row = $(`
+                    <div class="tujuan-item d-flex align-items-start gap-2 mb-2">
+                        <span class="tujuan-number fw-semibold pt-2" style="min-width: 24px;"></span>
+                        <textarea class="form-control" rows="2" placeholder="Tulis tujuan..."></textarea>
+                        <button type="button" class="btn btn-sm btn-light text-danger btn-remove-tujuan">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `);
+                row.find('textarea').val(text);
+                $list.append(row);
+                renumberTujuan();
+            }
+
+            // Isi ulang dari old('tujuan') kalau validasi gagal (format: "1. isi\n2. isi")
+            const oldTujuan = $hidden.val();
+            if (oldTujuan && oldTujuan.trim() !== '') {
+                const lines = oldTujuan.split('\n').filter(l => l.trim() !== '');
+                lines.forEach(line => {
+                    const cleaned = line.replace(/^\d+\.\s*/, '');
+                    addTujuanRow(cleaned);
+                });
+            } else {
+                addTujuanRow(); // minimal 1 box kosong saat pertama buka form
+            }
+
+            $('#btn-add-tujuan').on('click', function() {
+                addTujuanRow();
+            });
+
+            $list.on('click', '.btn-remove-tujuan', function() {
+                if ($list.find('.tujuan-item').length > 1) {
+                    $(this).closest('.tujuan-item').remove();
+                    renumberTujuan();
+                } else {
+                    $(this).closest('.tujuan-item').find('textarea').val('');
+                }
+            });
+
+            // Sinkronkan ke hidden input sebelum form disubmit
+            $('form').on('submit', function() {
+                syncTujuanHidden();
             });
         });
     </script>
