@@ -38,8 +38,9 @@ class ProposalController extends Controller
      */
     public function store(Request $request)
     {
-        // Ambil metode input
-        $metode = $request->metode_input;
+        // Wilayah manual ditentukan dari ada/tidaknya kabupaten_id (dropdown Wilayah)
+        // (dulu: $metode = $request->metode_input;)
+        $isManual = empty($request->kabupaten_id);
 
         // Validasi umum
         $rules = [
@@ -60,8 +61,8 @@ class ProposalController extends Controller
             'overdue'            => 'required|date',
         ];
 
-        if ($metode === 'auto') {
-            // Validasi untuk auto (dropdown)
+        if (!$isManual) {
+            // Validasi untuk wilayah dropdown (Kab. Probolinggo / Kota Probolinggo / Kab. Situbondo)
             $rules = array_merge($rules, [
                 'kabupaten_id'   => 'required',
                 'kabupaten_nama' => 'required|string',
@@ -71,7 +72,7 @@ class ProposalController extends Controller
                 'kelurahan_nama' => 'required|string',
             ]);
         } else {
-            // Validasi untuk manual (input)
+            // Validasi untuk wilayah "Kab. Lainnya" (input manual)
             $rules = array_merge($rules, [
                 'kabupaten_manual' => 'required|string|max:50',
                 'kecamatan_manual' => 'required|string|max:50',
@@ -93,7 +94,7 @@ class ProposalController extends Controller
             : preg_replace('/[^0-9]/', '', $request->nominal_disetujui);
 
         // Sesuaikan data wilayah
-        if ($metode === 'manual') {
+        if ($isManual) {
             $validated['kabupaten_id']   = null;
             $validated['kabupaten_nama'] = $request->kabupaten_manual;
             $validated['kecamatan_id']   = null;
@@ -148,8 +149,9 @@ class ProposalController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Cek metode input
-        $isAuto = $request->metode_input === 'auto';
+        // Wilayah dropdown ditentukan dari ada/tidaknya kabupaten_id
+        // (dulu: $isAuto = $request->metode_input === 'auto';)
+        $isAuto = !empty($request->kabupaten_id);
 
         // Validasi dasar
         $rules = [
@@ -170,7 +172,7 @@ class ProposalController extends Controller
         ];
 
         if ($isAuto) {
-            // Kalau auto → id + nama wajib
+            // Kalau pilih Wilayah dari dropdown → id + nama wajib
             $rules = array_merge($rules, [
                 'kabupaten_id'   => 'required|string',
                 'kabupaten_nama' => 'required|string',
@@ -180,7 +182,7 @@ class ProposalController extends Controller
                 'kelurahan_nama' => 'required|string',
             ]);
         } else {
-            // Kalau manual → id kosong, tapi nama wajib
+            // Kalau pilih "Kab. Lainnya" → id kosong, tapi nama wajib
             $rules = array_merge($rules, [
                 'kabupaten_manual' => 'required|string|max:255',
                 'kecamatan_manual' => 'required|string|max:255',
