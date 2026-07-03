@@ -1,370 +1,164 @@
 @extends('layouts.app')
-
-@section('title', 'Edit Form Kelayakan')
-
+@section('title', 'Edit Kelayakan')
 @section('content')
-
-<div class="container-fluid">
-
-    <div class="row mb-3">
-        <div class="col">
-            <h3 class="fw-bold">Edit Form Kelayakan</h3>
-            <p class="text-muted mb-0">
-                Perbarui informasi Form Kelayakan.
-            </p>
-        </div>
-    </div>
-
-    <div class="card shadow-sm">
-
-        <div class="card-header bg-light">
-            <h5 class="mb-0 fw-semibold">
-                Data Form Kelayakan
-            </h5>
-        </div>
-
-        <form action="{{ route('kelayakan.update', $kelayakan->id) }}" method="POST">
-
-            @csrf
-            @method('PUT')
-
-            <div class="card-body">
-
-                <div class="row">
-
-                    {{-- Proposal --}}
-                    <div class="col-lg-12 mb-4">
-
-                        <label class="form-label">
-                            Proposal
-                        </label>
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            value="{{ $kelayakan->proposal->judul }}"
-                            disabled>
-
+    <div class="row">
+        <div class="col-lg-12 d-flex align-items-stretch">
+            <div class="card w-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title fw-semibold mb-0">Edit Form Kelayakan</h5>
+                        <a href="{{ route('kelayakan.index') }}" class="btn bg-secondary-subtle text-dark">
+                            <i class="fas fa-arrow-left me-1"></i> Kembali
+                        </a>
                     </div>
 
-                    {{-- Dasar Pelaksanaan --}}
-                    <div class="col-lg-12 mb-4">
+                    <form method="POST" action="{{ route('kelayakan.update', $kelayakan->id) }}">
+                        @csrf
+                        @method('PUT')
 
-                        <label class="form-label">
-                            Dasar Pelaksanaan
-                        </label>
+                        <div class="mb-3">
+                            <label for="proposal" class="form-label">Proposal</label>
+                            <input type="text" class="form-control" id="proposal"
+                                value="{{ $kelayakan->proposal->judul ?? '-' }}" disabled>
+                        </div>
 
-                        <textarea
-                            id="dasar_pelaksanaan"
-                            name="dasar_pelaksanaan"
-                            rows="6"
-                            class="form-control @error('dasar_pelaksanaan') is-invalid @enderror"
-                            required>{{ old('dasar_pelaksanaan', $kelayakan->dasar_pelaksanaan) }}</textarea>
+                        <div class="mb-3">
+                            <label for="dasar_pelaksanaan" class="form-label">Dasar Pelaksanaan</label>
+                            <textarea class="form-control @error('dasar_pelaksanaan') is-invalid @enderror" id="dasar_pelaksanaan"
+                                name="dasar_pelaksanaan">{{ old('dasar_pelaksanaan', $kelayakan->dasar_pelaksanaan) }}</textarea>
+                            @error('dasar_pelaksanaan')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-                        @error('dasar_pelaksanaan')
-                            <div class="invalid-feedback">
-                                {{ $message }}
+                        <div class="mb-3">
+                            <label for="latar_belakang" class="form-label">Latar Belakang</label>
+                            <textarea class="form-control @error('latar_belakang') is-invalid @enderror" id="latar_belakang"
+                                name="latar_belakang">{{ old('latar_belakang', $kelayakan->latar_belakang) }}</textarea>
+                            @error('latar_belakang')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tujuan" class="form-label">Tujuan</label>
+                            <textarea class="form-control @error('tujuan') is-invalid @enderror" id="tujuan" name="tujuan">{{ old('tujuan', $kelayakan->tujuan) }}</textarea>
+                            @error('tujuan')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="indikator_lingkungan" class="form-label">Indikator Lingkungan</label>
+                            <textarea class="form-control" id="indikator_lingkungan" name="indikator_lingkungan">{{ old('indikator_lingkungan', $kelayakan->indikator_lingkungan) }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="indikator_sosial" class="form-label">Indikator Sosial</label>
+                            <textarea class="form-control" id="indikator_sosial" name="indikator_sosial">{{ old('indikator_sosial', $kelayakan->indikator_sosial) }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="jumlah_penerima_manfaat" class="form-label">Jumlah Penerima Manfaat</label>
+                            <input type="text" class="form-control" id="jumlah_penerima_manfaat"
+                                name="jumlah_penerima_manfaat"
+                                value="{{ old('jumlah_penerima_manfaat', $kelayakan->jumlah_penerima_manfaat) }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="jenis_stakeholder" class="form-label">Jenis Stakeholder</label>
+                            <textarea class="form-control" id="jenis_stakeholder" name="jenis_stakeholder">{{ old('jenis_stakeholder', $kelayakan->jenis_stakeholder) }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pejabat_instansi" class="form-label">Pejabat Instansi</label>
+                            <textarea class="form-control" id="pejabat_instansi" name="pejabat_instansi">{{ old('pejabat_instansi', $kelayakan->pejabat_instansi) }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="data_terdahulu" class="form-label">Data Terdahulu</label>
+                            <textarea class="form-control" id="data_terdahulu" name="data_terdahulu">{{ old('data_terdahulu', $kelayakan->data_terdahulu) }}</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="prioritas" class="form-label">Prioritas</label>
+                                <select name="prioritas" id="prioritas"
+                                    class="form-control @error('prioritas') is-invalid @enderror" required>
+                                    <option value="">-- Pilih Prioritas --</option>
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <option value="{{ $i }}"
+                                            {{ old('prioritas', $kelayakan->prioritas) == $i ? 'selected' : '' }}>
+                                            Prioritas {{ $i }}
+                                        </option>
+                                    @endfor
+                                </select>
+                                @error('prioritas')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                        @enderror
 
-                    </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dampak" class="form-label">Dampak</label>
+                                @php
+                                    $labelDampak = [
+                                        1 => 'Tidak ada dampak',
+                                        2 => 'Kecil',
+                                        3 => 'Sedang',
+                                        4 => 'Tinggi',
+                                        5 => 'Sangat Tinggi',
+                                    ];
+                                @endphp
+                                <select name="dampak" id="dampak"
+                                    class="form-control @error('dampak') is-invalid @enderror" required>
+                                    <option value="">-- Pilih Dampak --</option>
+                                    @foreach ($labelDampak as $val => $label)
+                                        <option value="{{ $val }}"
+                                            {{ old('dampak', $kelayakan->dampak) == $val ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('dampak')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
 
-                    {{-- Latar Belakang --}}
-                    <div class="col-lg-12 mb-4">
+                        <div class="mb-3">
+                            <label for="contact_person" class="form-label">Contact Person</label>
+                            <textarea class="form-control" id="contact_person" name="contact_person">{{ old('contact_person', $kelayakan->contact_person) }}</textarea>
+                        </div>
 
-                        <label class="form-label">
-                            Latar Belakang
-                        </label>
+                        <div class="mb-4">
+                            <label for="catatan_khusus" class="form-label">Catatan Khusus</label>
+                            <textarea class="form-control" id="catatan_khusus" name="catatan_khusus">{{ old('catatan_khusus', $kelayakan->catatan_khusus) }}</textarea>
+                        </div>
 
-                        <textarea
-                            id="latar_belakang"
-                            name="latar_belakang"
-                            rows="8"
-                            class="form-control @error('latar_belakang') is-invalid @enderror"
-                            required>{{ old('latar_belakang', $kelayakan->latar_belakang) }}</textarea>
+                        <div class="mb-4">
+                            <label class="form-label d-block">File PDF Saat Ini (Revisi {{ $kelayakan->revisi ?? '00' }})</label>
+                            @if ($kelayakan->file_pdf)
+                                <a href="{{ asset('storage/' . $kelayakan->file_pdf) }}" target="_blank">Lihat PDF</a>
+                            @else
+                                <span class="text-muted">Belum ada file</span>
+                            @endif
+                        </div>
 
-                    </div>
+                        <div class="alert alert-light border d-flex align-items-center gap-2 mb-4">
+                            <i class="fas fa-circle-info text-secondary"></i>
+                            <small class="mb-0">PDF akan dibuat ulang otomatis dan nomor revisi akan bertambah setelah
+                                data disimpan.</small>
+                        </div>
 
-                    {{-- Tujuan --}}
-                    <div class="col-lg-12 mb-4">
-
-                        <label class="form-label">
-                            Tujuan
-                        </label>
-
-                        <textarea
-                            id="tujuan"
-                            name="tujuan"
-                            rows="6"
-                            class="form-control @error('tujuan') is-invalid @enderror"
-                            required>{{ old('tujuan', $kelayakan->tujuan) }}</textarea>
-
-                    </div>
-
-                    {{-- Indikator Lingkungan --}}
-                    <div class="col-lg-6 mb-4">
-
-                        <label class="form-label">
-                            Indikator Lingkungan
-                        </label>
-
-                        <textarea
-                            id="indikator_lingkungan"
-                            name="indikator_lingkungan"
-                            rows="6"
-                            class="form-control">{{ old('indikator_lingkungan', $kelayakan->indikator_lingkungan) }}</textarea>
-
-                    </div>
-
-                    {{-- Indikator Sosial --}}
-                    <div class="col-lg-6 mb-4">
-
-                        <label class="form-label">
-                            Indikator Sosial
-                        </label>
-
-                        <textarea
-                            id="indikator_sosial"
-                            name="indikator_sosial"
-                            rows="6"
-                            class="form-control">{{ old('indikator_sosial', $kelayakan->indikator_sosial) }}</textarea>
-
-                    </div>
-
-                                        {{-- Jumlah Penerima Manfaat --}}
-                    <div class="col-lg-6 mb-4">
-
-                        <label class="form-label">
-                            Jumlah Penerima Manfaat
-                        </label>
-
-                        <input
-                            type="text"
-                            name="jumlah_penerima_manfaat"
-                            class="form-control @error('jumlah_penerima_manfaat') is-invalid @enderror"
-                            value="{{ old('jumlah_penerima_manfaat', $kelayakan->jumlah_penerima_manfaat) }}">
-
-                    </div>
-
-                    {{-- Prioritas --}}
-                    <div class="col-lg-3 mb-4">
-
-                        <label class="form-label">
-                            Prioritas
-                        </label>
-
-                        <select
-                            name="prioritas"
-                            class="form-select @error('prioritas') is-invalid @enderror"
-                            required>
-
-                            <option value="">-- Pilih Prioritas --</option>
-
-                            @for($i=1;$i<=5;$i++)
-                                <option
-                                    value="{{ $i }}"
-                                    {{ old('prioritas', $kelayakan->prioritas)==$i ? 'selected' : '' }}>
-                                    Prioritas {{ $i }}
-                                </option>
-                            @endfor
-
-                        </select>
-
-                    </div>
-
-                    {{-- Dampak --}}
-                    <div class="col-lg-3 mb-4">
-
-                        <label class="form-label">
-                            Dampak
-                        </label>
-
-                        <select
-                            name="dampak"
-                            class="form-select @error('dampak') is-invalid @enderror"
-                            required>
-
-                            <option value="">-- Pilih Dampak --</option>
-
-                            <option value="1" {{ old('dampak', $kelayakan->dampak)==1 ? 'selected':'' }}>
-                                Tidak Ada Dampak
-                            </option>
-
-                            <option value="2" {{ old('dampak', $kelayakan->dampak)==2 ? 'selected':'' }}>
-                                Kecil
-                            </option>
-
-                            <option value="3" {{ old('dampak', $kelayakan->dampak)==3 ? 'selected':'' }}>
-                                Sedang
-                            </option>
-
-                            <option value="4" {{ old('dampak', $kelayakan->dampak)==4 ? 'selected':'' }}>
-                                Tinggi
-                            </option>
-
-                            <option value="5" {{ old('dampak', $kelayakan->dampak)==5 ? 'selected':'' }}>
-                                Sangat Tinggi
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                    {{-- Jenis Stakeholder --}}
-                    <div class="col-lg-6 mb-4">
-
-                        <label class="form-label">
-                            Jenis Stakeholder
-                        </label>
-
-                        <textarea
-                            id="jenis_stakeholder"
-                            name="jenis_stakeholder"
-                            rows="5"
-                            class="form-control">{{ old('jenis_stakeholder', $kelayakan->jenis_stakeholder) }}</textarea>
-
-                    </div>
-
-                    {{-- Pejabat Instansi --}}
-                    <div class="col-lg-6 mb-4">
-
-                        <label class="form-label">
-                            Pejabat Instansi
-                        </label>
-
-                        <textarea
-                            id="pejabat_instansi"
-                            name="pejabat_instansi"
-                            rows="5"
-                            class="form-control">{{ old('pejabat_instansi', $kelayakan->pejabat_instansi) }}</textarea>
-
-                    </div>
-
-                    {{-- Data Terdahulu --}}
-                    <div class="col-lg-12 mb-4">
-
-                        <label class="form-label">
-                            Data Terdahulu
-                        </label>
-
-                        <textarea
-                            id="data_terdahulu"
-                            name="data_terdahulu"
-                            rows="6"
-                            class="form-control">{{ old('data_terdahulu', $kelayakan->data_terdahulu) }}</textarea>
-
-                    </div>
-
-                    {{-- Contact Person --}}
-                    <div class="col-lg-6 mb-4">
-
-                        <label class="form-label">
-                            Contact Person
-                        </label>
-
-                        <textarea
-                            id="contact_person"
-                            name="contact_person"
-                            rows="4"
-                            class="form-control">{{ old('contact_person', $kelayakan->contact_person) }}</textarea>
-
-                    </div>
-
-                    {{-- Catatan Khusus --}}
-                    <div class="col-lg-6 mb-4">
-
-                        <label class="form-label">
-                            Catatan Khusus
-                        </label>
-
-                        <textarea
-                            id="catatan_khusus"
-                            name="catatan_khusus"
-                            rows="4"
-                            class="form-control">{{ old('catatan_khusus', $kelayakan->catatan_khusus) }}</textarea>
-
-                    </div>
-
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ route('kelayakan.index') }}" class="btn bg-secondary-subtle text-dark">Batal</a>
+                            <button type="submit" style="background-color: #78C841; color: white;" class="btn">
+                                Simpan Perubahan &amp; Generate Ulang PDF
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
             </div>
-
-            <div class="card-footer text-end">
-
-                <a href="{{ route('kelayakan.index') }}"
-                    class="btn btn-secondary">
-                    Kembali
-                </a>
-
-                <button
-                    type="submit"
-                    class="btn"
-                    style="background-color:#78C841;color:white;">
-
-                    Simpan Perubahan
-
-                </button>
-
-            </div>
-
-        </form>
-
+        </div>
     </div>
-
-</div>
-
 @endsection
-
-@push('scripts')
-
-    {{-- CKEditor 5 --}}
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
-
-    <script>
-        const editors = [
-            'dasar_pelaksanaan',
-            'latar_belakang',
-            'tujuan',
-            'indikator_lingkungan',
-            'indikator_sosial',
-            'jenis_stakeholder',
-            'pejabat_instansi',
-            'data_terdahulu',
-            'contact_person',
-            'catatan_khusus'
-        ];
-
-        editors.forEach(function(id) {
-
-            const element = document.querySelector('#' + id);
-
-            if (!element) return;
-
-            ClassicEditor
-                .create(element, {
-                    toolbar: [
-                        'heading',
-                        '|',
-                        'bold',
-                        'italic',
-                        'underline',
-                        '|',
-                        'bulletedList',
-                        'numberedList',
-                        '|',
-                        'insertTable',
-                        'blockQuote',
-                        'link',
-                        '|',
-                        'undo',
-                        'redo'
-                    ]
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-
-        });
-    </script>
-
-@endpush
