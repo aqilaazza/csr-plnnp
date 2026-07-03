@@ -27,6 +27,39 @@
                                 </div>
 
                                 <div class="mb-3">
+                                    <label class="form-label">Kategori Instansi</label>
+                                    <select name="kategori_instansi"
+                                        class="form-select @error('kategori_instansi') is-invalid @enderror"
+                                        required>
+                                        <option value="">-- Pilih Kategori Instansi --</option>
+
+                                        <option value="Pemerintahan"
+                                            {{ old('kategori_instansi', $proposal->kategori_instansi) == 'Pemerintahan' ? 'selected' : '' }}>
+                                            Pemerintahan
+                                        </option>
+
+                                        <option value="APH"
+                                            {{ old('kategori_instansi', $proposal->kategori_instansi) == 'APH' ? 'selected' : '' }}>
+                                            APH (Polisi, Kejaksaan, Pengadilan)
+                                        </option>
+
+                                        <option value="TNI"
+                                            {{ old('kategori_instansi', $proposal->kategori_instansi) == 'TNI' ? 'selected' : '' }}>
+                                            TNI
+                                        </option>
+
+                                        <option value="Lembaga Masyarakat"
+                                            {{ old('kategori_instansi', $proposal->kategori_instansi) == 'Lembaga Masyarakat' ? 'selected' : '' }}>
+                                            Lembaga Masyarakat
+                                        </option>
+                                    </select>
+
+                                    @error('kategori_instansi')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
                                     <label class="form-label">Instansi Pengajuan</label>
                                     <input type="text"
                                         class="form-control @error('instansi_pengajuan') is-invalid @enderror"
@@ -44,92 +77,80 @@
                                         name="contact_person"
                                         value="{{ old('contact_person', $proposal->contact_person) }}"
                                         placeholder="Contoh: 081234567890"
+                                        inputmode="numeric"
+                                        minlength="10"
+                                        maxlength="15"
                                         required>
 
                                     @error('contact_person')
-                                        <div class="invalid-feedback">Contact Person</div>
+                                        <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
+                                {{-- ===================== WILAYAH (UPDATED) ===================== --}}
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Metode Input Wilayah</label>
-                                        <select id="metode_input" name="metode_input" class="form-select" required>
-                                            <option value="auto"
-                                                {{ old('metode_input', $proposal->kabupaten_id ? 'auto' : 'manual') == 'auto' ? 'selected' : '' }}>
-                                                Otomatis (Dropdown)
-                                            </option>
-                                            <option value="manual"
-                                                {{ old('metode_input', $proposal->kabupaten_id ? 'auto' : 'manual') == 'manual' ? 'selected' : '' }}>
-                                                Manual (Input)
-                                            </option>
+                                        <label class="form-label">Wilayah</label>
+                                        <select id="kabupaten"
+                                            class="form-select @error('kabupaten_id') is-invalid @enderror" required>
+                                            <option value="">-- Pilih Wilayah --</option>
+                                            <option value="3513" data-nama="Probolinggo">Kab. Probolinggo</option>
+                                            <option value="3574" data-nama="Kota Probolinggo">Kota Probolinggo</option>
+                                            <option value="3512" data-nama="Situbondo">Kab. Situbondo</option>
+                                            <option value="lainnya">Kab / Kota Lainnya</option>
                                         </select>
+                                        <input type="hidden" name="kabupaten_id" id="kabupaten_id"
+                                            value="{{ old('kabupaten_id', $proposal->kabupaten_id) }}">
+                                        <input type="hidden" name="kabupaten_nama" id="kabupaten_nama"
+                                            value="{{ old('kabupaten_nama', $proposal->kabupaten_nama) }}">
+                                        @error('kabupaten_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
-                                    <div id="wilayah_auto"
-                                        class="{{ old('metode_input', $proposal->kabupaten_id ? 'auto' : 'manual') == 'auto' ? '' : 'd-none' }}">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">Kabupaten / Kota</label>
-                                                <select id="kabupaten"
-                                                    class="form-select select2 @error('kabupaten_id') is-invalid @enderror"
-                                                    style="width: 100%">
-                                                    <option></option>
-                                                </select>
-                                                <input type="hidden" name="kabupaten_id" id="kabupaten_id"
-                                                    value="{{ old('kabupaten_id', $proposal->kabupaten_id) }}">
-                                                <input type="hidden" name="kabupaten_nama" id="kabupaten_nama"
-                                                    value="{{ old('kabupaten_nama', $proposal->kabupaten_nama) }}">
-                                                <div class="form-text">Pilih Kabupaten atau Kota sesuai wilayah pengajuan.
-                                                </div>
-                                                @error('kabupaten_id')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">Kecamatan</label>
-                                                <select id="kecamatan"
-                                                    class="form-select select2 @error('kecamatan_id') is-invalid @enderror"
-                                                    style="width: 100%">
-                                                    <option></option>
-                                                </select>
-                                                <input type="hidden" name="kecamatan_id" id="kecamatan_id"
-                                                    value="{{ old('kecamatan_id', $proposal->kecamatan_id) }}">
-                                                <input type="hidden" name="kecamatan_nama" id="kecamatan_nama"
-                                                    value="{{ old('kecamatan_nama', $proposal->kecamatan_nama) }}">
-                                                <div class="form-text">Pilih kecamatan sesuai dengan wilayah pengajuan yang
-                                                    berada
-                                                    di Kabupaten.</div>
-                                                @error('kecamatan_id')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">Kelurahan / Desa</label>
-                                                <select id="kelurahan"
-                                                    class="form-select select2 @error('kelurahan_id') is-invalid @enderror"
-                                                    style="width: 100%">
-                                                    <option></option>
-                                                </select>
-                                                <input type="hidden" name="kelurahan_id" id="kelurahan_id"
-                                                    value="{{ old('kelurahan_id', $proposal->kelurahan_id) }}">
-                                                <input type="hidden" name="kelurahan_nama" id="kelurahan_nama"
-                                                    value="{{ old('kelurahan_nama', $proposal->kelurahan_nama) }}">
-                                                <div class="form-text">Pilih kelurahan atau desa sesuai kecamatan terpilih.
-                                                </div>
-                                                @error('kelurahan_id')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
-                                <div id="wilayah_manual"
-                                    class="{{ old('metode_input', $proposal->kabupaten_id ? 'auto' : 'manual') == 'manual' ? '' : 'd-none' }}">
+
+                                <div id="wilayah_auto" class="d-none">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Kecamatan</label>
+                                            <select id="kecamatan"
+                                                class="form-select select2 @error('kecamatan_id') is-invalid @enderror"
+                                                style="width: 100%">
+                                                <option></option>
+                                            </select>
+                                            <input type="hidden" name="kecamatan_id" id="kecamatan_id"
+                                                value="{{ old('kecamatan_id', $proposal->kecamatan_id) }}">
+                                            <input type="hidden" name="kecamatan_nama" id="kecamatan_nama"
+                                                value="{{ old('kecamatan_nama', $proposal->kecamatan_nama) }}">
+                                            <div class="form-text">Pilih kecamatan sesuai dengan wilayah pengajuan yang
+                                                berada
+                                                di Kabupaten.</div>
+                                            @error('kecamatan_id')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Kelurahan / Desa</label>
+                                            <select id="kelurahan"
+                                                class="form-select select2 @error('kelurahan_id') is-invalid @enderror"
+                                                style="width: 100%">
+                                                <option></option>
+                                            </select>
+                                            <input type="hidden" name="kelurahan_id" id="kelurahan_id"
+                                                value="{{ old('kelurahan_id', $proposal->kelurahan_id) }}">
+                                            <input type="hidden" name="kelurahan_nama" id="kelurahan_nama"
+                                                value="{{ old('kelurahan_nama', $proposal->kelurahan_nama) }}">
+                                            <div class="form-text">Pilih kelurahan atau desa sesuai kecamatan terpilih.
+                                            </div>
+                                            @error('kelurahan_id')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="wilayah_manual" class="d-none">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Kabupaten / Kota</label>
@@ -153,9 +174,7 @@
                                         </div>
                                     </div>
                                 </div>
-
-
-
+                                {{-- ===================== END WILAYAH (UPDATED) ===================== --}}
 
 
                                 <div class="mb-3">
@@ -306,7 +325,7 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label class="form-label">Overdue</label>
+                                    <label class="form-label">Deadline</label>
                                     <input type="date" class="form-control @error('overdue') is-invalid @enderror"
                                         name="overdue" value="{{ old('overdue', $proposal->overdue) }}">
                                     @error('overdue')
@@ -326,24 +345,8 @@
 
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const metodeInput = document.getElementById('metode_input');
-                const wilayahAuto = document.getElementById('wilayah_auto');
-                const wilayahManual = document.getElementById('wilayah_manual');
 
-                metodeInput.addEventListener('change', function() {
-                    if (this.value === 'auto') {
-                        wilayahAuto.classList.remove('d-none');
-                        wilayahManual.classList.add('d-none');
-                    } else {
-                        wilayahAuto.classList.add('d-none');
-                        wilayahManual.classList.remove('d-none');
-                    }
-                });
-            });
-        </script>
-
+        {{-- FORMAT RUPIAH (unchanged) --}}
         <script>
             function formatRupiah(input) {
                 // Hapus karakter selain angka
@@ -373,22 +376,32 @@
             });
         </script>
 
+        {{-- ===================== CONTACT PERSON SCRIPT (UPDATED) ===================== --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const contactPerson = document.querySelector('input[name="contact_person"]');
 
+                if (contactPerson) {
+                    contactPerson.addEventListener('input', function () {
+                        // Hapus semua karakter selain angka saat user mengetik/paste
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                    });
+                }
+            });
+        </script>        
+
+        {{-- ===================== WILAYAH SCRIPT (UPDATED) ===================== --}}
         <script>
             $(document).ready(function() {
                 let kabupatenIdValue = "{{ old('kabupaten_id', $proposal->kabupaten_id) }}";
-                let kabupatenNamaValue = "{{ old('kabupaten_nama', $proposal->kabupaten_nama) }}";
                 let kecamatanIdValue = "{{ old('kecamatan_id', $proposal->kecamatan_id) }}";
                 let kecamatanNamaValue = "{{ old('kecamatan_nama', $proposal->kecamatan_nama) }}";
                 let kelurahanIdValue = "{{ old('kelurahan_id', $proposal->kelurahan_id) }}";
                 let kelurahanNamaValue = "{{ old('kelurahan_nama', $proposal->kelurahan_nama) }}";
 
-                // Init Select2
-                $('#kabupaten').select2({
-                    theme: 'bootstrap4',
-                    placeholder: '-- Pilih Kabupaten / Kota --',
-                    allowClear: true
-                });
+                const fixedIds = $('#kabupaten option').map(function() {
+                    return $(this).val();
+                }).get().filter(v => v && v !== 'lainnya');
 
                 $('#kecamatan').select2({
                     theme: 'bootstrap4',
@@ -402,45 +415,42 @@
                     allowClear: true
                 });
 
-                // Fetch Kabupaten
-                fetch('/kabupaten')
-                    .then(res => res.json())
-                    .then(data => {
-                        const kabSelect = $('#kabupaten');
-                        kabSelect.empty().append('<option></option>');
-
-                        data.forEach(item => {
-                            const option = new Option(item.name, item.id, false, item.id ==
-                                kabupatenIdValue);
-                            option.setAttribute('data-name', item.name);
-                            kabSelect.append(option);
-                        });
-
-                        if (kabupatenIdValue) {
-                            $('#kabupaten').val(kabupatenIdValue).trigger('change');
-                            $('#kabupaten_id').val(kabupatenIdValue);
-                            $('#kabupaten_nama').val(kabupatenNamaValue);
-                            fetchKecamatan(kabupatenIdValue, kecamatanIdValue);
-                        }
-                    });
+                // State awal saat halaman edit dimuat
+                if (kabupatenIdValue && fixedIds.includes(kabupatenIdValue)) {
+                    $('#kabupaten').val(kabupatenIdValue);
+                    $('#wilayah_auto').removeClass('d-none');
+                    fetchKecamatan(kabupatenIdValue, kecamatanIdValue);
+                } else if (kabupatenIdValue) {
+                    $('#kabupaten').val('lainnya');
+                    $('#wilayah_manual').removeClass('d-none');
+                }
 
                 $('#kabupaten').on('change', function() {
                     const selectedId = $(this).val();
-                    const selectedText = $(this).find("option:selected").text();
-
-                    $('#kabupaten_id').val(selectedId);
-                    $('#kabupaten_nama').val(selectedText);
+                    const selectedNama = $(this).find("option:selected").data('nama');
 
                     $('#kecamatan').empty().trigger('change');
                     $('#kelurahan').empty().trigger('change');
-
                     $('#kecamatan_id').val('');
                     $('#kecamatan_nama').val('');
                     $('#kelurahan_id').val('');
                     $('#kelurahan_nama').val('');
 
-                    if (selectedId) {
+                    $('#wilayah_auto').addClass('d-none');
+                    $('#wilayah_manual').addClass('d-none');
+
+                    if (selectedId === 'lainnya') {
+                        $('#kabupaten_id').val('');
+                        $('#kabupaten_nama').val('');
+                        $('#wilayah_manual').removeClass('d-none');
+                    } else if (selectedId) {
+                        $('#kabupaten_id').val(selectedId);
+                        $('#kabupaten_nama').val(selectedNama);
+                        $('#wilayah_auto').removeClass('d-none');
                         fetchKecamatan(selectedId);
+                    } else {
+                        $('#kabupaten_id').val('');
+                        $('#kabupaten_nama').val('');
                     }
                 });
 
@@ -483,7 +493,7 @@
                             });
 
                             if (selectedKecamatanId) {
-                                $('#kecamatan').val(selectedKecamatanId).trigger('change');
+                                $('#kecamatan').val(selectedKecamatanId).trigger('change.select2');
                                 $('#kecamatan_id').val(selectedKecamatanId);
                                 $('#kecamatan_nama').val(kecamatanNamaValue);
                                 fetchKelurahan(selectedKecamatanId, kelurahanIdValue);
@@ -506,7 +516,7 @@
                             });
 
                             if (selectedKelurahanId) {
-                                $('#kelurahan').val(selectedKelurahanId).trigger('change');
+                                $('#kelurahan').val(selectedKelurahanId).trigger('change.select2');
                                 $('#kelurahan_id').val(selectedKelurahanId);
                                 $('#kelurahan_nama').val(kelurahanNamaValue);
                             }
@@ -514,8 +524,9 @@
                 }
             });
         </script>
+        {{-- ===================== END WILAYAH SCRIPT (UPDATED) ===================== --}}
 
-        {{-- FORMAT RUPIAH --}}
+        {{-- FORMAT RUPIAH v2 (unchanged, dibiarkan sama seperti file asli meskipun terdapat bug "input is not defined") --}}
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const pengajuanInput = document.getElementById('nominal_pengajuan');

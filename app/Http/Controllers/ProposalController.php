@@ -38,14 +38,16 @@ class ProposalController extends Controller
      */
     public function store(Request $request)
     {
-        // Ambil metode input
-        $metode = $request->metode_input;
+        // Wilayah manual ditentukan dari ada/tidaknya kabupaten_id (dropdown Wilayah)
+        // (dulu: $metode = $request->metode_input;)
+        $isManual = empty($request->kabupaten_id);
 
         // Validasi umum
         $rules = [
             'judul'              => 'required|string|max:255',
+            'kategori_instansi' => 'required|in:Pemerintahan,APH,TNI,Lembaga Masyarakat',
             'instansi_pengajuan' => 'required|string|max:255',
-            'contact_person'     => 'required|string|max:20',
+            'contact_person' => 'required|regex:/^[0-9]+$/|min:10|max:15',
             'tanggal_disposisi'  => 'required|date',
             'nominal_pengajuan'  => 'nullable|string',
             'barang_pengajuan'   => 'nullable|string|max:255',
@@ -59,8 +61,8 @@ class ProposalController extends Controller
             'overdue'            => 'required|date',
         ];
 
-        if ($metode === 'auto') {
-            // Validasi untuk auto (dropdown)
+        if (!$isManual) {
+            // Validasi untuk wilayah dropdown (Kab. Probolinggo / Kota Probolinggo / Kab. Situbondo)
             $rules = array_merge($rules, [
                 'kabupaten_id'   => 'required',
                 'kabupaten_nama' => 'required|string',
@@ -70,7 +72,7 @@ class ProposalController extends Controller
                 'kelurahan_nama' => 'required|string',
             ]);
         } else {
-            // Validasi untuk manual (input)
+            // Validasi untuk wilayah "Kab. Lainnya" (input manual)
             $rules = array_merge($rules, [
                 'kabupaten_manual' => 'required|string|max:50',
                 'kecamatan_manual' => 'required|string|max:50',
@@ -78,7 +80,14 @@ class ProposalController extends Controller
             ]);
         }
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'contact_person.required' => 'Contact Person / No. HP Instansi wajib diisi.',
+            'contact_person.regex'    => 'Contact Person / No. HP Instansi hanya boleh berisi angka.',
+            'contact_person.min'      => 'Contact Person / No. HP Instansi minimal 10 digit.',
+            'contact_person.max'      => 'Contact Person / No. HP Instansi maksimal 15 digit.',
+        ];
+
+       $validated = $request->validate($rules, $messages);
 
         // Normalisasi nominal
         $validated['nominal_pengajuan'] =
@@ -92,7 +101,7 @@ class ProposalController extends Controller
             : preg_replace('/[^0-9]/', '', $request->nominal_disetujui);
 
         // Sesuaikan data wilayah
-        if ($metode === 'manual') {
+        if ($isManual) {
             $validated['kabupaten_id']   = null;
             $validated['kabupaten_nama'] = $request->kabupaten_manual;
             $validated['kecamatan_id']   = null;
@@ -147,14 +156,16 @@ class ProposalController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Cek metode input
-        $isAuto = $request->metode_input === 'auto';
+        // Wilayah dropdown ditentukan dari ada/tidaknya kabupaten_id
+        // (dulu: $isAuto = $request->metode_input === 'auto';)
+        $isAuto = !empty($request->kabupaten_id);
 
         // Validasi dasar
         $rules = [
             'judul'              => 'required|string|max:255',
+            'kategori_instansi' => 'required|in:Pemerintahan,APH,TNI,Lembaga Masyarakat',
             'instansi_pengajuan' => 'required|string|max:255',
-            'contact_person'     => 'required|string|max:20',
+            'contact_person' => 'required|regex:/^[0-9]+$/|min:10|max:15',
             'tanggal_disposisi'  => 'required|date',
             'nominal_pengajuan'  => 'nullable',
             'barang_pengajuan'   => 'nullable|string|max:255',
@@ -168,7 +179,7 @@ class ProposalController extends Controller
         ];
 
         if ($isAuto) {
-            // Kalau auto → id + nama wajib
+            // Kalau pilih Wilayah dari dropdown → id + nama wajib
             $rules = array_merge($rules, [
                 'kabupaten_id'   => 'required|string',
                 'kabupaten_nama' => 'required|string',
@@ -178,7 +189,7 @@ class ProposalController extends Controller
                 'kelurahan_nama' => 'required|string',
             ]);
         } else {
-            // Kalau manual → id kosong, tapi nama wajib
+            // Kalau pilih "Kab. Lainnya" → id kosong, tapi nama wajib
             $rules = array_merge($rules, [
                 'kabupaten_manual' => 'required|string|max:255',
                 'kecamatan_manual' => 'required|string|max:255',
@@ -186,7 +197,14 @@ class ProposalController extends Controller
             ]);
         }
 
-        $validated = $request->validate($rules);
+        $messages = [
+            'contact_person.required' => 'Contact Person / No. HP Instansi wajib diisi.',
+            'contact_person.regex'    => 'Contact Person / No. HP Instansi hanya boleh berisi angka.',
+            'contact_person.min'      => 'Contact Person / No. HP Instansi minimal 10 digit.',
+            'contact_person.max'      => 'Contact Person / No. HP Instansi maksimal 15 digit.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
         // Normalisasi nominal
         $validated['nominal_pengajuan'] = $request->nominal_pengajuan

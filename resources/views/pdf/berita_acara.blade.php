@@ -66,27 +66,20 @@
         }
 
         .tight-bottom {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            line-height: 1;
-            /* pastikan tidak ada space ekstra */
+            margin-bottom: 4px;
         }
 
         .tight-top {
-            margin-top: 0;
-            padding-top: 0;
-            line-height: 1;
+            margin-top: 4px;
         }
 
         .section p.indent {
-            margin: 0;
-            /* pastikan baris nama/jabatan juga rapat */
+            margin: 4px 0;
             line-height: 1.2;
         }
 
-        .spasi-atas {
+        .section p.spasi-atas {
             margin-top: 10px;
-            /* bisa 8px, 10px, atau sesuai kebutuhan */
         }
 
         .csr-list {
@@ -140,7 +133,7 @@
         }
 
         .section {
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .tabel-bantuan {
@@ -188,17 +181,17 @@
         {{ $nomorBeritaAcara }}
     </p>
 
-    <p class="tight-bottom">Pada hari ini {{ \App\Helpers\DateHelper::tanggalTerbilang() }}, yang bertanda tangan dibawah
+    <p class="tight-bottom">Pada hari ini {{ \App\Helpers\DateHelper::tanggalTerbilang() }}, yang bertanda tangan di bawah
         ini:
     </p>
 
     <div class="section tight-top">
         <p class="indent"><span class="label">Nama</span><span class="separator">:</span><span
                 class="value">{{ $namaBisnisSupport }}</span></p>
-        <p class="indent"><span class="label">Jabatan</span><span class="separator">:</span><span class="value">Manajer
+        <p class="indent"><span class="label">Jabatan</span><span class="separator">:</span><span class="value">Manager
                 Business Support</span></p>
 
-        <p>Dalam hal ini bertindak sebagai Manajer Business Support
+        <p>Dalam hal ini bertindak sebagai Manager Business Support
             <strong>PT PLN Nusantara Power UP Paiton</strong>,
             yang selanjutnya disebut <strong>PIHAK PERTAMA</strong>.
         </p>
