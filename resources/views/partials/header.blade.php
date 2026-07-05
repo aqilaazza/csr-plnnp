@@ -23,15 +23,14 @@
                         <i class="fas fa-bell fs-5"></i>
 
                         @if(isset($reminders) && $reminders->count())
-                            <span
-                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <span class="notification-badge">
                                 {{ $reminders->count() }}
                             </span>
                         @endif
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-end shadow"
-                        style="width:420px; max-height:500px; overflow:auto;">
+                        style="width:500px; max-height:500px; overflow:auto; ">
 
                         <div class="px-3 py-2 border-bottom">
                             <strong>Reminder</strong>
