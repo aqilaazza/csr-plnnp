@@ -41,7 +41,7 @@
 
                             @foreach($reminders as $reminder)
 
-                                <a href="{{ route('proposal.monitoring.show',$reminder['proposal_id']) }}"
+                                <a href="{{ route('monitoring.index', ['search' => $reminder['judul']]) }}"
                                     class="dropdown-item py-3">
 
                                     <div class="fw-semibold">
