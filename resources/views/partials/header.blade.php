@@ -15,7 +15,64 @@
 <li class="nav-item d-block d-md-none">
     <span class="fw-semibold text-dark">👋 Hai, {{ Auth::user()->nama }}</span>
 </li>
+                {{-- Notification --}}
+                <li class="nav-item dropdown me-3">
+                    <a class="nav-link position-relative" href="#" id="notificationDropdown"
+                        role="button" data-bs-toggle="dropdown">
 
+                        <i class="fas fa-bell fs-5"></i>
+
+                        @if(isset($reminders) && $reminders->count())
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ $reminders->count() }}
+                            </span>
+                        @endif
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-end shadow"
+                        style="width:420px; max-height:500px; overflow:auto;">
+
+                        <div class="px-3 py-2 border-bottom">
+                            <strong>Reminder</strong>
+                        </div>
+
+                        @if(isset($reminders) && $reminders->count())
+
+                            @foreach($reminders as $reminder)
+
+                                <a href="{{ route('proposal.monitoring.show',$reminder['proposal_id']) }}"
+                                    class="dropdown-item py-3">
+
+                                    <div class="fw-semibold">
+                                        Proposal "{{ $reminder['judul'] }}"
+                                    </div>
+
+                                    <small class="text-muted d-block">
+                                        Masih menunggu penyelesaian berkas
+                                        <b>{{ $reminder['berkas'] }}</b>.
+                                    </small>
+
+                                    <small class="text-muted">
+                                        Deadline
+                                        {{ \Carbon\Carbon::parse($reminder['deadline'])->format('d M Y') }}
+                                    </small>
+
+                                </a>
+
+                            @endforeach
+
+                        @else
+
+                            <div class="text-center text-muted py-4">
+                                Tidak ada reminder.
+                            </div>
+
+                        @endif
+
+                    </div>
+                </li>
+                
                 <li class="nav-item dropdown">
                     <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2"
                         data-bs-toggle="dropdown" aria-expanded="false">

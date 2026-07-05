@@ -36,33 +36,6 @@ class DashboardController extends Controller
     // Ambil data proposal yang difilter
     $proposal = $proposalQuery->get();
 
-    // REMINDER PROPOSAL
-    $reminders = collect();
-
-    foreach ($proposal as $item) {
-
-        // Proposal yang sudah selesai tidak perlu reminder
-        if (($item->progress ?? 0) >= 100) {
-            continue;
-        }
-
-        // Ambil checklist pertama yang belum dicentang
-        $nextChecklist = $item->checklist
-            ->sortBy('sub_proses_id')
-            ->firstWhere('is_checked', 0);
-
-        if (!$nextChecklist) {
-            continue;
-        }
-
-        $reminders->push([
-            'proposal_id' => $item->id,
-            'judul'       => $item->judul,
-            'berkas'      => $nextChecklist->subProses->nama_sub,
-            'deadline' => $item->overdue,
-        ]);
-    }
-
     $allNamaPics = DB::table('users')
         ->pluck('nama')
         ->toArray();
@@ -171,7 +144,6 @@ $persen = $foundProgress ? round($foundProgress->avg_progress) : 0;
         'picTable' => $picTable,
         'selectedNamaPic' => $selectedNamaPic,
         'allNamaPics' => $allNamaPics,
-        'reminders' => $reminders,
     ]);
 }
 
