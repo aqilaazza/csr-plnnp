@@ -41,7 +41,16 @@
                             @foreach($reminders as $reminder)
 
                                 <a href="{{ route('monitoring.index', ['search' => $reminder['judul']]) }}"
-                                    class="dropdown-item py-3">
+                                    class="dropdown-item reminder-item
+                                     @if($reminder['sisaHari'] == 2)
+                                        reminder-h2
+                                    @elseif($reminder['sisaHari'] == 1)
+                                        reminder-h1
+                                    @elseif($reminder['sisaHari'] == 0)
+                                        reminder-h0
+                                    @elseif($reminder['sisaHari'] < 0)
+                                        reminder-overdue
+                                    @endif">
 
                                     <div class="fw-semibold">
                                         Proposal "{{ $reminder['judul'] }}"
