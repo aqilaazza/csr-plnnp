@@ -49,14 +49,36 @@ class AppServiceProvider extends ServiceProvider
                 if (!$nextChecklist) {
                     continue;
                 }
+                
+                $deadline = Carbon::parse($item->overdue);
+                $sisaHari = Carbon::today()->diffInDays($deadline, false);
 
                 $reminders->push([
                     'proposal_id' => $item->id,
                     'judul'       => $item->judul,
                     'berkas'      => $nextChecklist->subProses->nama_sub,
-                    'deadline'    => $nextChecklist->deadline,
+                    'deadline'    => $item->overdue,
+                    'sisaHari'    => $sisaHari,
                 ]);
             }
+
+            $reminders = $reminders->sortBy(function ($item) {
+
+                // Tentukan prioritas
+                if ($item['sisaHari'] < 0) {
+                    $priority = 1; // Terlambat
+                } elseif ($item['sisaHari'] == 0) {
+                    $priority = 2; // Hari ini
+                } elseif ($item['sisaHari'] == 1) {
+                    $priority = 3; // H-1
+                } elseif ($item['sisaHari'] == 2) {
+                    $priority = 4; // H-2
+                } else {
+                    $priority = 5;
+                }
+
+                return [$priority, $item['sisaHari']];
+            })->values();
 
             $view->with('reminders', $reminders);
 
