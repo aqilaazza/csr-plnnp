@@ -321,9 +321,9 @@
         </div>
 
         <div class="data-row">
-            <div class="label">Jenis Stakeholder</div>
+            <div class="label">Kategori Stakeholder</div>
             <div class="separator">:</div>
-            <div class="value">{{ $data->jenis_stakeholder }}</div>
+            <div class="value">{{ $data->proposal->kategoriInstansi->nama ?? '-' }}</div>
         </div>
 
         <div class="data-row">
@@ -446,7 +446,7 @@
         <div class="data-row">
             <div class="label">Nilai Bantuan yang disetujui</div>
             <div class="separator">:</div>
-            <div class="value">Rp {{ number_format($data->proposal->nominal_pengajuan, 0, ',', '.') }}</div>
+            <div class="value">Rp {{ number_format($data->proposal->nominal_disetujui, 0, ',', '.') }}</div>
         </div>
 
         <div class="data-row">
