@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Exports\ProposalExport;
 use App\Models\Proposal;
+use App\Models\Kelayakan;
+use App\Services\KelayakanPdfService;
 use App\Models\KategoriInstansi;
 use App\Models\SubProses;
 use App\Models\TipeProses;
@@ -13,9 +15,12 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ProposalController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $pdfService;
+
+    public function __construct(KelayakanPdfService $pdfService)
+    {
+        $this->pdfService = $pdfService;
+    }
 
     public function index()
     {
@@ -129,18 +134,6 @@ class ProposalController extends Controller
         return redirect()->route('proposal.index')->with('success', 'Data proposal berhasil disimpan.');
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $proposal = Proposal::findOrFail($id);
@@ -152,9 +145,6 @@ class ProposalController extends Controller
         return view('proposal.pengajuan.edit', compact('proposal', 'tipologi', 'proses', 'kategoriInstansi'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         // Wilayah dropdown ditentukan dari ada/tidaknya kabupaten_id
@@ -230,7 +220,45 @@ class ProposalController extends Controller
 
         // Update proposal
         $proposal = Proposal::findOrFail($id);
+
+        // Simpan data yang diubah
+        $oldData = $proposal->only([
+            'judul',
+            'nominal_pengajuan',
+            'nominal_disetujui',
+            'barang_pengajuan',
+            'barang_disetujui',
+            'contact_person',
+            'kategori_instansi_id',
+        ]);
+
         $proposal->update($validated);
+
+        $newData = $proposal->fresh()->only([
+            'judul',
+            'nominal_pengajuan',
+            'nominal_disetujui',
+            'barang_pengajuan',
+            'barang_disetujui',
+            'contact_person',
+            'kategori_instansi_id',
+        ]);
+
+        if ($oldData != $newData) {
+
+            $kelayakan = Kelayakan::where('proposal_id', $proposal->id)->first();
+
+            if ($kelayakan) {
+
+                $kelayakan->update([
+                    'contact_person' => $proposal->contact_person,
+                    'jenis_stakeholder' => optional($proposal->kategoriInstansi)->nama,
+                ]);
+                
+                $this->pdfService->generate($kelayakan);
+            }
+
+        }
 
         return redirect()->route('proposal.index')->with('success', 'Data proposal berhasil diperbarui.');
     }
