@@ -4,6 +4,13 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css"
         rel="stylesheet" />
+    <style>
+        /* Field yang datanya otomatis diambil dari Proposal - dibekukan (readonly) */
+        .field-locked {
+            background-color: #e9ecef !important;
+            cursor: not-allowed;
+        }
+    </style>
 @endpush
 @section('content')
     <div class="row">
@@ -20,6 +27,7 @@
                     <form method="POST" action="{{ route('kelayakan.store') }}">
                         @csrf
 
+                        {{-- 1. PILIH PROPOSAL --}}
                         <div class="mb-3">
                             <label class="form-label">Proposal</label>
                             <select name="proposal_id" id="select-proposal"
@@ -27,6 +35,14 @@
                                 <option value="">-- Pilih Proposal --</option>
                                 @foreach ($proposal as $item)
                                     <option value="{{ $item->id }}"
+                                        data-judul="{{ $item->judul }}"
+                                        data-tipologi="{{ $item->tipologi->deskripsi ?? '-' }}"
+                                        data-instansi="{{ $item->instansi_pengajuan }}"
+                                        data-kategori="{{ $item->kategoriInstansi->nama ?? '-' }}"
+                                        data-contact="{{ $item->contact_person ?? '-' }}"
+                                        data-bantuan="{{ $item->barang_pengajuan ?? '-' }}"
+                                        data-nominal="{{ $item->nominal_pengajuan ? number_format($item->nominal_pengajuan, 0, ',', '.') : '' }}"
+                                        data-nominal-disetujui="{{ $item->nominal_disetujui ? number_format($item->nominal_disetujui, 0, ',', '.') : '' }}"
                                         {{ old('proposal_id') == $item->id ? 'selected' : '' }}>
                                         {{ $item->judul }}
                                     </option>
@@ -37,6 +53,19 @@
                             @enderror
                         </div>
 
+                        {{-- 2. NAMA PROGRAM (otomatis dari Proposal->judul, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Nama Program</label>
+                            <input type="text" id="prev-judul" class="form-control field-locked" readonly tabindex="-1" value="-">
+                        </div>
+
+                        {{-- 3. TIPOLOGI (otomatis dari Proposal->tipologi, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Tipologi</label>
+                            <input type="text" id="prev-tipologi" class="form-control field-locked" readonly tabindex="-1" value="-">
+                        </div>
+
+                        {{-- 4. DASAR PELAKSANAAN (input user) --}}
                         <div class="mb-3">
                             <label for="dasar_pelaksanaan" class="form-label">Dasar Pelaksanaan</label>
                             <textarea class="form-control @error('dasar_pelaksanaan') is-invalid @enderror" id="dasar_pelaksanaan"
@@ -46,6 +75,7 @@
                             @enderror
                         </div>
 
+                        {{-- 5. LATAR BELAKANG (input user) --}}
                         <div class="mb-3">
                             <label for="latar_belakang" class="form-label">Latar Belakang</label>
                             <textarea class="form-control @error('latar_belakang') is-invalid @enderror" id="latar_belakang"
@@ -55,6 +85,7 @@
                             @enderror
                         </div>
 
+                        {{-- 6. TUJUAN (input user, dynamic list) --}}
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label mb-0">Tujuan</label>
@@ -65,7 +96,6 @@
 
                             <div id="tujuan-list"></div>
 
-                            {{-- Hidden input yang benar2 dikirim ke server, digabung otomatis sebelum submit --}}
                             <input type="hidden" name="tujuan" id="tujuan-hidden" value="{{ old('tujuan') }}">
 
                             @error('tujuan')
@@ -73,30 +103,59 @@
                             @enderror
                         </div>
 
+                        {{-- 7. INDIKATOR LINGKUNGAN (input user) --}}
                         <div class="mb-3">
                             <label for="indikator_lingkungan" class="form-label">Indikator Lingkungan</label>
                             <textarea class="form-control" id="indikator_lingkungan" name="indikator_lingkungan">{{ old('indikator_lingkungan') }}</textarea>
                         </div>
 
+                        {{-- 8. INDIKATOR SOSIAL (input user) --}}
                         <div class="mb-3">
                             <label for="indikator_sosial" class="form-label">Indikator Sosial</label>
                             <textarea class="form-control" id="indikator_sosial" name="indikator_sosial">{{ old('indikator_sosial') }}</textarea>
                         </div>
 
+                        {{-- 9. JUMLAH PENERIMA MANFAAT (input user) --}}
                         <div class="mb-3">
                             <label for="jumlah_penerima_manfaat" class="form-label">Jumlah Penerima Manfaat</label>
                             <input type="text" class="form-control" name="jumlah_penerima_manfaat"
                                 id="jumlah_penerima_manfaat" value="{{ old('jumlah_penerima_manfaat') }}">
                         </div>
 
+                        {{-- 10. ASAL INSTANSI (otomatis dari Proposal->instansi_pengajuan, dibekukan) --}}
                         <div class="mb-3">
-                            <label for="jenis_stakeholder" class="form-label">Jenis Stakeholder</label>
-                            <textarea class="form-control" id="jenis_stakeholder" name="jenis_stakeholder">{{ old('jenis_stakeholder') }}</textarea>
+                            <label class="form-label">Asal Instansi</label>
+                            <input type="text" id="prev-instansi" class="form-control field-locked" readonly tabindex="-1" value="-">
                         </div>
 
+                        {{-- CONTACT PERSON (otomatis dari Proposal, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Contact Person</label>
+                            <input type="text" id="prev-contact" class="form-control field-locked" readonly tabindex="-1" value="-">
+                        </div>
+
+                        {{-- 11. KATEGORI STAKEHOLDER (otomatis dari Proposal->kategori_instansi, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Kategori Stakeholder</label>
+                            <input type="text" id="prev-kategori" class="form-control field-locked" readonly tabindex="-1" value="-">
+                        </div>
+
+                        {{-- 12. PEJABAT INSTANSI / MENGETAHUI (input user) --}}
                         <div class="mb-3">
                             <label for="pejabat_instansi" class="form-label">Pejabat Instansi</label>
                             <textarea class="form-control" id="pejabat_instansi" name="pejabat_instansi">{{ old('pejabat_instansi') }}</textarea>
+                        </div>
+
+                        {{-- 13. BANTUAN YANG DIAJUKAN (otomatis dari Proposal, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Bantuan yang Diajukan</label>
+                            <input type="text" id="prev-bantuan" class="form-control field-locked" readonly tabindex="-1" value="-">
+                        </div>
+
+                        {{-- NOMINAL DISETUJUI (otomatis dari Proposal->nominal_disetujui, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Nominal Disetujui</label>
+                            <input type="text" id="prev-nominal-disetujui" class="form-control field-locked" readonly tabindex="-1" value="-">
                         </div>
 
                         <div class="mb-3">
@@ -110,16 +169,11 @@
                                 <select name="prioritas" id="prioritas"
                                     class="form-control @error('prioritas') is-invalid @enderror" required>
                                     <option value="">-- Pilih Prioritas --</option>
-                                    <option value="1" {{ old('prioritas') == 1 ? 'selected' : '' }}>Prioritas 1
-                                    </option>
-                                    <option value="2" {{ old('prioritas') == 2 ? 'selected' : '' }}>Prioritas 2
-                                    </option>
-                                    <option value="3" {{ old('prioritas') == 3 ? 'selected' : '' }}>Prioritas 3
-                                    </option>
-                                    <option value="4" {{ old('prioritas') == 4 ? 'selected' : '' }}>Prioritas 4
-                                    </option>
-                                    <option value="5" {{ old('prioritas') == 5 ? 'selected' : '' }}>Prioritas 5
-                                    </option>
+                                    <option value="1" {{ old('prioritas') == 1 ? 'selected' : '' }}>Prioritas 1</option>
+                                    <option value="2" {{ old('prioritas') == 2 ? 'selected' : '' }}>Prioritas 2</option>
+                                    <option value="3" {{ old('prioritas') == 3 ? 'selected' : '' }}>Prioritas 3</option>
+                                    <option value="4" {{ old('prioritas') == 4 ? 'selected' : '' }}>Prioritas 4</option>
+                                    <option value="5" {{ old('prioritas') == 5 ? 'selected' : '' }}>Prioritas 5</option>
                                 </select>
                                 @error('prioritas')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -131,23 +185,16 @@
                                 <select name="dampak" id="dampak"
                                     class="form-control @error('dampak') is-invalid @enderror" required>
                                     <option value="">-- Pilih Dampak --</option>
-                                    <option value="1" {{ old('dampak') == 1 ? 'selected' : '' }}>Tidak ada dampak
-                                    </option>
+                                    <option value="1" {{ old('dampak') == 1 ? 'selected' : '' }}>Tidak ada dampak</option>
                                     <option value="2" {{ old('dampak') == 2 ? 'selected' : '' }}>Kecil</option>
                                     <option value="3" {{ old('dampak') == 3 ? 'selected' : '' }}>Sedang</option>
                                     <option value="4" {{ old('dampak') == 4 ? 'selected' : '' }}>Tinggi</option>
-                                    <option value="5" {{ old('dampak') == 5 ? 'selected' : '' }}>Sangat Tinggi
-                                    </option>
+                                    <option value="5" {{ old('dampak') == 5 ? 'selected' : '' }}>Sangat Tinggi</option>
                                 </select>
                                 @error('dampak')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="contact_person" class="form-label">Contact Person</label>
-                            <textarea class="form-control" id="contact_person" name="contact_person">{{ old('contact_person') }}</textarea>
                         </div>
 
                         <div class="mb-4">
@@ -183,21 +230,42 @@
                 allowClear: true,
                 width: '100%',
                 language: {
-                    searching: function() {
-                        return "Mencari...";
-                    },
-                    inputTooShort: function() {
-                        return "Ketik untuk mencari proposal...";
-                    },
-                    noResults: function() {
-                        return "Tidak ada hasil ditemukan";
-                    }
+                    searching: function() { return "Mencari..."; },
+                    inputTooShort: function() { return "Ketik untuk mencari proposal..."; },
+                    noResults: function() { return "Tidak ada hasil ditemukan"; }
                 }
             });
 
             $('#select-proposal').on('select2:open', function() {
                 $('.select2-search__field').attr('placeholder', 'Ketik untuk mencari proposal...');
             });
+
+            // Isi field-field yang dibekukan (readonly) begitu proposal dipilih
+            function renderProposalPreview() {
+                const $selected = $('#select-proposal option:selected');
+
+                if (!$selected.val()) {
+                    $('#prev-judul, #prev-tipologi, #prev-instansi, #prev-kategori, #prev-contact, #prev-bantuan, #prev-nominal-disetujui').val('-');
+                    return;
+                }
+
+                $('#prev-judul').val($selected.data('judul') || '-');
+                $('#prev-tipologi').val($selected.data('tipologi') || '-');
+                $('#prev-instansi').val($selected.data('instansi') || '-');
+                $('#prev-kategori').val($selected.data('kategori') || '-');
+                $('#prev-contact').val($selected.data('contact') || '-');
+
+                const barang = $selected.data('bantuan') || '-';
+                const nominal = $selected.data('nominal');
+                const bantuanText = nominal ? `${barang} senilai Rp ${nominal}` : barang;
+                $('#prev-bantuan').val(bantuanText);
+
+                const nominalDisetujui = $selected.data('nominal-disetujui');
+                $('#prev-nominal-disetujui').val(nominalDisetujui ? `Rp ${nominalDisetujui}` : '-');
+            }
+
+            $('#select-proposal').on('change', renderProposalPreview);
+            renderProposalPreview(); // untuk kasus old('proposal_id') saat validasi gagal
         });
     </script>
     <script>
@@ -237,7 +305,6 @@
                 renumberTujuan();
             }
 
-            // Isi ulang dari old('tujuan') kalau validasi gagal (format: "1. isi\n2. isi")
             const oldTujuan = $hidden.val();
             if (oldTujuan && oldTujuan.trim() !== '') {
                 const lines = oldTujuan.split('\n').filter(l => l.trim() !== '');
@@ -246,7 +313,7 @@
                     addTujuanRow(cleaned);
                 });
             } else {
-                addTujuanRow(); // minimal 1 box kosong saat pertama buka form
+                addTujuanRow();
             }
 
             $('#btn-add-tujuan').on('click', function() {
@@ -262,7 +329,6 @@
                 }
             });
 
-            // Sinkronkan ke hidden input sebelum form disubmit
             $('form').on('submit', function() {
                 syncTujuanHidden();
             });
