@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\View;
 use App\Models\Proposal;
+use App\Models\Notification;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -60,6 +61,34 @@ class AppServiceProvider extends ServiceProvider
                     'deadline'    => $item->overdue,
                     'sisaHari'    => $sisaHari,
                 ]);
+
+                $type = null;
+
+                if ($sisaHari == 0) {
+                    $type = 'today';
+                } elseif ($sisaHari == 1) {
+                    $type = 'h1';
+                } elseif ($sisaHari == 2) {
+                    $type = 'h2';
+                } elseif ($sisaHari < 0) {
+                    $type = 'overdue';
+                }
+
+                if ($type) {
+
+                    Notification::firstOrCreate(
+                        [
+                            'proposal_id' => $item->id,
+                            'type' => $type,
+                        ],
+                        [
+                            'judul' => $item->judul,
+                            'berkas' => $nextChecklist->subProses->nama_sub,
+                            'deadline' => $item->overdue,
+                        ]
+                    );
+                }
+
             }
 
             $reminders = $reminders->sortBy(function ($item) {
@@ -88,9 +117,12 @@ class AppServiceProvider extends ServiceProvider
                 'other'    => $reminders->filter(fn ($r) => $r['sisaHari'] > 2)->values(),
             ];
 
+            $notifications = Notification::latest()->get();
+            
             $view->with([
                 'reminders' => $reminders,
                 'reminderGroups' => $reminderGroups,
+                'notifications' => $notifications,
             ]);
         });
     }
