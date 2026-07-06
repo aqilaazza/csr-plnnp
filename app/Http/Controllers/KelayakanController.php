@@ -330,6 +330,34 @@ $pdf->getDomPDF()->getCanvas()->page_script(function ($pageNumber, $pageCount, $
             ->with('success', 'Data kelayakan berhasil diperbarui dan PDF telah digenerate ulang.');
     }
 
+    public function uploadBerkas(Request $request, $id)
+    {
+        $request->validate([
+            'berkas_pdf' => 'required|mimes:pdf|max:5120', // maksimal 5 MB
+        ]);
+
+        $kelayakan = Kelayakan::findOrFail($id);
+
+        // Hapus file lama jika ada
+        if ($kelayakan->berkas_pdf && Storage::exists('public/' . $kelayakan->berkas_pdf)) {
+            Storage::delete('public/' . $kelayakan->berkas_pdf);
+        }
+
+        // Simpan file baru
+        $file = $request->file('berkas_pdf');
+        $namaFile = 'berkas_' . $kelayakan->id . '_' . time() . '.pdf';
+
+        $file->storeAs('public/berkas_kelayakan', $namaFile);
+
+        // Simpan path ke database
+        $kelayakan->update([
+            'berkas_pdf' => 'berkas_kelayakan/' . $namaFile
+        ]);
+
+        return redirect()->route('kelayakan.index')
+            ->with('success', 'Berkas berhasil diupload.');
+    }
+
     public function destroy($id)
     {
         $kelayakan = Kelayakan::findOrFail($id);

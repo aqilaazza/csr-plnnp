@@ -74,5 +74,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/business-support', [BusinessSupportController::class, 'update'])->name('business-support.update');
 
     Route::resource('kategori-instansi', KategoriInstansiController::class);
-
+    Route::post('/kelayakan/{id}/upload', [KelayakanController::class, 'uploadBerkas'])->name('kelayakan.upload');
+    Route::resource('proposal', ProposalController::class);
 });

@@ -246,6 +246,9 @@
                                         <span class="fw-semibold mb-0">Revisi</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
+                                        <span class="fw-semibold mb-0">Upload</span>
+                                    </th>
+                                    <th style="white-space: nowrap;" class="nowrap">
                                         <span class="fw-semibold mb-0">File</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
@@ -317,28 +320,48 @@
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->revisi ?? '00' }}</p>
                                         </td>
+
+                                        {{-- Upload Berkas --}}
                                         <td>
-                                            <p class="mb-0 fw-normal">
-                                                @if ($data->file_pdf)
-                                                    <a href="{{ asset('storage/' . $data->file_pdf) }}"
-                                                        target="_blank">Lihat PDF</a>
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </p>
+                                            @if($data->berkas_pdf)
+                                                <a href="{{ asset('storage/'.$data->berkas_pdf) }}" target="_blank">
+                                                    Lihat Berkas
+                                                </a>
+                                            @else
+                                                <a href="#"
+                                                class="btn-upload text-decoration-none"
+                                                data-id="{{ $data->id }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#uploadModal">
+                                                    Upload
+                                                </a>
+                                            @endif
                                         </td>
+
+                                        {{-- PDF Hasil --}}
+                                        <td>
+                                            @if ($data->file_pdf)
+                                                <a href="{{ asset('storage/'.$data->file_pdf) }}"
+                                                target="_blank">
+                                                    Lihat PDF
+                                                </a>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+
+                                        {{-- Aksi --}}
                                         <td>
                                             <div class="d-flex justify-content-center align-items-center gap-2">
-                                                {{-- Tombol Edit --}}
                                                 <a href="{{ route('kelayakan.edit', $data->id) }}"
                                                     class="btn btn-sm btn-light border-0 text-primary">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
 
-                                                {{-- Tombol Hapus --}}
                                                 <button type="button"
                                                     class="btn btn-sm btn-light border-0 text-danger btn-delete"
-                                                    data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#deleteModal"
                                                     data-id="{{ $data->id }}"
                                                     data-nama="{{ $data->proposal->judul ?? '-' }}">
                                                     <i class="fas fa-trash-alt"></i>
@@ -376,6 +399,51 @@
                         <button type="button" class="btn bg-secondary-subtle text-dark"
                             data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Upload Berkas -->
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadModalLabel">Upload Berkas PDF</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label class="form-label">Pilih File PDF</label>
+                            <input
+                                type="file"
+                                name="berkas_pdf"
+                                class="form-control"
+                                accept=".pdf"
+                                required>
+                        </div>
+
+                        <small class="text-muted">
+                            Maksimal ukuran file 5 MB.
+                        </small>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                            Batal
+                        </button>
+
+                        <button type="submit" class="btn btn-success">
+                            Upload
+                        </button>
                     </div>
                 </div>
             </form>
@@ -450,6 +518,16 @@
             $(document).on('click', '.btn-delete', function() {
                 $('#deleteDataName').text("Proposal: " + $(this).data('nama'));
                 $('#deleteForm').attr('action', '/kelayakan/' + $(this).data('id'));
+            });
+        </script>
+
+        {{-- UPLOAD MODAL --}}
+        <script>
+            $(document).on('click', '.btn-upload', function () {
+                let id = $(this).data('id');
+
+            $('#uploadForm').attr('action', '/kelayakan/' + id + '/upload');
+
             });
         </script>
 
