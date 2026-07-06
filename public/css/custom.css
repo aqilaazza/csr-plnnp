@@ -53,7 +53,7 @@
 }
 
 .reminder-h2 {
-    border-left: 5px solid #ffc107;
+    border-left: 5px solid #f5cd57;
     background-color: #fffdf2;
 }
 
@@ -84,4 +84,30 @@
 
 .reminder-item:hover {
     filter: brightness(98%);
+}
+
+.reminder-filter.active{
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+/* Button Hari Ini */
+.btn-orange {
+    background-color: #fd7e14;
+    border-color: #fd7e14;
+    color: #fff;
+}
+
+.btn-orange:hover {
+    background-color: #e96b00;
+    border-color: #e96b00;
+    color: #fff;
+}
+
+.btn-orange:focus,
+.btn-orange:active {
+    background-color: #d65f00 !important;
+    border-color: #d65f00 !important;
+    color: #fff !important;
+    box-shadow: none;
 }

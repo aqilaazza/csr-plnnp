@@ -59,6 +59,38 @@
     <script src="{{ asset('libs/simplebar/dist/simplebar.js') }}"></script>
     <script src="{{ asset('js/dashboard.js') }}"></script>
     @stack('scripts')
+    <script>
+        document.querySelectorAll('.reminder-filter').forEach(button => {
+
+        button.addEventListener('click', function(e) {
+
+            e.preventDefault();
+            e.stopPropagation(); // <-- ini yang penting
+
+            document.querySelectorAll('.reminder-filter').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            this.classList.add('active');
+
+            const filter = this.dataset.filter;
+
+            document.querySelectorAll('.reminder-item').forEach(item => {
+
+                if (filter === 'all') {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display =
+                        item.classList.contains(filter) ? 'block' : 'none';
+                }
+
+            });
+
+        });
+
+    });
+    </script>
+    @stack('scripts')
 </body>
 
 </html>
