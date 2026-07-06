@@ -273,27 +273,48 @@
             const $list = $('#tujuan-list');
             const $hidden = $('#tujuan-hidden');
 
+            // Angka hanya ditampilkan kalau item tujuan lebih dari 1
             function renumberTujuan() {
-                $list.find('.tujuan-item').each(function(index) {
-                    $(this).find('.tujuan-number').text((index + 1) + '.');
+                const $items = $list.find('.tujuan-item');
+                const total = $items.length;
+
+                $items.each(function(index) {
+                    const $number = $(this).find('.tujuan-number');
+                    if (total > 1) {
+                        $number.text((index + 1) + '.').removeClass('d-none');
+                    } else {
+                        $number.text('').addClass('d-none');
+                    }
                 });
             }
 
+            // Data yang disimpan ke hidden input mengikuti aturan yang sama:
+            // nomor hanya ditulis kalau jumlah tujuan lebih dari 1
             function syncTujuanHidden() {
-                let combined = [];
-                $list.find('.tujuan-item textarea').each(function(index) {
+                let values = [];
+                $list.find('.tujuan-item textarea').each(function() {
                     const val = $(this).val().trim();
                     if (val !== '') {
-                        combined.push((index + 1) + '. ' + val);
+                        values.push(val);
                     }
                 });
+
+                let combined;
+                if (values.length > 1) {
+                    combined = values.map((val, index) => (index + 1) + '. ' + val);
+                } else {
+                    combined = values;
+                }
+
                 $hidden.val(combined.join('\n'));
             }
 
             function addTujuanRow(text = '') {
+                // tujuan-number dan textarea disamakan padding-top-nya (0.375rem, sama dengan
+                // padding bawaan Bootstrap .form-control) supaya nomor sejajar lurus dengan baris pertama teks
                 const row = $(`
                     <div class="tujuan-item d-flex align-items-start gap-2 mb-2">
-                        <span class="tujuan-number fw-semibold pt-2" style="min-width: 24px;"></span>
+                        <span class="tujuan-number fw-semibold" style="min-width: 24px; padding-top: 0.375rem; line-height: 1.5;"></span>
                         <textarea class="form-control" rows="2" placeholder="Tulis tujuan..."></textarea>
                         <button type="button" class="btn btn-sm btn-light text-danger btn-remove-tujuan">
                             <i class="fas fa-trash-alt"></i>
