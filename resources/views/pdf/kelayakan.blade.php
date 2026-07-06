@@ -291,7 +291,29 @@
         <div class="data-row">
             <div class="label">Tujuan</div>
             <div class="separator">:</div>
-            <div class="value">{!! nl2br(e($data->tujuan)) !!}</div>
+            <div class="value">
+                @php $baris = explode("\n", $data->tujuan ?? ''); @endphp
+                <table style="width:100%; border-collapse: collapse;">
+                    @foreach($baris as $line)
+                        @php $line = trim($line); @endphp
+                        @if($line !== '')
+                            @php
+                                preg_match('/^(\d+[\.\)])\s*(.*)$/', $line, $m);
+                                $nomor = $m[1] ?? '';
+                                $isi = $m[2] ?? $line;
+                            @endphp
+                            <tr>
+                                @if($nomor !== '')
+                                    <td style="width:22px; vertical-align:top; padding:0; border:none;">{{ $nomor }}</td>
+                                    <td style="vertical-align:top; padding:0; border:none;">{{ $isi }}</td>
+                                @else
+                                    <td colspan="2" style="vertical-align:top; padding:0; border:none;">{{ $isi }}</td>
+                                @endif
+                            </tr>
+                        @endif
+                    @endforeach
+                </table>
+            </div>
         </div>
 
         <div class="data-row">
