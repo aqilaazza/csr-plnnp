@@ -17,122 +17,259 @@
 </li>
                 {{-- Notification --}}
                 <li class="nav-item dropdown me">
-                    <a class="nav-link position-relative" href="#" id="notificationDropdown"
-                        role="button" data-bs-toggle="dropdown">
+                    <a class="nav-link position-relative"
+                        href="#"
+                        id="notificationDropdown"
+                        role="button"
+                        data-bs-toggle="dropdown">
 
                         <i class="fas fa-bell fs-5"></i>
 
-                        @if(isset($reminders) && $reminders->count())
+                        @if($reminders->count())
                             <span class="notification-badge">
                                 {{ $reminders->count() }}
                             </span>
                         @endif
+
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-end shadow notification-menu">
-                        <div class="px-3 py-3 border-bottom d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0 fw-bold">
-                                    🔔 Reminder Proposal
-                                </h6>
-                                <small class="text-muted">
-                                    {{ $reminders->count() }} reminder aktif
-                                </small>
-                            </div>
+
+                        {{-- Header --}}
+                        <div class="px-3 py-3 border-bottom">
+                            <h6 class="fw-bold mb-0">
+                                🔔 Reminder Proposal
+                            </h6>
+
+                            <small class="text-muted">
+                                {{ $reminders->count() }} reminder aktif
+                            </small>
                         </div>
 
+                        {{-- Filter --}}
                         <div class="px-3 py-2 border-bottom">
+
                             <div class="d-flex flex-wrap gap-2">
 
-                                <button type="button"
+                                <button
                                     class="btn btn-sm btn-success reminder-filter active"
                                     data-filter="all">
                                     Semua ({{ $reminders->count() }})
                                 </button>
 
-                                <button type="button"
+                                <button
                                     class="btn btn-sm btn-orange reminder-filter"
                                     data-filter="today">
                                     Hari Ini ({{ $reminderGroups['today']->count() }})
                                 </button>
 
-                                <button type="button"
+                                <button
                                     class="btn btn-sm btn-danger reminder-filter"
                                     data-filter="h1">
                                     H-1 ({{ $reminderGroups['h1']->count() }})
                                 </button>
 
-                                <button type="button"
+                                <button
                                     class="btn btn-sm btn-warning text-dark reminder-filter"
                                     data-filter="h2">
                                     H-2 ({{ $reminderGroups['h2']->count() }})
                                 </button>
 
-                                <button type="button"
+                                <button
                                     class="btn btn-sm btn-secondary reminder-filter"
                                     data-filter="overdue">
                                     Terlambat ({{ $reminderGroups['overdue']->count() }})
                                 </button>
 
                             </div>
+
                         </div>
 
-                        @if(isset($reminders) && $reminders->count())
+                        {{-- Reminder Aktif --}}
+                        @forelse($reminders as $reminder)
 
-                            @foreach($reminders as $reminder)
-                                @php
-                                    $filterClass = '';
+                            @php
 
-                                    if ($reminder['sisaHari'] == 0) {
-                                        $filterClass = 'today';
-                                    } elseif ($reminder['sisaHari'] == 1) {
-                                        $filterClass = 'h1';
-                                    } elseif ($reminder['sisaHari'] == 2) {
-                                        $filterClass = 'h2';
-                                    } elseif ($reminder['sisaHari'] < 0) {
-                                        $filterClass = 'overdue';
-                                    }
-                                @endphp
+                                $filterClass='';
 
-                                <a href="{{ route('monitoring.index', ['search' => $reminder['judul']]) }}"
-                                    class="dropdown-item reminder-item {{ $filterClass }}
-                                    @if($reminder['sisaHari'] == 2)
-                                        reminder-h2
-                                    @elseif($reminder['sisaHari'] == 1)
-                                        reminder-h1
-                                    @elseif($reminder['sisaHari'] == 0)
-                                        reminder-h0
-                                    @elseif($reminder['sisaHari'] < 0)
-                                        reminder-overdue
-                                    @endif">
+                                if($reminder['sisaHari']==0){
+                                    $filterClass='today';
+                                }elseif($reminder['sisaHari']==1){
+                                    $filterClass='h1';
+                                }elseif($reminder['sisaHari']==2){
+                                    $filterClass='h2';
+                                }elseif($reminder['sisaHari']<0){
+                                    $filterClass='overdue';
+                                }
+
+                            @endphp
+
+                            <a href="{{ route('monitoring.index',['search'=>$reminder['judul']]) }}"
+                                class="dropdown-item reminder-item {{ $filterClass }}
+
+                                @if($reminder['sisaHari']==0)
+                                    reminder-h0
+                                @elseif($reminder['sisaHari']==1)
+                                    reminder-h1
+                                @elseif($reminder['sisaHari']==2)
+                                    reminder-h2
+                                @elseif($reminder['sisaHari']<0)
+                                    reminder-overdue
+                                @endif">
+
+                                <div class="fw-semibold">
+                                    Proposal "{{ $reminder['judul'] }}"
+                                </div>
+
+                                <small class="text-muted d-block">
+                                    Menunggu penyelesaian berkas
+                                    <b>{{ $reminder['berkas'] }}</b>
+                                </small>
+
+                                <small class="text-muted">
+                                    📅
+                                    {{ \Carbon\Carbon::parse($reminder['deadline'])->format('d M Y') }}
+                                </small>
+
+                            </a>
+
+                        @empty
+
+                            <div class="text-center py-4 text-muted">
+                                Tidak ada reminder aktif.
+                            </div>
+
+                        @endforelse
+
+
+                        {{-- ============================= --}}
+                        {{-- RIWAYAT NOTIFIKASI --}}
+                        {{-- ============================= --}}
+
+                        <hr class="my-2">
+
+                        <div class="px-3 py-2 bg-light fw-bold">
+                            Riwayat Notifikasi
+                        </div>
+
+                        @php
+
+                            $today = collect();
+                            $yesterday = collect();
+                            $thisWeek = collect();
+
+                            if(isset($notifications)){
+
+                                $today = $notifications->filter(fn($n)=>$n->created_at->isToday());
+
+                                $yesterday = $notifications->filter(fn($n)=>$n->created_at->isYesterday());
+
+                                $thisWeek = $notifications->filter(function($n){
+
+                                    return $n->created_at->between(
+                                        now()->startOfWeek(),
+                                        now()->endOfWeek()
+                                    )
+                                    && !$n->created_at->isToday()
+                                    && !$n->created_at->isYesterday();
+
+                                });
+
+                            }
+
+                        @endphp
+
+                        {{-- Hari Ini --}}
+                        @if($today->count())
+
+                            <div class="px-3 pt-3 pb-2 fw-bold text-secondary">
+                                Hari Ini
+                            </div>
+
+                            @foreach($today as $notif)
+
+                                <div class="dropdown-item">
 
                                     <div class="fw-semibold">
-                                        Proposal "{{ $reminder['judul'] }}"
+                                        {{ $notif->judul }}
                                     </div>
 
                                     <small class="text-muted d-block">
-                                        Masih menunggu penyelesaian berkas
-                                        <b>{{ $reminder['berkas'] }}</b>.
+                                        {{ $notif->berkas }}
                                     </small>
 
                                     <small class="text-muted">
-                                        📅 Deadline
-                                        {{ \Carbon\Carbon::parse($reminder['deadline'])->format('d M Y') }}
+                                        {{ $notif->created_at->diffForHumans() }}
                                     </small>
 
-                                </a>
+                                </div>
 
                             @endforeach
 
-                        @else
+                        @endif
 
-                            <div class="text-center text-muted py-4">
-                                Tidak ada reminder.
+
+                        {{-- Kemarin --}}
+                        @if($yesterday->count())
+
+                            <div class="px-3 pt-3 pb-2 fw-bold text-secondary">
+                                Kemarin
                             </div>
+
+                            @foreach($yesterday as $notif)
+
+                                <div class="dropdown-item">
+
+                                    <div class="fw-semibold">
+                                        🔔 {{ $notif->judul }}
+                                    </div>
+
+                                    <small class="text-muted d-block">
+                                        {{ $notif->berkas }}
+                                    </small>
+
+                                    <small class="text-muted">
+                                        {{ $notif->created_at->diffForHumans() }}
+                                    </small>
+
+                                </div>
+
+                            @endforeach
+
+                        @endif
+
+
+                        {{-- Minggu Ini --}}
+                        @if($thisWeek->count())
+
+                            <div class="px-3 pt-3 pb-2 fw-bold text-secondary">
+                                Minggu Ini
+                            </div>
+
+                            @foreach($thisWeek as $notif)
+
+                                <div class="dropdown-item">
+
+                                    <div class="fw-semibold">
+                                        🔔 {{ $notif->judul }}
+                                    </div>
+
+                                    <small class="text-muted d-block">
+                                        {{ $notif->berkas }}
+                                    </small>
+
+                                    <small class="text-muted">
+                                        {{ $notif->created_at->format('d M Y H:i') }}
+                                    </small>
+
+                                </div>
+
+                            @endforeach
 
                         @endif
 
                     </div>
+
                 </li>
                 
                 <li class="nav-item dropdown">
