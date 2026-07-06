@@ -1,5 +1,14 @@
 @extends('layouts.app')
 @section('title', 'Edit Kelayakan')
+@push('styles')
+    <style>
+        /* Field yang datanya otomatis diambil dari Proposal - dibekukan (readonly) */
+        .field-locked {
+            background-color: #e9ecef !important;
+            cursor: not-allowed;
+        }
+    </style>
+@endpush
 @section('content')
     <div class="row">
         <div class="col-lg-12 d-flex align-items-stretch">
@@ -16,12 +25,28 @@
                         @csrf
                         @method('PUT')
 
+                        {{-- 1. PROPOSAL (dibekukan, tidak bisa diganti saat edit) --}}
                         <div class="mb-3">
                             <label for="proposal" class="form-label">Proposal</label>
-                            <input type="text" class="form-control" id="proposal"
-                                value="{{ $kelayakan->proposal->judul ?? '-' }}" disabled>
+                            <input type="text" class="form-control field-locked" id="proposal"
+                                value="{{ $kelayakan->proposal->judul ?? '-' }}" readonly tabindex="-1">
                         </div>
 
+                        {{-- 2. NAMA PROGRAM (otomatis dari Proposal->judul, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Nama Program</label>
+                            <input type="text" class="form-control field-locked"
+                                value="{{ $kelayakan->proposal->judul ?? '-' }}" readonly tabindex="-1">
+                        </div>
+
+                        {{-- 3. TIPOLOGI (otomatis dari Proposal->tipologi, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Tipologi</label>
+                            <input type="text" class="form-control field-locked"
+                                value="{{ $kelayakan->proposal->tipologi->deskripsi ?? '-' }}" readonly tabindex="-1">
+                        </div>
+
+                        {{-- 4. DASAR PELAKSANAAN (input user) --}}
                         <div class="mb-3">
                             <label for="dasar_pelaksanaan" class="form-label">Dasar Pelaksanaan</label>
                             <textarea class="form-control @error('dasar_pelaksanaan') is-invalid @enderror" id="dasar_pelaksanaan"
@@ -31,6 +56,7 @@
                             @enderror
                         </div>
 
+                        {{-- 5. LATAR BELAKANG (input user) --}}
                         <div class="mb-3">
                             <label for="latar_belakang" class="form-label">Latar Belakang</label>
                             <textarea class="form-control @error('latar_belakang') is-invalid @enderror" id="latar_belakang"
@@ -40,24 +66,38 @@
                             @enderror
                         </div>
 
+                        {{-- 6. TUJUAN (input user, dynamic list, konsisten dengan form create) --}}
                         <div class="mb-3">
-                            <label for="tujuan" class="form-label">Tujuan</label>
-                            <textarea class="form-control @error('tujuan') is-invalid @enderror" id="tujuan" name="tujuan">{{ old('tujuan', $kelayakan->tujuan) }}</textarea>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Tujuan</label>
+                                <button type="button" id="btn-add-tujuan" class="btn btn-sm" style="background-color:#78C841; color:white;">
+                                    <i class="fas fa-plus me-1"></i> Tambah
+                                </button>
+                            </div>
+
+                            <div id="tujuan-list"></div>
+
+                            <input type="hidden" name="tujuan" id="tujuan-hidden"
+                                value="{{ old('tujuan', $kelayakan->tujuan) }}">
+
                             @error('tujuan')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
 
+                        {{-- 7. INDIKATOR LINGKUNGAN (input user) --}}
                         <div class="mb-3">
                             <label for="indikator_lingkungan" class="form-label">Indikator Lingkungan</label>
                             <textarea class="form-control" id="indikator_lingkungan" name="indikator_lingkungan">{{ old('indikator_lingkungan', $kelayakan->indikator_lingkungan) }}</textarea>
                         </div>
 
+                        {{-- 8. INDIKATOR SOSIAL (input user) --}}
                         <div class="mb-3">
                             <label for="indikator_sosial" class="form-label">Indikator Sosial</label>
                             <textarea class="form-control" id="indikator_sosial" name="indikator_sosial">{{ old('indikator_sosial', $kelayakan->indikator_sosial) }}</textarea>
                         </div>
 
+                        {{-- 9. JUMLAH PENERIMA MANFAAT (input user) --}}
                         <div class="mb-3">
                             <label for="jumlah_penerima_manfaat" class="form-label">Jumlah Penerima Manfaat</label>
                             <input type="text" class="form-control" id="jumlah_penerima_manfaat"
@@ -65,14 +105,57 @@
                                 value="{{ old('jumlah_penerima_manfaat', $kelayakan->jumlah_penerima_manfaat) }}">
                         </div>
 
+                        {{-- 10. ASAL INSTANSI (otomatis dari Proposal->instansi_pengajuan, dibekukan) --}}
                         <div class="mb-3">
-                            <label for="jenis_stakeholder" class="form-label">Jenis Stakeholder</label>
-                            <textarea class="form-control" id="jenis_stakeholder" name="jenis_stakeholder">{{ old('jenis_stakeholder', $kelayakan->jenis_stakeholder) }}</textarea>
+                            <label class="form-label">Asal Instansi</label>
+                            <input type="text" class="form-control field-locked"
+                                value="{{ $kelayakan->proposal->instansi_pengajuan ?? '-' }}" readonly tabindex="-1">
                         </div>
 
+                        {{-- CONTACT PERSON (otomatis dari Proposal, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Contact Person</label>
+                            <input type="text" class="form-control field-locked"
+                                value="{{ $kelayakan->contact_person ?? '-' }}" readonly tabindex="-1">
+                        </div>
+
+                        {{-- 11. KATEGORI STAKEHOLDER (otomatis dari Proposal->kategoriInstansi, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Kategori Stakeholder</label>
+                            <input type="text" class="form-control field-locked"
+                                value="{{ $kelayakan->proposal->kategoriInstansi->nama ?? $kelayakan->jenis_stakeholder ?? '-' }}"
+                                readonly tabindex="-1">
+                        </div>
+
+                        {{-- 12. PEJABAT INSTANSI / MENGETAHUI (input user) --}}
                         <div class="mb-3">
                             <label for="pejabat_instansi" class="form-label">Pejabat Instansi</label>
                             <textarea class="form-control" id="pejabat_instansi" name="pejabat_instansi">{{ old('pejabat_instansi', $kelayakan->pejabat_instansi) }}</textarea>
+                        </div>
+
+                        {{-- 13. BANTUAN YANG DIAJUKAN (otomatis dari Proposal, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Bantuan yang Diajukan</label>
+                            @php
+                                $barang = $kelayakan->proposal->barang_pengajuan ?? '-';
+                                $nominal = $kelayakan->proposal->nominal_pengajuan ?? null;
+                                $bantuanText = $nominal
+                                    ? $barang . ' senilai Rp ' . number_format($nominal, 0, ',', '.')
+                                    : $barang;
+                            @endphp
+                            <input type="text" class="form-control field-locked" value="{{ $bantuanText }}"
+                                readonly tabindex="-1">
+                        </div>
+
+                        {{-- NOMINAL DISETUJUI (otomatis dari Proposal->nominal_disetujui, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Nominal Disetujui</label>
+                            @php
+                                $nominalDisetujui = $kelayakan->proposal->nominal_disetujui ?? null;
+                            @endphp
+                            <input type="text" class="form-control field-locked"
+                                value="{{ $nominalDisetujui ? 'Rp ' . number_format($nominalDisetujui, 0, ',', '.') : '-' }}"
+                                readonly tabindex="-1">
                         </div>
 
                         <div class="mb-3">
@@ -125,11 +208,6 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="contact_person" class="form-label">Contact Person</label>
-                            <textarea class="form-control" id="contact_person" name="contact_person">{{ old('contact_person', $kelayakan->contact_person) }}</textarea>
-                        </div>
-
                         <div class="mb-4">
                             <label for="catatan_khusus" class="form-label">Catatan Khusus</label>
                             <textarea class="form-control" id="catatan_khusus" name="catatan_khusus">{{ old('catatan_khusus', $kelayakan->catatan_khusus) }}</textarea>
@@ -162,3 +240,74 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const $list = $('#tujuan-list');
+            const $hidden = $('#tujuan-hidden');
+
+            function renumberTujuan() {
+                $list.find('.tujuan-item').each(function(index) {
+                    $(this).find('.tujuan-number').text((index + 1) + '.');
+                });
+            }
+
+            function syncTujuanHidden() {
+                let combined = [];
+                $list.find('.tujuan-item textarea').each(function(index) {
+                    const val = $(this).val().trim();
+                    if (val !== '') {
+                        combined.push((index + 1) + '. ' + val);
+                    }
+                });
+                $hidden.val(combined.join('\n'));
+            }
+
+            function addTujuanRow(text = '') {
+                const row = $(`
+                    <div class="tujuan-item d-flex align-items-start gap-2 mb-2">
+                        <span class="tujuan-number fw-semibold pt-2" style="min-width: 24px;"></span>
+                        <textarea class="form-control" rows="2" placeholder="Tulis tujuan..."></textarea>
+                        <button type="button" class="btn btn-sm btn-light text-danger btn-remove-tujuan">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `);
+                row.find('textarea').val(text);
+                $list.append(row);
+                renumberTujuan();
+            }
+
+            // Isi ulang dari data tujuan yang sudah tersimpan (format: "1. isi\n2. isi")
+            const oldTujuan = $hidden.val();
+            if (oldTujuan && oldTujuan.trim() !== '') {
+                const lines = oldTujuan.split('\n').filter(l => l.trim() !== '');
+                lines.forEach(line => {
+                    const cleaned = line.replace(/^\d+\.\s*/, '');
+                    addTujuanRow(cleaned);
+                });
+            } else {
+                addTujuanRow();
+            }
+
+            $('#btn-add-tujuan').on('click', function() {
+                addTujuanRow();
+            });
+
+            $list.on('click', '.btn-remove-tujuan', function() {
+                if ($list.find('.tujuan-item').length > 1) {
+                    $(this).closest('.tujuan-item').remove();
+                    renumberTujuan();
+                } else {
+                    $(this).closest('.tujuan-item').find('textarea').val('');
+                }
+            });
+
+            $('form').on('submit', function() {
+                syncTujuanHidden();
+            });
+        });
+    </script>
+@endpush
