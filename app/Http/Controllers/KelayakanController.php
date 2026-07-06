@@ -221,8 +221,6 @@ $pdf->getDomPDF()->getCanvas()->page_script(function ($pageNumber, $pageCount, $
             'jenis_stakeholder' => $proposal?->kategoriInstansi?->nama,
             'pejabat_instansi' => $request->pejabat_instansi,
             'data_terdahulu' => $request->data_terdahulu,
-            // Tetap sinkron dengan proposal, bukan input manual
-            'contact_person' => $proposal?->contact_person,
             'catatan_khusus' => $request->catatan_khusus,
             'prioritas' => $request->prioritas,
             'dampak' => $request->dampak,

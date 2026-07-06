@@ -452,7 +452,7 @@
         <div class="data-row">
             <div class="label">Contact Person</div>
             <div class="separator">:</div>
-            <div class="value">{{ $data->contact_person }}</div>
+            <div class="value">{{ $data->proposal->contact_person }}</div>
         </div>
 
         <div class="data-row">
