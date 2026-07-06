@@ -58,14 +58,14 @@
     <script src="{{ asset('libs/apexcharts/dist/apexcharts.min.js') }}"></script>
     <script src="{{ asset('libs/simplebar/dist/simplebar.js') }}"></script>
     <script src="{{ asset('js/dashboard.js') }}"></script>
-    @stack('scripts')
+
     <script>
         document.querySelectorAll('.reminder-filter').forEach(button => {
 
         button.addEventListener('click', function(e) {
 
             e.preventDefault();
-            e.stopPropagation(); // <-- ini yang penting
+            e.stopPropagation();
 
             document.querySelectorAll('.reminder-filter').forEach(btn => {
                 btn.classList.remove('active');
@@ -81,13 +81,12 @@
                     item.style.display = 'block';
                 } else {
                     item.style.display =
-                        item.classList.contains(filter) ? 'block' : 'none';
+                    item.classList.contains(filter) ? 'block' : 'none';
                 }
 
             });
 
         });
-
     });
     </script>
     @stack('scripts')
