@@ -29,8 +29,7 @@
                         @endif
                     </a>
 
-                    <div class="dropdown-menu dropdown-menu-end shadow"
-                        style="width:560px; max-height:700px; overflow:auto; ">
+                    <div class="dropdown-menu dropdown-menu-end shadow notification-menu">
                         <div class="px-3 py-3 border-bottom d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-0 fw-bold">
