@@ -65,23 +65,33 @@ class AppServiceProvider extends ServiceProvider
             $reminders = $reminders->sortBy(function ($item) {
 
                 // Tentukan prioritas
-                if ($item['sisaHari'] < 0) {
-                    $priority = 1; // Terlambat
-                } elseif ($item['sisaHari'] == 0) {
-                    $priority = 2; // Hari ini
+                if ($item['sisaHari'] == 0) {
+                    $priority = 1; // Hari ini
                 } elseif ($item['sisaHari'] == 1) {
-                    $priority = 3; // H-1
+                    $priority = 2; // H-1
                 } elseif ($item['sisaHari'] == 2) {
-                    $priority = 4; // H-2
+                    $priority = 3; // H-2
+                } elseif ($item['sisaHari'] > 2) {
+                    $priority = 4; // DL jauh
                 } else {
-                    $priority = 5;
+                    $priority = 5; // Terlambat
                 }
 
-                return [$priority, $item['sisaHari']];
+                return [$priority, $item['deadline']];
             })->values();
 
-            $view->with('reminders', $reminders);
+            $reminderGroups = [
+                'today'    => $reminders->filter(fn ($r) => $r['sisaHari'] == 0)->values(),
+                'h1'       => $reminders->filter(fn ($r) => $r['sisaHari'] == 1)->values(),
+                'h2'       => $reminders->filter(fn ($r) => $r['sisaHari'] == 2)->values(),
+                'overdue'  => $reminders->filter(fn ($r) => $r['sisaHari'] < 0)->values(),
+                'other'    => $reminders->filter(fn ($r) => $r['sisaHari'] > 2)->values(),
+            ];
 
+            $view->with([
+                'reminders' => $reminders,
+                'reminderGroups' => $reminderGroups,
+            ]);
         });
     }
 }
