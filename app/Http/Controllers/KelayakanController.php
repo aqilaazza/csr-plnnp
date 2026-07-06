@@ -22,7 +22,8 @@ class KelayakanController extends Controller
 
     public function create()
     {
-        $proposal = Proposal::doesntHave('kelayakan')->get();
+        // Eager load tipologi & kategoriInstansi supaya bisa ditampilkan sebagai preview di form (mengikuti tampilan PDF)
+        $proposal = Proposal::with(['tipologi', 'kategoriInstansi'])->doesntHave('kelayakan')->get();
 
             return view('form.kelayakan.create', compact('proposal'));
     }
@@ -37,14 +38,17 @@ class KelayakanController extends Controller
         'indikator_lingkungan' => 'nullable|string',
         'indikator_sosial' => 'nullable|string',
         'jumlah_penerima_manfaat' => 'nullable|string|max:255',
-        'jenis_stakeholder' => 'nullable|string',
         'pejabat_instansi' => 'nullable|string',
         'data_terdahulu' => 'nullable|string',
-        'contact_person' => 'nullable|string',
+        // 'contact_person' dan 'jenis_stakeholder' TIDAK divalidasi/diinput dari form lagi,
+        // karena datanya diambil otomatis dari tabel proposal.
         'catatan_khusus' => 'nullable|string',
         'prioritas' => 'required|in:1,2,3,4,5',
         'dampak' => 'required|in:1,2,3,4,5',
     ]);
+
+        // Ambil proposal terkait untuk menarik data yang memang sumbernya dari proposal
+        $proposal = Proposal::findOrFail($request->proposal_id);
 
         // Simpan data ke database
         $kelayakan = Kelayakan::create([
@@ -55,9 +59,12 @@ class KelayakanController extends Controller
         'indikator_lingkungan' => $request->indikator_lingkungan,
         'indikator_sosial' => $request->indikator_sosial,
         'jumlah_penerima_manfaat' => $request->jumlah_penerima_manfaat,
-        'jenis_stakeholder' => $request->jenis_stakeholder,
+        // Kategori Stakeholder diambil dari relasi Proposal->kategoriInstansi, bukan input form
+        'jenis_stakeholder' => $proposal->kategoriInstansi->nama ?? null,
         'pejabat_instansi' => $request->pejabat_instansi, 
         'data_terdahulu' => $request->data_terdahulu,
+        // Contact person diambil dari data Proposal, bukan input form Kelayakan
+        'contact_person' => $proposal->contact_person,
         'catatan_khusus' => $request->catatan_khusus,
         'prioritas' => $request->prioritas,
         'dampak' => $request->dampak,
@@ -166,7 +173,7 @@ $pdf->getDomPDF()->getCanvas()->page_script(function ($pageNumber, $pageCount, $
 
     public function edit($id)
     {
-        $kelayakan = Kelayakan::with('proposal')->findOrFail($id);
+        $kelayakan = Kelayakan::with('proposal.tipologi', 'proposal.kategoriInstansi')->findOrFail($id);
 
         return view('form.kelayakan.edit', compact('kelayakan'));
     }
@@ -180,10 +187,8 @@ $pdf->getDomPDF()->getCanvas()->page_script(function ($pageNumber, $pageCount, $
         'indikator_lingkungan' => 'nullable|string',
         'indikator_sosial' => 'nullable|string',
         'jumlah_penerima_manfaat' => 'nullable|string|max:255',
-        'jenis_stakeholder' => 'nullable|string',
         'pejabat_instansi' => 'nullable|string',
         'data_terdahulu' => 'nullable|string',
-        'contact_person' => 'nullable|string',
         'catatan_khusus' => 'nullable|string',
         'prioritas' => 'required|in:1,2,3,4,5',
         'dampak' => 'required|in:1,2,3,4,5',
@@ -201,6 +206,9 @@ $pdf->getDomPDF()->getCanvas()->page_script(function ($pageNumber, $pageCount, $
         $kelayakan->increment('revisi');
         // $kelayakan->refresh();
 
+        // Ambil ulang data proposal terkait, jaga-jaga kalau contact_person / kategori_instansi di proposal berubah
+        $proposal = $kelayakan->proposal;
+
         // Update data di database
         $kelayakan->update([
             'dasar_pelaksanaan' => $request->dasar_pelaksanaan,
@@ -209,7 +217,8 @@ $pdf->getDomPDF()->getCanvas()->page_script(function ($pageNumber, $pageCount, $
             'indikator_lingkungan' => $request->indikator_lingkungan,
             'indikator_sosial' => $request->indikator_sosial,
             'jumlah_penerima_manfaat' => $request->jumlah_penerima_manfaat,
-            'jenis_stakeholder' => $request->jenis_stakeholder,
+            // Tetap sinkron dengan relasi kategoriInstansi proposal, bukan input manual
+            'jenis_stakeholder' => $proposal?->kategoriInstansi?->nama,
             'pejabat_instansi' => $request->pejabat_instansi,
             'data_terdahulu' => $request->data_terdahulu,
             'catatan_khusus' => $request->catatan_khusus,
