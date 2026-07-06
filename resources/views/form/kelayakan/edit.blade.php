@@ -213,15 +213,6 @@
                             <textarea class="form-control" id="catatan_khusus" name="catatan_khusus">{{ old('catatan_khusus', $kelayakan->catatan_khusus) }}</textarea>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label d-block">File PDF Saat Ini (Revisi {{ $kelayakan->revisi ?? '00' }})</label>
-                            @if ($kelayakan->file_pdf)
-                                <a href="{{ asset('storage/' . $kelayakan->file_pdf) }}" target="_blank">Lihat PDF</a>
-                            @else
-                                <span class="text-muted">Belum ada file</span>
-                            @endif
-                        </div>
-
                         <div class="alert alert-light border d-flex align-items-center gap-2 mb-4">
                             <i class="fas fa-circle-info text-secondary"></i>
                             <small class="mb-0">PDF akan dibuat ulang otomatis dan nomor revisi akan bertambah setelah
