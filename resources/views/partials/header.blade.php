@@ -16,7 +16,7 @@
     <span class="fw-semibold text-dark">👋 Hai, {{ Auth::user()->nama }}</span>
 </li>
                 {{-- Notification --}}
-                <li class="nav-item dropdown me-3">
+                <li class="nav-item dropdown me">
                     <a class="nav-link position-relative" href="#" id="notificationDropdown"
                         role="button" data-bs-toggle="dropdown">
 
@@ -30,19 +30,74 @@
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-end shadow"
-                        style="width:500px; max-height:500px; overflow:auto; ">
+                        style="width:560px; max-height:700px; overflow:auto; ">
+                        <div class="px-3 py-3 border-bottom d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0 fw-bold">
+                                    🔔 Reminder Proposal
+                                </h6>
+                                <small class="text-muted">
+                                    {{ $reminders->count() }} reminder aktif
+                                </small>
+                            </div>
+                        </div>
 
                         <div class="px-3 py-2 border-bottom">
-                            <strong>Reminder</strong>
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <button type="button"
+                                    class="btn btn-sm btn-success reminder-filter active"
+                                    data-filter="all">
+                                    Semua ({{ $reminders->count() }})
+                                </button>
+
+                                <button type="button"
+                                    class="btn btn-sm btn-orange reminder-filter"
+                                    data-filter="today">
+                                    Hari Ini ({{ $reminderGroups['today']->count() }})
+                                </button>
+
+                                <button type="button"
+                                    class="btn btn-sm btn-danger reminder-filter"
+                                    data-filter="h1">
+                                    H-1 ({{ $reminderGroups['h1']->count() }})
+                                </button>
+
+                                <button type="button"
+                                    class="btn btn-sm btn-warning text-dark reminder-filter"
+                                    data-filter="h2">
+                                    H-2 ({{ $reminderGroups['h2']->count() }})
+                                </button>
+
+                                <button type="button"
+                                    class="btn btn-sm btn-secondary reminder-filter"
+                                    data-filter="overdue">
+                                    Terlambat ({{ $reminderGroups['overdue']->count() }})
+                                </button>
+
+                            </div>
                         </div>
 
                         @if(isset($reminders) && $reminders->count())
 
                             @foreach($reminders as $reminder)
+                                @php
+                                    $filterClass = '';
+
+                                    if ($reminder['sisaHari'] == 0) {
+                                        $filterClass = 'today';
+                                    } elseif ($reminder['sisaHari'] == 1) {
+                                        $filterClass = 'h1';
+                                    } elseif ($reminder['sisaHari'] == 2) {
+                                        $filterClass = 'h2';
+                                    } elseif ($reminder['sisaHari'] < 0) {
+                                        $filterClass = 'overdue';
+                                    }
+                                @endphp
 
                                 <a href="{{ route('monitoring.index', ['search' => $reminder['judul']]) }}"
-                                    class="dropdown-item reminder-item
-                                     @if($reminder['sisaHari'] == 2)
+                                    class="dropdown-item reminder-item {{ $filterClass }}
+                                    @if($reminder['sisaHari'] == 2)
                                         reminder-h2
                                     @elseif($reminder['sisaHari'] == 1)
                                         reminder-h1
@@ -62,7 +117,7 @@
                                     </small>
 
                                     <small class="text-muted">
-                                        Deadline
+                                        📅 Deadline
                                         {{ \Carbon\Carbon::parse($reminder['deadline'])->format('d M Y') }}
                                     </small>
 
