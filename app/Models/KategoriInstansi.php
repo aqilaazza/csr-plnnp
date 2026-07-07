@@ -14,4 +14,9 @@ class KategoriInstansi extends Model
     {
         return $this->hasMany(Proposal::class, 'kategori_instansi_id');
     }
+
+    public function subInstansi()
+    {
+        return $this->hasMany(SubInstansi::class, 'kategori_instansi_id');
+    }
 }
