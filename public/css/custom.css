@@ -133,3 +133,17 @@
     padding-left: 24px;
     padding-right: 24px;
 }
+
+.notification-menu .reminder-item {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+}
+
+.notification-menu .reminder-item .fw-semibold {
+    font-size: 14px !important;
+    font-weight: 600;
+}
+
+.notification-menu .reminder-item small {
+    font-size: 12px !important;
+}
