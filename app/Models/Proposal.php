@@ -71,8 +71,8 @@ class Proposal extends Model
         return $this->hasMany(ProposalProsesChecklist::class);
     }
 
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class);
-    }
+    // public function notifications()
+    // {
+    //     return $this->hasMany(Notification::class);
+    // }
 }
