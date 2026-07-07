@@ -367,54 +367,43 @@
     <div class="section">
         <div class="page-break">
             <p><strong>Analisa Matriks</strong>:</p>
+            @php
+                $matriks = [
+                    1 => ['Sedang', 'Tinggi', 'Tinggi', 'Ekstreme', 'Ekstreme'],
+                    2 => ['Sedang', 'Sedang', 'Tinggi', 'Tinggi', 'Ekstreme'],
+                    3 => ['Sedang', 'Sedang', 'Sedang', 'Tinggi', 'Tinggi'],
+                    4 => ['Rendah', 'Rendah', 'Sedang', 'Sedang', 'Tinggi'],
+                    5 => ['Rendah', 'Rendah', 'Rendah', 'Sedang', 'Sedang'],
+                ];
+                $warna = [
+                    'Rendah'   => '#00b050',
+                    'Sedang'   => '#ffc000',
+                    'Tinggi'   => '#e36c09',
+                    'Ekstreme' => '#ff0000',
+                ];
+                $prioritasTerpilih = (int) $data->prioritas;
+                $dampakTerpilih = (int) $data->dampak;
+            @endphp
             <table class="table-matriks">
-                {{-- <thead>
-                <tr>
-                    <th>Prioritas</th>
-                    <th colspan="5">Nilai Dampak</th>
-                </tr>
-            </thead> --}}
                 <tbody>
-                    <tr>
-                        <td>Prioritas 1</td>
-                        <td style="background-color: #ffc000;">Sedang</td>
-                        <td style="background-color: #e36c09;">Tinggi</td>
-                        <td style="background-color: #e36c09;">Tinggi</td>
-                        <td style="background-color: #ff0000;">Ekstreme</td>
-                        <td style="background-color: #ff0000;">Ekstreme</td>
-                    </tr>
-                    <tr>
-                        <td>Prioritas 2</td>
-                        <td style="background-color: #ffc000;">Sedang</td>
-                        <td style="background-color: #ffc000;">Sedang</td>
-                        <td style="background-color: #e36c09;">Tinggi</td>
-                        <td style="background-color: #e36c09;">Tinggi</td>
-                        <td style="background-color: #ff0000;">Ekstreme</td>
-                    </tr>
-                    <tr>
-                        <td>Prioritas 3</td>
-                        <td style="background-color: #ffc000;">Sedang</td>
-                        <td style="background-color: #ffc000;">Sedang</td>
-                        <td style="background-color: #ffc000;">Sedang</td>
-                        <td style="background-color: #e36c09;">Tinggi</td>
-                        <td style="background-color: #e36c09;">Tinggi</td>
-                    </tr>
-                    <tr>
-                        <td>Prioritas 4</td>
-                        <td style="background-color: #00b050;">Rendah</td>
-                        <td style="background-color: #00b050;">Rendah</td>
-                        <td style="background-color: #ffc000;">Sedang</td>
-                        <td style="background-color: #ffc000;">Sedang</td>
-                        <td style="background-color: #e36c09;">Tinggi</td>
-                    </tr>
-                    <tr>
-                        <td>Prioritas 5</td>
-                        <td style="background-color: #00b050;">Rendah</td>
-                        <td style="background-color: #00b050;">Rendah</td>
-                        <td style="background-color: #00b050;">Rendah</td>
-                        <td style="background-color: #ffc000;">Sedang</td>
-                        <td style="background-color: #ffc000;">Sedang</td>
-                    </tr>
+                    @foreach($matriks as $prioritasRow => $kolom)
+                        <tr>
+                            <td>Prioritas {{ $prioritasRow }}</td>
+                            @foreach($kolom as $dampakIndex => $nilai)
+                                @php
+                                    $dampakCol = $dampakIndex + 1;
+                                    $isHighlight = ($prioritasRow == $prioritasTerpilih && $dampakCol == $dampakTerpilih);
+                                @endphp
+                                <td style="background-color: {{ $warna[$nilai] }}; padding: 5px;">
+                                    @if($isHighlight)
+                                        <span style="display: inline-block; border: 2px solid #000; border-radius: 50%; padding: 2px 12px;">{{ $nilai }}</span>
+                                    @else
+                                        {{ $nilai }}
+                                    @endif
+                                </td>
+                            @endforeach
+                        </tr>
+                    @endforeach
                     <tr>
                         <td></td>
                         <td style="width:80px; word-wrap: break-word; white-space: normal;">Tidak ada dampak</td>
