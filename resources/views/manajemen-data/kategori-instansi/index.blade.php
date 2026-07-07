@@ -15,6 +15,12 @@
             background-color: #66b638 !important;
             color: white !important;
         }
+
+        .badge-sub-instansi {
+            background-color: #e9f7e0;
+            color: #4a8c1c;
+            font-weight: 500;
+        }
     </style>
 @endpush
 @section('content')
@@ -40,6 +46,9 @@
                                         <h6 class="fw-semibold mb-0">Nama Kategori</h6>
                                     </th>
                                     <th>
+                                        <h6 class="fw-semibold mb-0">Sub Instansi</h6>
+                                    </th>
+                                    <th>
                                         <h6 class="fw-semibold mb-0">Jumlah Proposal</h6>
                                     </th>
                                     <th>
@@ -55,6 +64,13 @@
                                         </td>
                                         <td>
                                             <h6 class="fw-semibold mb-0">{{ $item->nama }}</h6>
+                                        </td>
+                                        <td>
+                                            @forelse ($item->subInstansi as $sub)
+                                                <span class="badge badge-sub-instansi me-1 mb-1">{{ $sub->nama }}</span>
+                                            @empty
+                                                <span class="text-muted">-</span>
+                                            @endforelse
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $item->proposal_count }}</p>
@@ -79,7 +95,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center">Belum ada data kategori instansi.</td>
+                                        <td colspan="5" class="text-center">Belum ada data kategori instansi.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
