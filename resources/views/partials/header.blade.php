@@ -127,7 +127,7 @@
                                 </small>
 
                                 <small class="text-muted">
-                                    📅
+                                    📅 Deadline
                                     {{ \Carbon\Carbon::parse($reminder['deadline'])->format('d M Y') }}
                                 </small>
 
@@ -140,133 +140,6 @@
                             </div>
 
                         @endforelse
-
-
-                        {{-- ============================= --}}
-                        {{-- RIWAYAT NOTIFIKASI --}}
-                        {{-- ============================= --}}
-
-                        <hr class="my-2">
-
-                        <div class="px-3 py-2 bg-light fw-bold">
-                            Riwayat Notifikasi
-                        </div>
-
-                        @php
-
-                            $today = collect();
-                            $yesterday = collect();
-                            $thisWeek = collect();
-
-                            if(isset($notifications)){
-
-                                $today = $notifications->filter(fn($n)=>$n->created_at->isToday());
-
-                                $yesterday = $notifications->filter(fn($n)=>$n->created_at->isYesterday());
-
-                                $thisWeek = $notifications->filter(function($n){
-
-                                    return $n->created_at->between(
-                                        now()->startOfWeek(),
-                                        now()->endOfWeek()
-                                    )
-                                    && !$n->created_at->isToday()
-                                    && !$n->created_at->isYesterday();
-
-                                });
-
-                            }
-
-                        @endphp
-
-                        {{-- Hari Ini --}}
-                        @if($today->count())
-
-                            <div class="px-3 pt-3 pb-2 fw-bold text-secondary">
-                                Hari Ini
-                            </div>
-
-                            @foreach($today as $notif)
-
-                                <div class="dropdown-item">
-
-                                    <div class="fw-semibold">
-                                        {{ $notif->judul }}
-                                    </div>
-
-                                    <small class="text-muted d-block">
-                                        {{ $notif->berkas }}
-                                    </small>
-
-                                    <small class="text-muted">
-                                        {{ $notif->created_at->diffForHumans() }}
-                                    </small>
-
-                                </div>
-
-                            @endforeach
-
-                        @endif
-
-
-                        {{-- Kemarin --}}
-                        @if($yesterday->count())
-
-                            <div class="px-3 pt-3 pb-2 fw-bold text-secondary">
-                                Kemarin
-                            </div>
-
-                            @foreach($yesterday as $notif)
-
-                                <div class="dropdown-item">
-
-                                    <div class="fw-semibold">
-                                        🔔 {{ $notif->judul }}
-                                    </div>
-
-                                    <small class="text-muted d-block">
-                                        {{ $notif->berkas }}
-                                    </small>
-
-                                    <small class="text-muted">
-                                        {{ $notif->created_at->diffForHumans() }}
-                                    </small>
-
-                                </div>
-
-                            @endforeach
-
-                        @endif
-
-
-                        {{-- Minggu Ini --}}
-                        @if($thisWeek->count())
-
-                            <div class="px-3 pt-3 pb-2 fw-bold text-secondary">
-                                Minggu Ini
-                            </div>
-
-                            @foreach($thisWeek as $notif)
-
-                                <div class="dropdown-item">
-
-                                    <div class="fw-semibold">
-                                        🔔 {{ $notif->judul }}
-                                    </div>
-
-                                    <small class="text-muted d-block">
-                                        {{ $notif->berkas }}
-                                    </small>
-
-                                    <small class="text-muted">
-                                        {{ $notif->created_at->format('d M Y H:i') }}
-                                    </small>
-
-                                </div>
-
-                            @endforeach
-
-                        @endif
 
                     </div>
 
