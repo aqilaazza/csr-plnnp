@@ -126,3 +126,10 @@
     word-break: break-word;
     overflow-wrap: anywhere;
 }
+
+.body-wrapper > .container-fluid {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 24px;
+    padding-right: 24px;
+}
