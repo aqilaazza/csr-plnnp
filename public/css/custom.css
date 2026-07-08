@@ -147,3 +147,26 @@
 .notification-menu .reminder-item small {
     font-size: 12px !important;
 }
+
+.proposal-highlight td{
+    background:#cdcdca !important;
+    transition:background .3s;
+}
+
+@keyframes blinkProposal{
+
+    0%{background:#cdcdca;}
+    50%{background:#ffe082;}
+    100%{background:#cdcdca;}
+
+}
+
+.dashboard-reminder{
+    transition: all .2s ease;
+    cursor: pointer;
+}
+
+.dashboard-reminder:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}

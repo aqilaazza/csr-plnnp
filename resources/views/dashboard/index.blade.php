@@ -225,7 +225,8 @@
                     }
                 @endphp
 
-                <div class="alert alert-{{ $badge }} d-flex justify-content-between align-items-center mb-2">
+                <a href="{{ route('monitoring.index', ['search' => $reminder['judul']]) }}"
+                    class="alert alert-{{ $badge }} dashboard-reminder d-flex justify-content-between align-items-center mb-2 text-decoration-none text-dark">
 
                     <div>
 
@@ -252,7 +253,7 @@
                         {{ $text }}
                     </span>
 
-                </div>
+                </a>
 
             @endforeach
 
