@@ -13,7 +13,8 @@ class BeritaAcaraController extends Controller
 {
     public function index()
     {
-        $beritaacara = BeritaAcara::all();
+        // TAMBAHAN: eager load relasi businessSupport biar nggak N+1 query pas ditampilkan di tabel
+        $beritaacara = BeritaAcara::with('businessSupport')->get();
 
         // Ambil hanya proposal yang belum punya berita acara
         $proposal = Proposal::doesntHave('beritaAcara')->get();
