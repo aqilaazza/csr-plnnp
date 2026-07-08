@@ -199,6 +199,69 @@
         </div>
     </div>
 
+        <!-- Reminder Proposal-->
+    @if($dashboardReminders->count())
+
+    <div class="card mb-4 border-warning">
+
+        <div class="card-header bg-warning text-dark fw-bold">
+            🔔 Reminder Proposal
+        </div>
+
+        <div class="card-body">
+
+            @foreach($dashboardReminders as $reminder)
+
+                @php
+                    if($reminder['sisaHari']==0){
+                        $badge='danger';
+                        $text='Hari Ini';
+                    }elseif($reminder['sisaHari']==1){
+                        $badge='warning';
+                        $text='H-1';
+                    }else{
+                        $badge='info';
+                        $text='H-2';
+                    }
+                @endphp
+
+                <div class="alert alert-{{ $badge }} d-flex justify-content-between align-items-center mb-2">
+
+                    <div>
+
+                        <div class="fw-semibold">
+                            Proposal
+                            {{ $reminder['judul'] }}
+                        </div>
+
+                        <small>
+                            Menunggu penyelesaian berkas
+                            <b>{{ $reminder['berkas'] }}</b>
+                        </small>
+
+                        <br>
+
+                        <small>
+                            📅 Deadline
+                            <b>{{ $reminder['deadline']->format('d M Y') }}</b>
+                        </small>
+
+                    </div>
+
+                    <span class="badge bg-dark">
+                        {{ $text }}
+                    </span>
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+    </div>
+
+    @endif
+
 @endsection
 
 @push('scripts')

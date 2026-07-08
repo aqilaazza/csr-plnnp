@@ -130,6 +130,42 @@ $persen = $foundProgress ? round($foundProgress->avg_progress) : 0;
         $picTable[] = $row;
     }
 
+    $dashboardReminders = collect();
+
+    foreach ($proposal as $item) {
+
+        // proposal selesai tidak perlu ditampilkan
+        if (($item->progress ?? 0) >= 100) {
+            continue;
+        }
+
+        $nextChecklist = $item->checklist
+            ->sortBy('sub_proses_id')
+            ->firstWhere('is_checked', 0);
+
+        if (!$nextChecklist) {
+            continue;
+        }
+
+        $deadline = \Carbon\Carbon::parse($item->overdue);
+        $sisaHari = now()->startOfDay()->diffInDays($deadline, false);
+
+        // hanya tampil H-2, H-1, Hari Ini
+        if ($sisaHari >= 0 && $sisaHari <= 2) {
+
+            $dashboardReminders->push([
+                'judul' => $item->judul,
+                'berkas' => $nextChecklist->subProses->nama_sub,
+                'deadline' => $deadline,
+                'sisaHari' => $sisaHari,
+            ]);
+        }
+    }
+
+    $dashboardReminders = $dashboardReminders
+        ->sortBy('sisaHari')
+        ->values();
+
     return view('dashboard.index', [
         'proposal' => $proposal,
         'jumlahPengajuan' => $jumlahPengajuan,
@@ -144,6 +180,7 @@ $persen = $foundProgress ? round($foundProgress->avg_progress) : 0;
         'picTable' => $picTable,
         'selectedNamaPic' => $selectedNamaPic,
         'allNamaPics' => $allNamaPics,
+        'dashboardReminders' => $dashboardReminders,
     ]);
 }
 
