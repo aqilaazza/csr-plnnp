@@ -38,7 +38,7 @@ class SatuanController extends Controller
             'nama' => $request->nama,
         ]);
 
-        return redirect()->back()->with('success', 'Satuan berhasil ditambahkan.');
+        return redirect()->route('satuan.index')->with('success', 'Jenis satuan berhasil ditambahkan!');
     }
 
     /**

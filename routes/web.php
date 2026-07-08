@@ -12,6 +12,7 @@ use App\Http\Controllers\TipologiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KelayakanController;
 use App\Http\Controllers\SubProsesController;
+use App\Http\Controllers\SatuanController;
 use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\TipeProsesController;
 use App\Http\Controllers\BeritaAcaraController;
@@ -77,4 +78,5 @@ Route::middleware('auth')->group(function () {
     Route::resource('kategori-instansi', KategoriInstansiController::class);
     Route::post('/kelayakan/{id}/upload', [KelayakanController::class, 'uploadBerkas'])->name('kelayakan.upload');
     Route::resource('proposal', ProposalController::class);
+    Route::resource('satuan', SatuanController::class);
 });
