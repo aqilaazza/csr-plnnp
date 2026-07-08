@@ -253,7 +253,10 @@
                                         <span class="fw-semibold mb-0">Kategori Instansi</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Instansi</span>
+                                        <span class="fw-semibold mb-0">Sub Instansi</span>
+                                    </th>
+                                    <th style="white-space: nowrap;" class="nowrap">
+                                        <span class="fw-semibold mb-0">Nama Instansi</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
                                         <span class="fw-semibold mb-0">Contact Person</span>
@@ -319,6 +322,9 @@
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->kategoriInstansi->nama ?? '-' }}</p>
+                                        </td>
+                                        <td>
+                                            <p class="mb-0 fw-normal">{{ $data->subInstansi->nama ?? '-' }}</p>
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->instansi_pengajuan }}</p>

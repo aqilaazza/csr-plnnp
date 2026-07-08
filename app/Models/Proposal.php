@@ -11,6 +11,7 @@ class Proposal extends Model
     protected $fillable = [
         'judul',
         'kategori_instansi_id',
+        'sub_instansi_id',
         'instansi_pengajuan',
         'contact_person',
         'kabupaten_id',
@@ -69,6 +70,11 @@ class Proposal extends Model
     public function checklist()
     {
         return $this->hasMany(ProposalProsesChecklist::class);
+    }
+
+    public function subInstansi()
+    {
+        return $this->belongsTo(SubInstansi::class, 'sub_instansi_id');
     }
 
     // public function notifications()
