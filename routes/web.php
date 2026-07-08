@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('berita-acara', BeritaAcaraController::class);
     Route::post('/berita-acara/{id}/upload', [BeritaAcaraController::class, 'uploadFile'])->name('berita-acara.upload');
     Route::get('/berita-acara/{id}/bantuan', [BeritaAcaraController::class, 'getBantuan']);
+    Route::get('/berita-acara/{id}/business-support', [BeritaAcaraController::class, 'getBusinessSupportInfo'])->name('berita-acara.business-support');
 
     Route::resource('kelayakan', KelayakanController::class);
     Route::resource('proposal', ProposalController::class);

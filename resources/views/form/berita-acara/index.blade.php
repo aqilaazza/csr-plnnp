@@ -1,4 +1,4 @@
- @extends('layouts.app')
+@extends('layouts.app')
  @section('title', 'CSR PLN Nusantara Power UP Paiton')
  @push('styles')
      <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
@@ -119,7 +119,9 @@
                                                      data-id="{{ $data->id }}"
                                                      data-proposal="{{ $data->proposal->judul }}"
                                                      data-nama="{{ $data->nama_penerima }}"
-                                                     data-jabatan="{{ $data->jabatan_penerima }}">
+                                                     data-jabatan="{{ $data->jabatan_penerima }}"
+                                                     data-business-support-id="{{ $data->business_support_id }}"
+                                                     data-bisnis-lainnya="{{ $data->bisnis_support_lainnya }}">
                                                      <i class="fas fa-edit"></i>
                                                  </button>
 
@@ -156,6 +158,26 @@
                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                      </div>
                      <div class="modal-body">
+                         {{-- TAMBAHAN: Dropdown Business Support (Edit) - dipindah ke paling atas --}}
+                         <div class="mb-3">
+                             <label for="edit-business_support_choice" class="form-label">Business Support</label>
+                             <select name="business_support_choice" id="edit-business_support_choice"
+                                 class="form-select" required>
+                                 <option value="">-- Pilih Business Support --</option>
+                                 @foreach ($businessSupport as $bs)
+                                     <option value="{{ $bs->id }}">{{ $bs->nama }}</option>
+                                 @endforeach
+                                 <option value="lainnya">Lainnya</option>
+                             </select>
+                         </div>
+
+                         <div class="mb-3 d-none" id="edit-bisnis-support-lainnya-wrapper">
+                             <label for="edit-bisnis_support_lainnya" class="form-label">Nama Business Support</label>
+                             <input type="text" class="form-control" name="bisnis_support_lainnya"
+                                 id="edit-bisnis_support_lainnya" placeholder="Ketik nama business support">
+                         </div>
+                         {{-- END TAMBAHAN --}}
+
                          <div class="mb-3">
                              <label for="edit-proposal" class="form-label">Proposal</label>
                              <input type="text" class="form-control" id="edit-proposal" disabled>
@@ -169,7 +191,6 @@
                              <label for="edit-jabatan" class="form-label">Jabatan Penerima</label>
                              <textarea class="form-control" id="edit-jabatan" name="jabatan_penerima" required></textarea>
                          </div>
-
 
                          <div id="edit-bantuan-wrapper"></div>
                          <button type="button" id="edit-add-bantuan" class="btn btn-sm btn-secondary mb-3">+ Tambah
@@ -198,6 +219,42 @@
                      </div>
 
                      <div class="modal-body">
+                         {{-- TAMBAHAN: Dropdown Business Support (Create) - dipindah ke paling atas --}}
+                         <div class="mb-3">
+                             <label for="business_support_choice" class="form-label">Business Support</label>
+                             <select name="business_support_choice" id="business_support_choice"
+                                 class="form-select {{ $errors->has('business_support_choice') ? 'is-invalid' : '' }}"
+                                 required>
+                                 <option value="">-- Pilih Business Support --</option>
+                                 @foreach ($businessSupport as $bs)
+                                     <option value="{{ $bs->id }}"
+                                         {{ old('business_support_choice') == $bs->id ? 'selected' : '' }}>
+                                         {{ $bs->nama }}
+                                     </option>
+                                 @endforeach
+                                 <option value="lainnya" {{ old('business_support_choice') == 'lainnya' ? 'selected' : '' }}>
+                                     Lainnya
+                                 </option>
+                             </select>
+                             @error('business_support_choice')
+                                 <div class="invalid-feedback">{{ $message }}</div>
+                             @enderror
+                         </div>
+
+                         <div class="mb-3 {{ old('business_support_choice') == 'lainnya' ? '' : 'd-none' }}"
+                             id="bisnis-support-lainnya-wrapper">
+                             <label for="bisnis_support_lainnya" class="form-label">Nama Business Support</label>
+                             <input type="text"
+                                 class="form-control {{ $errors->has('bisnis_support_lainnya') ? 'is-invalid' : '' }}"
+                                 name="bisnis_support_lainnya" id="bisnis_support_lainnya"
+                                 value="{{ old('bisnis_support_lainnya') }}"
+                                 placeholder="Ketik nama business support">
+                             @error('bisnis_support_lainnya')
+                                 <div class="invalid-feedback">{{ $message }}</div>
+                             @enderror
+                         </div>
+                         {{-- END TAMBAHAN --}}
+
                          <div class="mb-3">
                              <label class="form-label">Proposal</label>
                              <select name="proposal_id" id="select-proposal"
@@ -471,6 +528,40 @@
              });
          </script>
 
+         {{-- TAMBAHAN: Toggle input manual saat pilih "Lainnya" --}}
+         <script>
+             $(document).ready(function() {
+                 // Toggle - modal Create
+                 $('#business_support_choice').on('change', function() {
+                     if ($(this).val() === 'lainnya') {
+                         $('#bisnis-support-lainnya-wrapper').removeClass('d-none');
+                         $('#bisnis_support_lainnya').prop('required', true);
+                     } else {
+                         $('#bisnis-support-lainnya-wrapper').addClass('d-none');
+                         $('#bisnis_support_lainnya').prop('required', false).val('');
+                     }
+                 });
+
+                 // Reset saat modal create ditutup
+                 $('#createModal').on('hidden.bs.modal', function() {
+                     $('#business_support_choice').val('');
+                     $('#bisnis-support-lainnya-wrapper').addClass('d-none');
+                     $('#bisnis_support_lainnya').prop('required', false).val('');
+                 });
+
+                 // Toggle - modal Edit
+                 $('#edit-business_support_choice').on('change', function() {
+                     if ($(this).val() === 'lainnya') {
+                         $('#edit-bisnis-support-lainnya-wrapper').removeClass('d-none');
+                         $('#edit-bisnis_support_lainnya').prop('required', true);
+                     } else {
+                         $('#edit-bisnis-support-lainnya-wrapper').addClass('d-none');
+                         $('#edit-bisnis_support_lainnya').prop('required', false).val('');
+                     }
+                 });
+             });
+         </script>
+         {{-- END TAMBAHAN --}}
 
          {{-- EDIT MODAL --}}
          <script>
@@ -479,6 +570,8 @@
                  const nama = $(this).data('nama');
                  const jabatan = $(this).data('jabatan');
                  const proposal = $(this).data('proposal');
+                 const businessSupportId = $(this).data('business-support-id'); // TAMBAHAN
+                 const bisnisLainnya = $(this).data('bisnis-lainnya'); // TAMBAHAN
 
                  // Isi field dasar
                  $('#edit-nama').val(nama);
@@ -487,6 +580,17 @@
 
                  // Update action form
                  $('#editForm').attr('action', '/berita-acara/' + id);
+
+                 // TAMBAHAN: Prefill dropdown Business Support
+                 if (bisnisLainnya) {
+                     $('#edit-business_support_choice').val('lainnya').trigger('change');
+                     $('#edit-bisnis_support_lainnya').val(bisnisLainnya);
+                 } else if (businessSupportId) {
+                     $('#edit-business_support_choice').val(String(businessSupportId)).trigger('change');
+                 } else {
+                     $('#edit-business_support_choice').val('').trigger('change');
+                 }
+                 // END TAMBAHAN
 
                  // Kosongkan dulu bantuan lama
                  $('#edit-bantuan-wrapper').html('');
