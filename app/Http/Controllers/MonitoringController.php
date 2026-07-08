@@ -19,7 +19,8 @@ class MonitoringController extends Controller
         ])->get();
 
         return view('proposal.monitoring.index', [
-            'proposals' => $proposals
+            'proposals' => $proposals,
+            'search' => request('search'),
         ]);
     }
 

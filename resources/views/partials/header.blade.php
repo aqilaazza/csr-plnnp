@@ -104,7 +104,7 @@
 
                             @endphp
 
-                            <a href="{{ route('monitoring.index',['search'=>$reminder['judul']]) }}"
+                            <a href="{{ route('monitoring.index',['search'=>$reminder['judul']]) }}#proposal-{{ $reminder['proposal_id']}}"
                                 class="dropdown-item reminder-item {{ $filterClass }}
 
                                 @if($reminder['sisaHari']==0)

@@ -328,7 +328,7 @@
                                             ->pluck('sub_proses_id')
                                             ->all();
                                     @endphp
-                                    <tr>
+                                    <tr id="proposal-{{ $data->id }}">
                                         <td>
                                             <h6 class="fw-normal mb-0">{{ $loop->iteration }}</h6>
                                         </td>
@@ -495,6 +495,36 @@
             $(document).ready(function() {
                 // Inisialisasi DataTable
                 table = $('#proposalTable').DataTable({
+                    table.search("{{ request('search') }}").draw();
+                    
+                    const proposalId = "{{ request('proposal_id') }}";
+
+                    if (proposalId) {
+
+                        setTimeout(function () {
+
+                            const row = $('#proposal-' + proposalId);
+
+                            if (row.length) {
+
+                                $('html, body').animate({
+                                    scrollTop: row.offset().top - 150
+                                }, 500);
+
+                                row.css({
+                                    background: '#fff3cd',
+                                    transition: '0.3s'
+                                });
+
+                                setTimeout(function () {
+                                    row.css('background', '');
+                                }, 3000);
+
+                            }
+
+                        }, 500);
+
+                    }
                     scrollX: true,
                     scrollY: "500px", // max-height 500px
                     scrollCollapse: true,
