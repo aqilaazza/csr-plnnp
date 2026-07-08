@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/kabupaten', [WilayahController::class, 'getKabupaten']);
     Route::get('/kecamatan/{kabupatenId}', [WilayahController::class, 'getKecamatan']);
     Route::get('/kelurahan/{kecamatanId}', [WilayahController::class, 'getKelurahan']);
+    Route::get('/sub-instansi/{kategoriInstansiId}', [ProposalController::class, 'getSubInstansi']);
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::resource('pengguna', UserController::class);
     Route::resource('tipologi', TipologiController::class);
