@@ -332,7 +332,7 @@
                                         <td>
                                             <h6 class="fw-normal mb-0">{{ $loop->iteration }}</h6>
                                         </td>
-                                        <td>
+                                        <td class="judul-proposal">
                                             <h6 class="fw-normal mb-0">{{ $data->judul }}</h6>
                                         </td>
                                         <td>
@@ -495,69 +495,56 @@
             $(document).ready(function() {
                 // Inisialisasi DataTable
                 table = $('#proposalTable').DataTable({
-                    table.search("{{ request('search') }}").draw();
-                    
-                    const proposalId = "{{ request('proposal_id') }}";
 
-                    if (proposalId) {
-
-                        setTimeout(function () {
-
-                            const row = $('#proposal-' + proposalId);
-
-                            if (row.length) {
-
-                                $('html, body').animate({
-                                    scrollTop: row.offset().top - 150
-                                }, 500);
-
-                                row.css({
-                                    background: '#fff3cd',
-                                    transition: '0.3s'
-                                });
-
-                                setTimeout(function () {
-                                    row.css('background', '');
-                                }, 3000);
-
-                            }
-
-                        }, 500);
-
-                    }
                     scrollX: true,
-                    scrollY: "500px", // max-height 500px
+                    scrollY: "500px",
                     scrollCollapse: true,
                     paging: true,
-                    fixedHeader: true, // freeze header
-                    fixedColumns: {
-                        leftColumns: 2 // freeze 2 kolom kiri
-                    },
-                    language: {
-                        search: "Cari",
-                        lengthMenu: "Tampil _MENU_",
-                        zeroRecords: "Data tidak ditemukan",
-                        info: "Menampilkan _START_–_END_ dari _TOTAL_ data",
-                        infoEmpty: "Menampilkan 0–0 dari 0 data",
-                        infoFiltered: "(difilter dari _MAX_ total data)",
-                        paginate: {
-                            first: "«",
-                            last: "»",
-                            previous: "‹",
-                            next: "›"
-                        }
-                    },
-                    pageLength: 10,
-                    lengthChange: true,
-                    lengthMenu: [
-                        [10, 25, 50, -1],
-                        [10, 25, 50, "Semua"]
-                    ],
-                    pagingType: "full_numbers",
-                    drawCallback: function() {
-                        $('.dataTables_paginate > .pagination').addClass('pagination-sm');
+                    fixedHeader: true,
+
+                    language:{
+                        search:"Cari",
+                        lengthMenu:"Tampil _MENU_"
                     }
+
                 });
+                    
+                    const searchProposal = @json($search);
+
+                    if (searchProposal) {
+                        let targetIndex = null;
+                        table.rows().every(function () {
+                            const judul = $(this.node()).find('td.judul-proposal').text().trim().toLowerCase();
+
+                            if (judul === searchProposal.toLowerCase()) {
+                                targetIndex = this.index();
+                                return false; 
+                            }
+                            
+                        });       
+                    
+                        if (targetIndex !== null) {
+                            const page = Math.floor(targetIndex / table.page.len());
+
+                            table.page(page).draw(false);
+
+                            setTimeout(function () {
+                                const row = $(table.row(targetIndex).node());
+
+                                row[0].scrollIntoView({
+                                    behavior:"smooth",
+                                    block:"center"
+                                });
+
+                            row.addClass('proposal-highlight');
+
+                            setTimeout(function () {
+                                row.removeClass('proposal-highlight');
+                            }, 3000);
+
+                        }, 300);
+                    }
+                }
 
                 // Toggle checklist
                 // Benar: menggunakan event delegation agar bekerja untuk elemen dinamis
@@ -576,15 +563,21 @@
                             is_checked: isChecked
                         },
                         success: function(response) {
-                            console.log(response.message);
-
-                            // Ambil nilai progress dari response jika dikirimkan (lebih baik tambahkan)
+                            
                             if (response.progress !== undefined) {
-                                // Update kolom progress langsung di baris yang sesuai
-                                const row = $(`input[data-proposal-id="${proposalId}"]`).closest(
-                                    'tr');
+                                const row = $(`input[data-proposal-id="${proposalId}"]`).closest('tr');
                                 row.find('.progress-col').text(response.progress + '%');
                             }
+
+                            if (isChecked) {
+                                showToast("Berkas berhasil dicentang");
+                            } else {
+                                showToast("Centang berkas dibatalkan");
+                            }
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 500);
                         },
                         error: function() {
                             alert('Gagal memperbarui checklist!');
