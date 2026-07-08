@@ -58,6 +58,9 @@
                                          <h6 class="fw-semibold mb-0">No</h6>
                                      </th>
                                      <th>
+                                         <h6 class="fw-semibold mb-0">Business Support</h6>
+                                     </th>
+                                     <th>
                                          <h6 class="fw-semibold mb-0">Proposal</h6>
                                      </th>
                                      <th>
@@ -82,6 +85,11 @@
                                      <tr>
                                          <td>
                                              <h6 class="fw-normal mb-0">{{ $loop->iteration }}</h6>
+                                         </td>
+                                         <td style="white-space: normal;">
+                                             <p class="mb-0 fw-normal">
+                                                 {{ $data->businessSupport->nama ?? $data->bisnis_support_lainnya ?? '-' }}
+                                             </p>
                                          </td>
                                          <td style="white-space: normal;">
                                              <h6 class="fw-normal mb-0">{{ $data->proposal->judul }}</h6>
@@ -167,12 +175,13 @@
                                  @foreach ($businessSupport as $bs)
                                      <option value="{{ $bs->id }}">{{ $bs->nama }}</option>
                                  @endforeach
-                                 <option value="lainnya">Lainnya</option>
+                                 <option value="lainnya">Lainnya (ketik manual)</option>
                              </select>
                          </div>
 
                          <div class="mb-3 d-none" id="edit-bisnis-support-lainnya-wrapper">
-                             <label for="edit-bisnis_support_lainnya" class="form-label">Nama Business Support</label>
+                             <label for="edit-bisnis_support_lainnya" class="form-label">Nama Business Support
+                                 (Manual)</label>
                              <input type="text" class="form-control" name="bisnis_support_lainnya"
                                  id="edit-bisnis_support_lainnya" placeholder="Ketik nama business support">
                          </div>
@@ -233,7 +242,7 @@
                                      </option>
                                  @endforeach
                                  <option value="lainnya" {{ old('business_support_choice') == 'lainnya' ? 'selected' : '' }}>
-                                     Lainnya
+                                     Lainnya (ketik manual)
                                  </option>
                              </select>
                              @error('business_support_choice')
@@ -243,7 +252,8 @@
 
                          <div class="mb-3 {{ old('business_support_choice') == 'lainnya' ? '' : 'd-none' }}"
                              id="bisnis-support-lainnya-wrapper">
-                             <label for="bisnis_support_lainnya" class="form-label">Nama Business Support</label>
+                             <label for="bisnis_support_lainnya" class="form-label">Nama Business Support
+                                 (Manual)</label>
                              <input type="text"
                                  class="form-control {{ $errors->has('bisnis_support_lainnya') ? 'is-invalid' : '' }}"
                                  name="bisnis_support_lainnya" id="bisnis_support_lainnya"
