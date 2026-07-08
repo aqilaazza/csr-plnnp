@@ -57,6 +57,23 @@
                                     @enderror
                                 </div>
 
+                                <div class="mb-3 d-none" id="wrapper-sub-instansi">
+                                    <label class="form-label">
+                                        Sub Instansi <span class="text-danger" id="label-sub-instansi-required">*</span>
+                                    </label>
+                                    <select name="sub_instansi_id" id="sub_instansi_id"
+                                        class="form-select @error('sub_instansi_id') is-invalid @enderror">
+                                        <option value="">-- Pilih Sub Instansi --</option>
+                                    </select>
+                                    <div class="form-text">Wajib dipilih karena kategori ini memiliki sub instansi.</div>
+                                    <div class="invalid-feedback" id="js-error-sub-instansi">
+                                        Sub Instansi wajib diisi, tidak boleh kosong.
+                                    </div>
+                                    @error('sub_instansi_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 <div class="mb-3">
                                     <label class="form-label">Instansi Pengajuan</label>
                                     <input type="text"
@@ -457,7 +474,61 @@
                 });
             });
         </script>
-        {{-- ===================== END WILAYAH SCRIPT (UPDATED) ===================== --}}
+
+        {{-- ===================== SUBINSTANSI SCRIPT (FIXED + VALIDASI VISUAL) ===================== --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const kategoriSelect = document.querySelector('select[name="kategori_instansi_id"]');
+                const subInstansiSelect = document.getElementById('sub_instansi_id');
+                const wrapperSubInstansi = document.getElementById('wrapper-sub-instansi');
+                const formProposal = document.getElementById('formProposal');
+
+                kategoriSelect.addEventListener('change', function () {
+                    const kategoriId = this.value;
+
+                    subInstansiSelect.innerHTML = '<option value="">-- Pilih Sub Instansi --</option>';
+                    wrapperSubInstansi.classList.add('d-none');
+                    subInstansiSelect.removeAttribute('required');
+                    subInstansiSelect.classList.remove('is-invalid'); // reset tanda merah saat kategori diganti
+
+                    if (!kategoriId) return;
+
+                    fetch(`/sub-instansi/${kategoriId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                data.forEach(item => {
+                                    const option = new Option(item.nama, item.id);
+                                    subInstansiSelect.add(option);
+                                });
+                                wrapperSubInstansi.classList.remove('d-none');
+                                subInstansiSelect.setAttribute('required', 'required');
+                            }
+                            // kalau data kosong, wrapper tetap d-none dan required tidak di-set (opsional)
+                        });
+                });
+
+                // Hilangkan tanda merah begitu user mulai memilih
+                subInstansiSelect.addEventListener('change', function () {
+                    if (this.value) {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+
+                // Validasi pas submit: kalau wrapper kelihatan (kategori punya sub) tapi belum dipilih -> tahan submit
+                formProposal.addEventListener('submit', function (e) {
+                    const wajibDiisi = !wrapperSubInstansi.classList.contains('d-none');
+                    const kosong = subInstansiSelect.value === '';
+
+                    if (wajibDiisi && kosong) {
+                        e.preventDefault();
+                        subInstansiSelect.classList.add('is-invalid');
+                        subInstansiSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        subInstansiSelect.focus();
+                    }
+                });
+            });
+        </script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {

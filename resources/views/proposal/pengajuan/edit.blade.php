@@ -45,6 +45,23 @@
                                     @enderror
                                 </div>
 
+                                <div class="mb-3 {{ $subInstansi->isEmpty() ? 'd-none' : '' }}" id="wrapper-sub-instansi">
+                                    <label class="form-label">Sub Instansi </label>
+                                    <select name="sub_instansi_id" id="sub_instansi_id"
+                                        class="form-select @error('sub_instansi_id') is-invalid @enderror">
+                                        <option value="">-- Pilih Sub Instansi --</option>
+                                        @foreach ($subInstansi as $item)
+                                            <option value="{{ $item->id }}"
+                                                {{ old('sub_instansi_id', $proposal->sub_instansi_id) == $item->id ? 'selected' : '' }}>
+                                                {{ $item->nama }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('sub_instansi_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 <div class="mb-3">
                                     <label class="form-label">Instansi Pengajuan</label>
                                     <input type="text"
@@ -510,8 +527,39 @@
                 }
             });
         </script>
-        {{-- ===================== END WILAYAH SCRIPT (UPDATED) ===================== --}}
+        
+        {{-- =====================  SUBINSTANSI SCRIPT  ===================== --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const kategoriSelect = document.querySelector('select[name="kategori_instansi_id"]');
+                const subInstansiSelect = document.getElementById('sub_instansi_id');
+                const wrapperSubInstansi = document.getElementById('wrapper-sub-instansi');
+                const currentSubInstansiId = "{{ old('sub_instansi_id', $proposal->sub_instansi_id) }}";
+                const currentKategoriId = "{{ old('kategori_instansi_id', $proposal->kategori_instansi_id) }}";
 
+                kategoriSelect.addEventListener('change', function () {
+                    const kategoriId = this.value;
+
+                    subInstansiSelect.innerHTML = '<option value="">-- Pilih Sub Instansi --</option>';
+                    wrapperSubInstansi.classList.add('d-none');
+
+                    if (!kategoriId) return;
+
+                    fetch(`/sub-instansi/${kategoriId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                data.forEach(item => {
+                                    const isSelected = kategoriId === currentKategoriId && item.id == currentSubInstansiId;
+                                    const option = new Option(item.nama, item.id, false, isSelected);
+                                    subInstansiSelect.add(option);
+                                });
+                                wrapperSubInstansi.classList.remove('d-none');
+                            }
+                        });
+                });
+            });
+        </script>
         {{-- FORMAT RUPIAH v2 (unchanged, dibiarkan sama seperti file asli meskipun terdapat bug "input is not defined") --}}
         <script>
             document.addEventListener('DOMContentLoaded', function() {
