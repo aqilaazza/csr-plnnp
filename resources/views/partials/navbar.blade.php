@@ -99,18 +99,6 @@
                     <span class="hide-menu">Kategori Instansi</span>
                 </a>
             </li>
-            <li class="sidebar-item">
-                <a class="sidebar-link" href="/satuan" aria-expanded="false">
-                    <span>
-                        <i class="ti ti-package"></i>
-                    </span>
-
-                    <span class="hide-menu">
-                        Satuan
-                    </span>
-
-                </a>
-            </li>
         @endif
         <li class="nav-small-cap">
             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
