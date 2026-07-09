@@ -339,7 +339,7 @@
                                             <p class="mb-0 fw-normal">{{ $data->instansi_pengajuan }}</p>
                                         </td>
                                         <td>
-                                            <p class="mb-0 fw-normal">{{ $data->lokasi }}</p>
+                                            <p class="mb-0 fw-normal"> {{ $data->lokasi ?? ($data->kabupaten_nama . ', ' . $data->kecamatan_nama . ', ' . $data->kelurahan_nama) }}</p>
                                         </td>
                                         <td data-year="{{ \Carbon\Carbon::parse($data->tanggal_disposisi)->year }}">
                                             <p class="mb-0 fw-normal">
