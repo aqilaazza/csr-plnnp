@@ -37,6 +37,8 @@ class BeritaAcaraController extends Controller
             'jumlah_bantuan.*' => 'required|string|max:255',
             'business_support_choice' => 'required|string',
             'bisnis_support_lainnya' => 'nullable|required_if:business_support_choice,lainnya|string|max:255',
+            'satuan_bantuan' => 'required|array|min:1',
+            'satuan_bantuan.*' => 'required|string|max:100',
         ]);
 
         // Gabungkan jenis + jumlah
@@ -128,6 +130,8 @@ class BeritaAcaraController extends Controller
             'jumlah_bantuan.*' => 'required|string|max:255',
             'business_support_choice' => 'required|string',
             'bisnis_support_lainnya' => 'nullable|required_if:business_support_choice,lainnya|string|max:255',
+            'satuan_bantuan' => 'required|array|min:1',
+            'satuan_bantuan.*' => 'required|string|max:100',
         ]);
 
         $beritaAcara = BeritaAcara::findOrFail($id);
