@@ -294,7 +294,10 @@
                                         <span class="fw-semibold mb-0">PIC</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
-                                         <span class="fw-semibold mb-0">CP</span>
+                                        <span class="fw-semibold mb-0">Contact Person/Instansi</span>
+                                    </th>
+                                    <th style="white-space: nowrap;" class="nowrap">
+                                        <span class="fw-semibold mb-0">Nama CP</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
                                         <span class="fw-semibold mb-0">Proses</span>
@@ -373,7 +376,10 @@
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->contact_person ?? '-' }}</p>
-                                        </td>   
+                                        </td>
+                                        <td>
+                                            <p class="mb-0 fw-normal">{{ $data->nama_cp ?? '-' }}</p>
+                                        </td>
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->tipeProses->nama ?? '-' }}</p>
                                         </td>

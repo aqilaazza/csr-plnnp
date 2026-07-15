@@ -73,6 +73,7 @@ class KelayakanController extends Controller
         'data_terdahulu' => $request->data_terdahulu,
         // Contact person diambil dari data Proposal, bukan input form Kelayakan
         'contact_person' => $proposal->contact_person,
+        'nama_cp' => $proposal->nama_cp,
         'catatan_khusus' => $request->catatan_khusus,
         'prioritas' => $request->prioritas,
         'dampak' => $request->dampak,
