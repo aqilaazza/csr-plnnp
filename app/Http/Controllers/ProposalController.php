@@ -39,13 +39,15 @@ class ProposalController extends Controller
     }
 
     /**
-     * AJAX: ambil daftar sub instansi berdasarkan kategori instansi yang dipilih
+     * AJAX: ambil daftar sub instansi berdasarkan kategori instansi yang dipilih.
+     * Kolom `contoh` disertakan supaya front-end bisa memakainya sebagai
+     * placeholder dinamis pada field "Instansi Pengajuan".
      */
     public function getSubInstansi(string $kategoriInstansiId)
     {
         $subInstansi = SubInstansi::where('kategori_instansi_id', $kategoriInstansiId)
             ->orderBy('nama')
-            ->get(['id', 'nama']);
+            ->get(['id', 'nama', 'contoh']);
 
         return response()->json($subInstansi);
     }
