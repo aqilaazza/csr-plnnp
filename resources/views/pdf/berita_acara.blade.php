@@ -218,12 +218,22 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($jenis as $i => $jns)
-                <tr>
-                    <td>{{ $i + 1 }}</td>
-                    <td><i>{{ $jns }}</i></td>
-                    <td>{{ $jumlah[$i] ?? '-' }}</td>
-                </tr>
+            @foreach($bantuan as $i => $item)
+            <tr>
+                <td>{{ $i + 1 }}</td>
+
+                <td>
+                    {{ $item['jenis'] }}
+                </td>
+
+                <td>
+                    @if(!empty($item['nominal']))
+                        Rp {{ number_format($item['nominal'],0,',','.') }}
+                    @else
+                        {{ $item['jumlah'] }} {{ $item['satuan'] }}
+                    @endif
+                </td>
+            </tr>
             @endforeach
         </tbody>
     </table>

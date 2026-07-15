@@ -33,17 +33,24 @@ class BeritaAcaraController extends Controller
             'jabatan_penerima' => 'required|string|max:255',
             'jenis_bantuan' => 'required|array|min:1',
             'jenis_bantuan.*' => 'required|string|max:255',
-            'jumlah_bantuan' => 'required|array|min:1',
-            'jumlah_bantuan.*' => 'required|string|max:255',
+            'jumlah_barang' => 'nullable|array',
+            'jumlah_barang.*' => 'nullable|string|max:255',
+            'satuan_barang' => 'nullable|array',
+            'satuan_barang.*' => 'nullable|string|max:255',
+            'nominal' => 'nullable|array',
+            'nominal.*' => 'nullable|string',
             'business_support_choice' => 'required|string',
             'bisnis_support_lainnya' => 'nullable|required_if:business_support_choice,lainnya|string|max:255',
         ]);
 
-        // Gabungkan jenis + jumlah
-        $bantuan = [
-            'jenis' => $request->jenis_bantuan,
-            'jumlah' => $request->jumlah_bantuan,
-        ];
+        $jenis   = $request->jenis_bantuan ?? [];
+        $jumlah  = $request->jumlah_barang ?? [];
+        $satuan  = $request->satuan_barang ?? [];
+        $nominal = $request->nominal ?? [];
+
+        $nominal = array_map(function ($item) {
+            return preg_replace('/[^0-9]/', '', $item ?? '');
+        }, $request->nominal ?? []);   
 
         // ======== GENERATE NOMOR SURAT PERMANEN =========
         $tahun = now()->format('Y');
@@ -66,26 +73,42 @@ class BeritaAcaraController extends Controller
             'proposal_id' => $request->proposal_id,
             'nama_penerima' => $request->nama_penerima,
             'jabatan_penerima' => $request->jabatan_penerima,
-            'bantuan' => json_encode($bantuan),
+            'jenis_bantuan' => implode(',', $jenis),
+            'jumlah_barang' => implode(',', $jumlah),
+            'satuan' => implode(',', $satuan),
+            'nominal' => implode(',', $nominal),
             'nomor_surat' => $nomorSurat,
             'business_support_id' => $bsData['business_support_id'],
             'bisnis_support_lainnya' => $bsData['bisnis_support_lainnya'],
         ]);
 
-        $bantuanArray = json_decode($beritaAcara->bantuan, true);
+        $jenis = explode(',', $beritaAcara->jenis_bantuan ?? '');
+        $jumlah = explode(',', $beritaAcara->jumlah_barang ?? '');
+        $satuan = explode(',', $beritaAcara->satuan ?? '');
+        $nominal = explode(',', $beritaAcara->nominal ?? '');
+
+        $bantuan = [];
+
+        foreach ($jenis as $i => $item) {
+            $bantuan[] = [
+                'jenis'   => trim($item),
+                'jumlah'  => trim($jumlah[$i] ?? ''),
+                'satuan'  => trim($satuan[$i] ?? ''),
+                'nominal' => trim($nominal[$i] ?? ''),
+            ];
+        }
         $proposal = Proposal::find($beritaAcara->proposal_id);
 
         // TAMBAHAN: ambil nama & jabatan business support (otomatis "PH Manager Bisnis Support" jika manual)
         $bisnisSupportInfo = $this->getBisnisSupportInfo($beritaAcara);
 
         // Generate PDF pertama
-        $pdf = PDF::loadView('pdf.berita_acara', [
+        $pdf = Pdf::loadView('pdf.berita_acara', [
             'data' => $beritaAcara,
-            'jenis' => $bantuanArray['jenis'],
-            'jumlah' => $bantuanArray['jumlah'],
-            'namaBisnisSupport' => $bisnisSupportInfo['nama'],
-            'jabatanBisnisSupport' => $bisnisSupportInfo['jabatan'], // TAMBAHAN
+            'bantuan' => $bantuan,
             'proposal' => $proposal,
+            'namaBisnisSupport' => $bisnisSupportInfo['nama'],
+            'jabatanBisnisSupport' => $bisnisSupportInfo['jabatan'],
             'nomorBeritaAcara' => $nomorSurat
         ]);
 
@@ -102,18 +125,30 @@ class BeritaAcaraController extends Controller
     {
         $beritaAcara = BeritaAcara::with('proposal')->findOrFail($id);
 
-        $bantuan = json_decode($beritaAcara->bantuan, true) ?? ['jenis' => [], 'jumlah' => []];
+        $jenis = explode(',', $beritaAcara->jenis_bantuan ?? '');
+        $jumlah = explode(',', $beritaAcara->jumlah_barang ?? '');
+        $satuan = explode(',', $beritaAcara->satuan ?? '');
+        $nominal = explode(',', $beritaAcara->nominal ?? '');
 
-        // TAMBAHAN
+        $bantuan = [];
+
+        foreach ($jenis as $i => $item) {
+            $bantuan[] = [
+                'jenis'   => trim($item),
+                'jumlah'  => trim($jumlah[$i] ?? ''),
+                'satuan'  => trim($satuan[$i] ?? ''),
+                'nominal' => trim($nominal[$i] ?? ''),
+            ];
+        }
+
         $bisnisSupportInfo = $this->getBisnisSupportInfo($beritaAcara);
 
         return view('pdf.berita_acara', [
-            'data' => $beritaAcara,
-            'bantuan' => $bantuan,
-            'jenis' => $bantuan['jenis'] ?? [],
-            'jumlah' => $bantuan['jumlah'] ?? [],
-            'namaBisnisSupport' => $bisnisSupportInfo['nama'],
-            'jabatanBisnisSupport' => $bisnisSupportInfo['jabatan'], // TAMBAHAN
+            'data'=>$beritaAcara,
+            'bantuan'=>$bantuan,
+            'proposal'=>$beritaAcara->proposal,
+            'namaBisnisSupport'=>$bisnisSupportInfo['nama'],
+            'jabatanBisnisSupport'=>$bisnisSupportInfo['jabatan'],
         ]);
     }
 
@@ -124,8 +159,12 @@ class BeritaAcaraController extends Controller
             'jabatan_penerima' => 'required|string|max:255',
             'jenis_bantuan' => 'required|array|min:1',
             'jenis_bantuan.*' => 'required|string|max:255',
-            'jumlah_bantuan' => 'required|array|min:1',
-            'jumlah_bantuan.*' => 'required|string|max:255',
+            'jumlah_barang' => 'nullable|array',
+            'jumlah_barang.*' => 'nullable|string|max:255',
+            'satuan_barang' => 'nullable|array',
+            'satuan_barang.*' => 'nullable|string|max:255',
+            'nominal' => 'nullable|array',
+            'nominal.*' => 'nullable|string',
             'business_support_choice' => 'required|string',
             'bisnis_support_lainnya' => 'nullable|required_if:business_support_choice,lainnya|string|max:255',
         ]);
@@ -140,10 +179,13 @@ class BeritaAcaraController extends Controller
             Storage::delete('public/' . $beritaAcara->file_pdf);
         }
 
-        $bantuan = [
-            'jenis' => $request->jenis_bantuan,
-            'jumlah' => $request->jumlah_bantuan,
-        ];
+        $jenis = $request->jenis_bantuan ?? [];
+        $jumlah = $request->jumlah_barang ?? [];
+        $satuan = $request->satuan_barang ?? [];
+
+        $nominal = array_map(function ($item) {
+            return preg_replace('/[^0-9]/', '', $item ?? '');
+        }, $request->nominal ?? []);
 
         $bsData = $this->resolveBusinessSupport($request);
 
@@ -151,7 +193,10 @@ class BeritaAcaraController extends Controller
         $beritaAcara->update([
             'nama_penerima' => $request->nama_penerima,
             'jabatan_penerima' => $request->jabatan_penerima,
-            'bantuan' => json_encode($bantuan),
+            'jenis_bantuan' => implode(',', $jenis),
+            'jumlah_barang' => implode(',', $jumlah),
+            'satuan' => implode(',', $satuan),
+            'nominal' => implode(',', $nominal),
             'business_support_id' => $bsData['business_support_id'],
             'bisnis_support_lainnya' => $bsData['bisnis_support_lainnya'],
         ]);
@@ -160,16 +205,30 @@ class BeritaAcaraController extends Controller
         $bisnisSupportInfo = $this->getBisnisSupportInfo($beritaAcara);
 
         $proposal = Proposal::find($beritaAcara->proposal_id);
-        $bantuanArray = json_decode($beritaAcara->bantuan, true);
 
+        $jenis = explode(',', $beritaAcara->jenis_bantuan ?? '');
+        $jumlah = explode(',', $beritaAcara->jumlah_barang ?? '');
+        $satuan = explode(',', $beritaAcara->satuan ?? '');
+        $nominal = explode(',', $beritaAcara->nominal ?? '');
+
+        $bantuan = [];
+
+        foreach ($jenis as $i => $item) {
+            $bantuan[] = [
+                'jenis'   => trim($item),
+                'jumlah'  => trim($jumlah[$i] ?? ''),
+                'satuan'  => trim($satuan[$i] ?? ''),
+                'nominal' => trim($nominal[$i] ?? ''),
+            ];
+        }
+        
         // Generate ulang PDF (nomor tidak berubah)
         $pdf = Pdf::loadView('pdf.berita_acara', [
             'data' => $beritaAcara,
-            'jenis' => $bantuanArray['jenis'],
-            'jumlah' => $bantuanArray['jumlah'],
-            'namaBisnisSupport' => $bisnisSupportInfo['nama'],
-            'jabatanBisnisSupport' => $bisnisSupportInfo['jabatan'], // TAMBAHAN
+            'bantuan' => $bantuan,
             'proposal' => $proposal,
+            'namaBisnisSupport' => $bisnisSupportInfo['nama'],
+            'jabatanBisnisSupport' => $bisnisSupportInfo['jabatan'],
             'nomorBeritaAcara' => $nomorSurat
         ]);
 
@@ -218,17 +277,25 @@ class BeritaAcaraController extends Controller
     public function getBantuan($id)
     {
         $beritaAcara = BeritaAcara::findOrFail($id);
-        $bantuanArray = json_decode($beritaAcara->bantuan, true) ?? ['jenis' => [], 'jumlah' => []];
+        $jenis = explode(',', $beritaAcara->jenis_bantuan ?? '');
+        $jumlah = explode(',', $beritaAcara->jumlah_barang ?? '');
+        $satuan = explode(',', $beritaAcara->satuan ?? '');
+        $nominal = explode(',', $beritaAcara->nominal ?? '');
 
         $data = [];
-        foreach ($bantuanArray['jenis'] as $i => $jenis) {
+
+        foreach ($jenis as $i => $j) {
+
             $data[] = [
-                'jenis_bantuan' => $jenis,
-                'jumlah_bantuan' => $bantuanArray['jumlah'][$i] ?? '',
+                'jenis' => trim($j),
+                'jumlah' => trim($jumlah[$i] ?? ''),
+                'satuan' => trim($satuan[$i] ?? ''),
+                'nominal' => trim($nominal[$i] ?? ''),
             ];
         }
 
         return response()->json($data);
+
     }
 
     /**

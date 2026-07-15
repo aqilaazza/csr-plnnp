@@ -15,7 +15,10 @@ class BeritaAcara extends Model
         'jabatan_penerima',
         'file_pdf',
         'file_upload',
-        'bantuan',
+        'jenis_bantuan',
+        'nominal',
+        'jumlah_barang',
+        'satuan',
         'business_support_id',
         'bisnis_support_lainnya',
     ];
