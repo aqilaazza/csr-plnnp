@@ -7,6 +7,72 @@
             background-color: #e9ecef !important;
             cursor: not-allowed;
         }
+
+               /* ===== Dynamic List ===== */
+        .dynamic-item{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-bottom:10px;
+        }
+
+        .dynamic-number{
+            width:20px;
+            text-align:center;
+            font-weight:600;
+            font-size:12px;
+        }
+
+        .dynamic-item textarea{
+            width:1200px;          /* bisa ubah 750-850 sesuai selera */
+            min-height:50px;
+            resize:vertical;
+        }
+
+        .action-group{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-left:12px;
+        }
+
+        .btn-action{
+            background:none !important;
+            border:none !important;
+            box-shadow:none !important;
+            padding:4px;
+            width:auto;
+            height:auto;
+        }
+
+        .btn-action i{
+            font-size:20px;
+            transition:.2s;
+        }
+
+        .btn-add-row i{
+            color:#78C841;
+        }
+
+        .btn-remove i{
+            color:#dc3545;
+        }
+
+        .btn-add-row:hover i{
+            color:#5fad31;
+            transform:scale(1.15);
+        }
+
+        .btn-remove:hover i{
+            color:#bb2d3b;
+            transform:scale(1.15);
+        }
+
+        .action-buttons{
+            display:flex;
+            gap:10px;
+            align-items:center;
+        }
     </style>
 @endpush
 @section('content')
@@ -59,17 +125,10 @@
                         {{-- 5. LATAR BELAKANG (input user, dynamic list) --}}
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label mb-0">Latar Belakang</label>
-
-                                <button type="button"
-                                    id="btn-add-latar"
-                                    class="btn btn-sm"
-                                    style="background-color:#78C841;color:white;">
-                                    <i class="fas fa-plus me-1"></i> Tambah
-                                </button>
+                                <label class="form-label mb-0">Latar Belakang</label>   
                             </div>
 
-                            <div id="latar-list"></div>
+                            <div id="latar-list" class="dynamic-list-wrapper"></div>
 
                             <input
                                 type="hidden"
@@ -78,23 +137,21 @@
                                 value="{{ old('latar_belakang', $kelayakan->latar_belakang) }}">
 
                             @error('latar_belakang')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                <div class="text-danger small mt-1">
+                                    {{ $message }}
+                                </div>
                             @enderror
                         </div>
 
-                        {{-- 6. TUJUAN (input user, dynamic list, konsisten dengan form create) --}}
+                        {{-- 6. TUJUAN (input user, dynamic list) --}}
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <label class="form-label mb-0">Tujuan</label>
-                                <button type="button" id="btn-add-tujuan" class="btn btn-sm" style="background-color:#78C841; color:white;">
-                                    <i class="fas fa-plus me-1"></i> Tambah
-                                </button>
                             </div>
 
-                            <div id="tujuan-list"></div>
+                            <div id="tujuan-list" class="dynamic-list-wrapper"></div>
 
-                            <input type="hidden" name="tujuan" id="tujuan-hidden"
-                                value="{{ old('tujuan', $kelayakan->tujuan) }}">
+                            <input type="hidden" name="tujuan" id="tujuan-hidden" value="{{ old('tujuan', $kelayakan->tujuan) }}">
 
                             @error('tujuan')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
@@ -104,18 +161,12 @@
                         {{-- 7. INDIKATOR LINGKUNGAN (input user, dynamic list) --}}
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label mb-0">Indikator Lingkungan</label>
-
-                                <button
-                                    type="button"
-                                    id="btn-add-lingkungan"
-                                    class="btn btn-sm"
-                                    style="background-color:#78C841;color:white;">
-                                    <i class="fas fa-plus me-1"></i> Tambah
-                                </button>
+                                <label class="form-label mb-0">
+                                    Indikator Lingkungan
+                                </label>
                             </div>
 
-                            <div id="lingkungan-list"></div>
+                            <div id="lingkungan-list" class="dynamic-list-wrapper"></div>
 
                             <input
                                 type="hidden"
@@ -127,18 +178,13 @@
                         {{-- 8. INDIKATOR SOSIAL (input user, dynamic list) --}}
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label mb-0">Indikator Sosial</label>
 
-                                <button
-                                    type="button"
-                                    id="btn-add-sosial"
-                                    class="btn btn-sm"
-                                    style="background-color:#78C841;color:white;">
-                                    <i class="fas fa-plus me-1"></i> Tambah
-                                </button>
+                                <label class="form-label mb-0">
+                                    Indikator Sosial
+                                </label>
                             </div>
 
-                            <div id="sosial-list"></div>
+                            <div id="sosial-list" class="dynamic-list-wrapper"></div>
 
                             <input
                                 type="hidden"
@@ -288,7 +334,7 @@
         $(document).ready(function(){
 
         function initDynamicList(config){
-const $list = $(config.list);
+            const $list = $(config.list);
                 const $hidden = $(config.hidden);
 
                 function renumber() {
@@ -336,25 +382,34 @@ const $list = $(config.list);
 
                 function addRow(text=''){
 
-                    const row = $(`
-                    <div class="dynamic-item d-flex align-items-start gap-2 mb-2">
+                    const row=$(`
+                        <div class="dynamic-item">
 
-                        <span class="dynamic-number fw-semibold"
-                            style="min-width:24px;padding-top:.375rem;line-height:1.5">
-                        </span>
+                            <span class="dynamic-number"></span>
 
-                        <textarea
-                            class="form-control"
-                            rows="2"
-                            placeholder="${config.placeholder}"></textarea>
+                            <textarea
+                                class="form-control"
+                                rows="3"
+                                placeholder="${config.placeholder}">
+                            </textarea>
 
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-light text-danger btn-remove">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                            <div class="action-buttons">
 
-                    </div>
+                                <button
+                                    type="button"
+                                    class="btn btn-action btn-add-row">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-action btn-remove">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+
+                            </div>
+
+                        </div>
                     `);
 
                     row.find('textarea').val(text);
@@ -386,7 +441,7 @@ const $list = $(config.list);
 
                 }
 
-                $(config.button).on('click',function(){
+                $list.on('click','.btn-add-row',function(){
 
                     addRow();
 
