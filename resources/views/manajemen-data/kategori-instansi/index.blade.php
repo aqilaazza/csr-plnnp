@@ -21,6 +21,11 @@
             color: #4a8c1c;
             font-weight: 500;
         }
+
+        .contoh-sub-list {
+            font-size: 0.85rem;
+            margin-bottom: 0.15rem;
+        }
     </style>
 @endpush
 @section('content')
@@ -49,6 +54,9 @@
                                         <h6 class="fw-semibold mb-0">Sub Instansi</h6>
                                     </th>
                                     <th>
+                                        <h6 class="fw-semibold mb-0">Contoh</h6>
+                                    </th>
+                                    <th>
                                         <h6 class="fw-semibold mb-0">Jumlah Proposal</h6>
                                     </th>
                                     <th>
@@ -73,6 +81,18 @@
                                             @endforelse
                                         </td>
                                         <td>
+                                            @if ($item->subInstansi->isNotEmpty())
+                                                @foreach ($item->subInstansi as $sub)
+                                                    <div class="contoh-sub-list">
+                                                        <strong>{{ $sub->nama }}:</strong>
+                                                        {{ $sub->contoh ?: '-' }}
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                {{ $item->contoh ?: '-' }}
+                                            @endif
+                                        </td>
+                                        <td>
                                             <p class="mb-0 fw-normal">{{ $item->proposal_count }}</p>
                                         </td>
                                         <td>
@@ -95,7 +115,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center">Belum ada data kategori instansi.</td>
+                                        <td colspan="6" class="text-center">Belum ada data kategori instansi.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

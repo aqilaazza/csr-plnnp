@@ -12,6 +12,7 @@ class SubInstansi extends Model
     protected $fillable = [
         'kategori_instansi_id',
         'nama',
+        'contoh',
     ];
 
     public function kategoriInstansi()

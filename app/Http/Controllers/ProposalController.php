@@ -25,7 +25,7 @@ class ProposalController extends Controller
 
     public function index()
     {
-        $proposal = Proposal::with(['beritaAcara', 'kelayakan', 'kategoriInstansi', 'subInstansi'])->get();
+        $proposal = Proposal::with(['beritaAcara', 'kelayakan', 'kategoriInstansi', 'subInstansi'])->latest()->get();
         return view('proposal.pengajuan.index', compact('proposal'));
     }
 
@@ -39,13 +39,15 @@ class ProposalController extends Controller
     }
 
     /**
-     * AJAX: ambil daftar sub instansi berdasarkan kategori instansi yang dipilih
+     * AJAX: ambil daftar sub instansi berdasarkan kategori instansi yang dipilih.
+     * Kolom `contoh` disertakan supaya front-end bisa memakainya sebagai
+     * placeholder dinamis pada field "Instansi Pengajuan".
      */
     public function getSubInstansi(string $kategoriInstansiId)
     {
         $subInstansi = SubInstansi::where('kategori_instansi_id', $kategoriInstansiId)
             ->orderBy('nama')
-            ->get(['id', 'nama']);
+            ->get(['id', 'nama', 'contoh']);
 
         return response()->json($subInstansi);
     }
@@ -60,6 +62,7 @@ class ProposalController extends Controller
             'sub_instansi_id'       => 'nullable|exists:sub_instansi,id',
             'instansi_pengajuan'    => 'required|string|max:255',
             'contact_person'        => 'required|regex:/^[0-9]+$/|min:10|max:15',
+            'nama_cp'               => 'required|string|max:100',
             'tanggal_disposisi'     => 'required|date',
             'nominal_pengajuan'     => 'nullable|string',
             'barang_pengajuan'      => 'nullable|string|max:255',
@@ -91,10 +94,12 @@ class ProposalController extends Controller
         }
 
         $messages = [
-            'contact_person.required' => 'Contact Person / No. HP Instansi wajib diisi.',
-            'contact_person.regex'    => 'Contact Person / No. HP Instansi hanya boleh berisi angka.',
-            'contact_person.min'      => 'Contact Person / No. HP Instansi minimal 10 digit.',
-            'contact_person.max'      => 'Contact Person / No. HP Instansi maksimal 15 digit.',
+            'contact_person.required' => 'No. HP Contact Person/Instansi wajib diisi.',
+            'contact_person.regex'    => 'No. HP Contact Person/Instansi hanya boleh berisi angka.',
+            'contact_person.min'      => 'No. HP Contact Person/Instansi minimal 10 digit.',
+            'contact_person.max'      => 'No. HP Contact Person/Instansi maksimal 15 digit.',
+            'nama_cp.required'        => 'Nama Contact Person/Instansi wajib diisi.',
+            'nama_cp.max'             => 'Nama Contact Person/Instansi maksimal 100 karakter.',
         ];
 
         $validated = $request->validate($rules, $messages);
@@ -169,6 +174,7 @@ class ProposalController extends Controller
             'sub_instansi_id'       => 'nullable|exists:sub_instansi,id',
             'instansi_pengajuan'    => 'required|string|max:255',
             'contact_person'        => 'required|regex:/^[0-9]+$/|min:10|max:15',
+            'nama_cp'               => 'required|string|max:100',
             'tanggal_disposisi'     => 'required|date',
             'nominal_pengajuan'     => 'nullable',
             'barang_pengajuan'      => 'nullable|string|max:255',
@@ -199,10 +205,12 @@ class ProposalController extends Controller
         }
 
         $messages = [
-            'contact_person.required' => 'Contact Person / No. HP Instansi wajib diisi.',
-            'contact_person.regex'    => 'Contact Person / No. HP Instansi hanya boleh berisi angka.',
-            'contact_person.min'      => 'Contact Person / No. HP Instansi minimal 10 digit.',
-            'contact_person.max'      => 'Contact Person / No. HP Instansi maksimal 15 digit.',
+            'contact_person.required' => 'No. HP Contact Person/Instansi wajib diisi.',
+            'contact_person.regex'    => 'No. HP Contact Person/Instansi hanya boleh berisi angka.',
+            'contact_person.min'      => 'No. HP Contact Person/Instansi minimal 10 digit.',
+            'contact_person.max'      => 'No. HP Contact Person/Instansi maksimal 15 digit.',
+            'nama_cp.required'        => 'Nama Contact Person/Instansi wajib diisi.',
+            'nama_cp.max'             => 'Nama Contact Person/Instansi maksimal 100 karakter.',
         ];
 
         $validated = $request->validate($rules, $messages);
@@ -243,6 +251,7 @@ class ProposalController extends Controller
             'barang_pengajuan',
             'barang_disetujui',
             'contact_person',
+            'nama_cp',
             'kategori_instansi_id',
             'sub_instansi_id',
         ]);
@@ -256,6 +265,7 @@ class ProposalController extends Controller
             'barang_pengajuan',
             'barang_disetujui',
             'contact_person',
+            'nama_cp',
             'kategori_instansi_id',
             'sub_instansi_id',
         ]);

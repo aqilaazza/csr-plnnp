@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\KategoriInstansi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class KategoriInstansiController extends Controller
 {
@@ -22,28 +23,75 @@ class KategoriInstansiController extends Controller
         return view('manajemen-data.kategori-instansi.create');
     }
 
-    public function store(Request $request)
+    protected function validateKategoriInstansi(Request $request, ?string $ignoreId = null): array
     {
-        $validated = $request->validate([
-            'nama'           => 'required|string|max:255|unique:kategori_instansi,nama',
-            'sub_instansi'   => 'nullable|array',
-            'sub_instansi.*' => 'nullable|string|max:255',
+        $namaUniqueRule = 'required|string|max:255|unique:kategori_instansi,nama' . ($ignoreId ? ',' . $ignoreId : '');
+
+        $validator = Validator::make($request->all(), [
+            'nama'                  => $namaUniqueRule,
+            'contoh'                => 'nullable|string|max:255',
+            'sub_instansi'          => 'nullable|array',
+            'sub_instansi.*'        => 'nullable|string|max:255',
+            'sub_instansi_contoh'   => 'nullable|array',
+            'sub_instansi_contoh.*' => 'nullable|string|max:255',
         ], [
             'nama.required' => 'Nama kategori wajib diisi',
             'nama.unique'   => 'Nama kategori sudah ada, gunakan nama lain',
         ]);
 
+        $validator->after(function ($validator) use ($request) {
+            $subNama = collect($request->input('sub_instansi', []))
+                ->map(fn ($v) => trim((string) $v))
+                ->filter(fn ($v) => $v !== '')
+                ->values();
+
+            if ($subNama->isEmpty()) {
+                // Tidak ada sub instansi -> contoh kategori wajib diisi.
+                if (trim((string) $request->input('contoh')) === '') {
+                    $validator->errors()->add('contoh', 'Contoh nama instansi wajib diisi.');
+                }
+            } else {
+                // Ada sub instansi -> contoh tiap sub instansi yang diisi wajib diisi juga.
+                $subContoh = $request->input('sub_instansi_contoh', []);
+                foreach ($request->input('sub_instansi', []) as $index => $namaSub) {
+                    if (trim((string) $namaSub) === '') {
+                        continue;
+                    }
+                    if (trim((string) ($subContoh[$index] ?? '')) === '') {
+                        $validator->errors()->add(
+                            "sub_instansi_contoh.$index",
+                            'Contoh untuk sub instansi "' . trim($namaSub) . '" wajib diisi.'
+                        );
+                    }
+                }
+            }
+        });
+
+        return $validator->validate();
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $this->validateKategoriInstansi($request);
+
         DB::transaction(function () use ($validated) {
+            $subNama   = $validated['sub_instansi'] ?? [];
+            $hasSub    = collect($subNama)->filter(fn ($v) => trim((string) $v) !== '')->isNotEmpty();
+
             $kategoriInstansi = KategoriInstansi::create([
-                'nama' => $validated['nama'],
+                'nama'   => $validated['nama'],
+                'contoh' => $hasSub ? null : ($validated['contoh'] ?? null),
             ]);
 
-            foreach ($validated['sub_instansi'] ?? [] as $namaSub) {
+            $subContoh = $validated['sub_instansi_contoh'] ?? [];
+
+            foreach ($subNama as $index => $namaSub) {
                 if (trim((string) $namaSub) === '') {
                     continue;
                 }
                 $kategoriInstansi->subInstansi()->create([
-                    'nama' => trim($namaSub),
+                    'nama'   => trim($namaSub),
+                    'contoh' => isset($subContoh[$index]) ? trim($subContoh[$index]) : null,
                 ]);
             }
         });
@@ -62,28 +110,30 @@ class KategoriInstansiController extends Controller
     {
         $kategoriInstansi = KategoriInstansi::findOrFail($id);
 
-        $validated = $request->validate([
-            'nama'           => 'required|string|max:255|unique:kategori_instansi,nama,' . $id,
-            'sub_instansi'   => 'nullable|array',
-            'sub_instansi.*' => 'nullable|string|max:255',
-        ], [
-            'nama.required' => 'Nama kategori wajib diisi',
-            'nama.unique'   => 'Nama kategori sudah ada, gunakan nama lain',
-        ]);
+        $validated = $this->validateKategoriInstansi($request, $id);
 
         DB::transaction(function () use ($validated, $kategoriInstansi) {
-            $kategoriInstansi->update(['nama' => $validated['nama']]);
+            $subNama = $validated['sub_instansi'] ?? [];
+            $hasSub  = collect($subNama)->filter(fn ($v) => trim((string) $v) !== '')->isNotEmpty();
+
+            $kategoriInstansi->update([
+                'nama'   => $validated['nama'],
+                'contoh' => $hasSub ? null : ($validated['contoh'] ?? null),
+            ]);
 
             // Sinkron ulang: hapus sub lama, buat ulang sesuai input.
             // Kalau tidak ada input sama sekali, kategori ini jadi tanpa sub.
             $kategoriInstansi->subInstansi()->delete();
 
-            foreach ($validated['sub_instansi'] ?? [] as $namaSub) {
+            $subContoh = $validated['sub_instansi_contoh'] ?? [];
+
+            foreach ($subNama as $index => $namaSub) {
                 if (trim((string) $namaSub) === '') {
                     continue;
                 }
                 $kategoriInstansi->subInstansi()->create([
-                    'nama' => trim($namaSub),
+                    'nama'   => trim($namaSub),
+                    'contoh' => isset($subContoh[$index]) ? trim($subContoh[$index]) : null,
                 ]);
             }
         });
