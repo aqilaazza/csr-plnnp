@@ -351,6 +351,8 @@
                     <button type="button"id="add-bantuan"class="btn btn-sm btn-primary">
                         + Tambah Jenis Bantuan
                     </button>
+                    
+                </div> {{-- tutup modal-body --}}
 
                      <div class="modal-footer">
                          <button type="button" class="btn bg-secondary-subtle text-dark"
@@ -360,40 +362,6 @@
                      </div>
                  </div>
              </form>
-         </div>
-     </div>
-
-     <!-- Modal Upload -->
-     <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
-         <div class="modal-dialog modal-dialog-centered">
-             <div class="modal-content">
-                 <form id="uploadForm" method="POST" enctype="multipart/form-data">
-                     @csrf
-                     <div class="modal-header">
-                         <h5 class="modal-title" id="uploadModalLabel">Upload File Berita Acara</h5>
-                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                     </div>
-
-                     <div class="modal-body">
-                         <input type="file" name="file_upload" id="fileInput" class="form-control" required>
-                         <small class="text-muted">File yang diizinkan: PDF atau Gambar</small>
-
-                         <div id="fileError" class="text-danger mt-2 d-none">
-                             Format file tidak sesuai.
-                         </div>
-                     </div>
-
-                     <div class="modal-footer">
-                         <button type="button" class="btn bg-secondary-subtle text-dark"
-                             data-bs-dismiss="modal">Batal</button>
-
-                         <button type="submit" id="btnUpload" style="background-color: #78C841; color:white"
-                             class="btn">
-                             Upload
-                         </button>
-                     </div>
-                 </form>
-             </div>
          </div>
      </div>
 
@@ -457,6 +425,57 @@
              </form>
          </div>
      </div>
+
+    {{-- Modal Upload --}}
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadModalLabel">
+                            Upload File
+                        </h5>
+
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <input
+                            type="file"
+                            name="file_upload"
+                            class="form-control"
+                            accept=".pdf,.jpg,.jpeg,.png,.heic"
+                            required>
+
+                        <small class="text-muted">
+                            File yang diizinkan: PDF atau Gambar
+                        </small>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+                            Batal
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-success">
+                            Upload
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
 
     @push('scripts')
 
@@ -1110,6 +1129,20 @@
                 $('#deleteForm').attr('action', '/berita-acara/' + id);
 
             });
+        </script>
+
+        {{-- UPLOAD MODAL --}}
+        <script>
+        $(document).on('click', '[data-bs-target="#uploadModal"]', function(){
+
+            const id = $(this).data('id');
+
+            $('#uploadForm').attr(
+                'action',
+                '/berita-acara/' + id + '/upload'
+            );
+
+        });
         </script>
 
          {{-- TOAST --}}
