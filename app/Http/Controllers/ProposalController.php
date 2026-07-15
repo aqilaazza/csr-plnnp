@@ -25,7 +25,7 @@ class ProposalController extends Controller
 
     public function index()
     {
-        $proposal = Proposal::with(['beritaAcara', 'kelayakan', 'kategoriInstansi', 'subInstansi'])->get();
+        $proposal = Proposal::with(['beritaAcara', 'kelayakan', 'kategoriInstansi', 'subInstansi'])->latest()->get();
         return view('proposal.pengajuan.index', compact('proposal'));
     }
 

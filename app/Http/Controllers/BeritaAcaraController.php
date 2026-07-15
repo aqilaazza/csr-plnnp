@@ -13,8 +13,11 @@ class BeritaAcaraController extends Controller
 {
     public function index()
     {
-        // TAMBAHAN: eager load relasi businessSupport biar nggak N+1 query pas ditampilkan di tabel
-        $beritaacara = BeritaAcara::with('businessSupport')->get();
+        // Data terbaru tampil paling atas
+        // dan eager load relasi businessSupport biar nggak N+1 query pas ditampilkan di tabel
+        $beritaacara = BeritaAcara::with('businessSupport')
+            ->latest()
+            ->get();
 
         // Ambil hanya proposal yang belum punya berita acara
         $proposal = Proposal::doesntHave('beritaAcara')->get();

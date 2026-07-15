@@ -20,7 +20,7 @@ class KelayakanController extends Controller
 
     public function index()
     {
-        $kelayakan = Kelayakan::all();
+        $kelayakan = Kelayakan::latest()->get();
 
         // Ambil hanya proposal yang belum memiliki kelayakan
         $proposal = Proposal::doesntHave('kelayakan')->get();
