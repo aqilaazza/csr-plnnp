@@ -8,9 +8,9 @@
         @page {
             /* margin: 130px 30px 60px 30px; sesuaikan margin atas agar tidak tabrakan dengan header */
             margin-top: 72pt;
-            margin-bottom: 50pt;
-            margin-left: 72pt;
-            margin-right: 72pt;
+            margin-bottom: 60pt;
+            margin-left: 60pt;
+            margin-right: 60pt;
         }
 
         .kop-header {
@@ -175,23 +175,30 @@
             vertical-align: top;
         }
 
-        .label {
-            width: 200px;
-            font-weight: bold;
+        .label{
+            display:table-cell;
+            width:160px;
+            font-weight:bold;
+            vertical-align:top;
         }
 
-        .separator {
-            width: 10px;
+        .separator{
+            display:table-cell;
+            width:12px;
+            text-align:center;
+            vertical-align:top;
         }
 
-        .value {
-            width: auto;
+        .value{
+            display:table-cell;
+            text-align:justify;
+            vertical-align:top;
         }
 
         .data-row {
             display: table;
             width: 100%;
-            margin-bottom: 3px;
+            margin-bottom: 8px;
             line-height: 20pt;
         }
 
@@ -279,13 +286,16 @@
         <div class="data-row">
             <div class="label">Dasar Pelaksanaan Program</div>
             <div class="separator">:</div>
-            <div class="value">{!! nl2br(e($data->dasar_pelaksanaan)) !!}</div>
+            <div class="value" style="text-align:justify;">
+                {!! nl2br(e($data->dasar_pelaksanaan)) !!}</div>
         </div>
 
         <div class="data-row">
             <div class="label">Latar Belakang Program</div>
             <div class="separator">:</div>
-            <div class="value">{!! nl2br(e($data->latar_belakang)) !!}</div>
+            <div class="value" style="text-align:justify;">
+                {!! nl2br(e($data->latar_belakang)) !!}
+            </div>
         </div>
 
         <div class="data-row">
@@ -319,13 +329,15 @@
         <div class="data-row">
             <div class="label">Indikator Lingkungan</div>
             <div class="separator">:</div>
-            <div class="value">{!! nl2br(e($data->indikator_lingkungan)) !!}</div>
+            <div class="value" style="text-align:justify;">
+                {!! nl2br(e($data->indikator_lingkungan)) !!}
+            </div>
         </div>
 
         <div class="data-row">
             <div class="label">Indikator Sosial</div>
             <div class="separator">:</div>
-            <div class="value">
+            <div class="value" style="text-align:justify;">
                 {!! nl2br(e($data->indikator_sosial)) !!}
             </div>
         </div>
