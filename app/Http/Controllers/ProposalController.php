@@ -60,7 +60,7 @@ class ProposalController extends Controller
             'sub_instansi_id'       => 'nullable|exists:sub_instansi,id',
             'instansi_pengajuan'    => 'required|string|max:255',
             'contact_person'        => 'required|regex:/^[0-9]+$/|min:10|max:15',
-            'nama_cp'               => 'nullable|string|max:100',
+            'nama_cp'               => 'required|string|max:100',
             'tanggal_disposisi'     => 'required|date',
             'nominal_pengajuan'     => 'nullable|string',
             'barang_pengajuan'      => 'nullable|string|max:255',
@@ -96,6 +96,7 @@ class ProposalController extends Controller
             'contact_person.regex'    => 'No. HP Contact Person/Instansi hanya boleh berisi angka.',
             'contact_person.min'      => 'No. HP Contact Person/Instansi minimal 10 digit.',
             'contact_person.max'      => 'No. HP Contact Person/Instansi maksimal 15 digit.',
+            'nama_cp.required'        => 'Nama Contact Person/Instansi wajib diisi.',
             'nama_cp.max'             => 'Nama Contact Person/Instansi maksimal 100 karakter.',
         ];
 
@@ -171,7 +172,7 @@ class ProposalController extends Controller
             'sub_instansi_id'       => 'nullable|exists:sub_instansi,id',
             'instansi_pengajuan'    => 'required|string|max:255',
             'contact_person'        => 'required|regex:/^[0-9]+$/|min:10|max:15',
-            'nama_cp'               => 'nullable|string|max:100',
+            'nama_cp'               => 'required|string|max:100',
             'tanggal_disposisi'     => 'required|date',
             'nominal_pengajuan'     => 'nullable',
             'barang_pengajuan'      => 'nullable|string|max:255',
@@ -206,6 +207,7 @@ class ProposalController extends Controller
             'contact_person.regex'    => 'No. HP Contact Person/Instansi hanya boleh berisi angka.',
             'contact_person.min'      => 'No. HP Contact Person/Instansi minimal 10 digit.',
             'contact_person.max'      => 'No. HP Contact Person/Instansi maksimal 15 digit.',
+            'nama_cp.required'        => 'Nama Contact Person/Instansi wajib diisi.',
             'nama_cp.max'             => 'Nama Contact Person/Instansi maksimal 100 karakter.',
         ];
 

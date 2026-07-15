@@ -110,7 +110,8 @@
                                             class="form-control @error('nama_cp') is-invalid @enderror"
                                             name="nama_cp"
                                             value="{{ old('nama_cp') }}"
-                                            placeholder="Contoh: Budi Santoso">
+                                            placeholder="Contoh: Budi Santoso"
+                                            required>
 
                                         @error('nama_cp')
                                             <div class="invalid-feedback">{{ $message }}</div>
