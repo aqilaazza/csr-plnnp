@@ -73,22 +73,40 @@
                                     @enderror
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Contact Person / No. HP Instansi</label>
-                                    <input type="text"
-                                        class="form-control @error('contact_person') is-invalid @enderror"
-                                        name="contact_person"
-                                        value="{{ old('contact_person', $proposal->contact_person) }}"
-                                        placeholder="Contoh: 081234567890"
-                                        inputmode="numeric"
-                                        minlength="10"
-                                        maxlength="15"
-                                        required>
+                                {{-- ===================== CONTACT PERSON (UPDATED: tambah Nama CP) ===================== --}}
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nomor Contact Person/Instansi</label>
+                                        <input type="text"
+                                            class="form-control @error('contact_person') is-invalid @enderror"
+                                            name="contact_person"
+                                            value="{{ old('contact_person', $proposal->contact_person) }}"
+                                            placeholder="Contoh: 081234567890"
+                                            inputmode="numeric"
+                                            minlength="10"
+                                            maxlength="15"
+                                            required>
 
-                                    @error('contact_person')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                        @error('contact_person')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nama Contact Person/Instansi</label>
+                                        <input type="text"
+                                            class="form-control @error('nama_cp') is-invalid @enderror"
+                                            name="nama_cp"
+                                            value="{{ old('nama_cp', $proposal->nama_cp) }}"
+                                            placeholder="Contoh: Budi Santoso"
+                                            required>
+
+                                        @error('nama_cp')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
+                                {{-- ===================== END CONTACT PERSON (UPDATED) ===================== --}}
 
                                 {{-- ===================== WILAYAH (UPDATED) ===================== --}}
                                 <div class="row">
@@ -560,13 +578,14 @@
                 });
             });
         </script>
-        {{-- FORMAT RUPIAH v2 (unchanged, dibiarkan sama seperti file asli meskipun terdapat bug "input is not defined") --}}
+
+        {{-- FORMAT RUPIAH v2 (BUG "input is not defined" pada file asli sudah dibetulkan) --}}
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const pengajuanInput = document.getElementById('nominal_pengajuan');
                 const disetujuiInput = document.getElementById('nominal_disetujui');
 
-                function formatRupiah(angka, prefix = 'Rp') {
+                function formatRupiahV2(angka, prefix = 'Rp') {
                     let number_string = angka.replace(/[^,\d]/g, '').toString(),
                         split = number_string.split(','),
                         sisa = split[0].length % 3,
@@ -582,33 +601,19 @@
                     return prefix + ' ' + rupiah;
                 }
 
-                // [pengajuanInput, disetujuiInput].forEach(input => {
-                //     input.addEventListener('input', function(e) {
-                //         let value = e.target.value.replace(/[^0-9]/g, '');
-                //         if (value) {
-                //             e.target.value = formatRupiah(value);
-                //         } else {
-                //             e.target.value = '';
-                //         }
-                //     });
+                [pengajuanInput, disetujuiInput].forEach(input => {
+                    if (!input) return;
+                    input.addEventListener('input', function(e) {
+                        let raw = e.target.value;
 
-                //     if (input.value) {
-                //         input.value = formatRupiah(input.value.replace(/[^0-9]/g, ''));
-                //     }
-                // });
-                input.addEventListener('input', function(e) {
-                    let raw = e.target.value; // nilai asli dari input
+                        if (raw === '-') {
+                            return;
+                        }
 
-                    // Kalau user isi "-", langsung biarkan tanpa format
-                    if (raw === '-') {
-                        return; // biarkan apa adanya
-                    }
-
-                    // Kalau bukan "-", baru kita bersihkan ke angka
-                    let value = raw.replace(/[^0-9]/g, '');
-                    e.target.value = value ? formatRupiah(value) : '';
+                        let value = raw.replace(/[^0-9]/g, '');
+                        e.target.value = value ? formatRupiahV2(value) : '';
+                    });
                 });
-
             });
         </script>
     @endpush

@@ -14,6 +14,7 @@ class Proposal extends Model
         'sub_instansi_id',
         'instansi_pengajuan',
         'contact_person',
+        'nama_cp',
         'kabupaten_id',
         'kabupaten_nama',
         'kecamatan_id',
