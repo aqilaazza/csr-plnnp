@@ -259,7 +259,10 @@
                                         <span class="fw-semibold mb-0">Nama Instansi</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Contact Person</span>
+                                        <span class="fw-semibold mb-0">Contact Person/Instansi</span>
+                                    </th>
+                                    <th style="white-space: nowrap;" class="nowrap">
+                                        <span class="fw-semibold mb-0">Nama CP</span>
                                     </th>
                                     <th style="white-space: nowrap;" class="nowrap">
                                         <span class="fw-semibold mb-0">Lokasi</span>
@@ -331,6 +334,9 @@
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->contact_person ?? '-' }}</p>
+                                        </td>
+                                        <td>
+                                            <p class="mb-0 fw-normal">{{ $data->nama_cp ?? '-' }}</p>
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">
@@ -504,6 +510,7 @@
             });
         </script>
 
+        {{--SCRIPT NAMA CP SETELAH NOMOR--}}
         <script>
             function applyFilters() {
                 const pic = $('#filter-pic').val().toLowerCase();
@@ -513,21 +520,21 @@
 
                 const table = $('#proposalTable').DataTable();
 
-                table.column(13).search(pic);
-                table.column(9).search(tipologi);
+                table.column(14).search(pic);
+                table.column(10).search(tipologi);
 
                 // Filter progress
                 if (progressFilter) {
-                    table.column(17).search('^' + progressFilter + '$', true, false);
+                    table.column(18).search('^' + progressFilter + '$', true, false);
                 } else {
-                    table.column(15).search('', true, false);
+                    table.column(16).search('', true, false);
                 }
 
-                // Filter tahun pada kolom tanggal (index 4)
+                // Filter tahun pada kolom tanggal
                 if (tahun) {
-                    table.column(6).search(tahun);
+                    table.column(7).search(tahun);
                 } else {
-                    table.column(4).search('');
+                    table.column(5).search('');
                 }
 
                 table.draw();
