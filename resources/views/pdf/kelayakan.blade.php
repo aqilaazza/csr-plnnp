@@ -8,9 +8,9 @@
         @page {
             /* margin: 130px 30px 60px 30px; sesuaikan margin atas agar tidak tabrakan dengan header */
             margin-top: 72pt;
-            margin-bottom: 50pt;
-            margin-left: 72pt;
-            margin-right: 72pt;
+            margin-bottom: 60pt;
+            margin-left: 60pt;
+            margin-right: 60pt;
         }
 
         .kop-header {
@@ -148,6 +148,7 @@
         .judul-cell {
             width: 50%;
             text-align: center;
+            vertical-align: middle;
             font-weight: bold;
             font-size: 10px;
             line-height: 1.3;
@@ -156,6 +157,7 @@
         .info-cell {
             width: 35%;
             font-size: 8px;
+            vertical-align: middle;
         }
 
         .section {
@@ -175,23 +177,30 @@
             vertical-align: top;
         }
 
-        .label {
-            width: 200px;
-            font-weight: bold;
+        .label{
+            display:table-cell;
+            width:160px;
+            font-weight:bold;
+            vertical-align:top;
         }
 
-        .separator {
-            width: 10px;
+        .separator{
+            display:table-cell;
+            width:12px;
+            text-align:center;
+            vertical-align:top;
         }
 
-        .value {
-            width: auto;
+        .value{
+            display:table-cell;
+            text-align:justify;
+            vertical-align:top;
         }
 
         .data-row {
             display: table;
             width: 100%;
-            margin-bottom: 3px;
+            margin-bottom: 8px;
             line-height: 20pt;
         }
 
@@ -248,7 +257,7 @@
                 <td class="info-cell"><strong>Revisi</strong> : {{ str_pad($data->revisi, 2, '0', STR_PAD_LEFT) }}</td>
             </tr>
             <tr>
-                <td rowspan="2" class="judul-cell">
+                <td rowspan="2" class="judul-cell" style="padding-top:8px; padding-bottom:8px;">
                     FORMULIR ANALISIS PERMINTAAN BANTUAN PROGRAM CSR
                 </td>
                 <td class="info-cell"><strong>Tanggal Terbit</strong> : {{ \Carbon\Carbon::now()->format('d - m - Y') }}
@@ -279,13 +288,16 @@
         <div class="data-row">
             <div class="label">Dasar Pelaksanaan Program</div>
             <div class="separator">:</div>
-            <div class="value">{!! nl2br(e($data->dasar_pelaksanaan)) !!}</div>
+            <div class="value" style="text-align:justify;">
+                {!! nl2br(e($data->dasar_pelaksanaan)) !!}</div>
         </div>
 
         <div class="data-row">
             <div class="label">Latar Belakang Program</div>
             <div class="separator">:</div>
-            <div class="value">{!! nl2br(e($data->latar_belakang)) !!}</div>
+            <div class="value" style="text-align:justify;">
+                {!! nl2br(e($data->latar_belakang)) !!}
+            </div>
         </div>
 
         <div class="data-row">
@@ -319,13 +331,15 @@
         <div class="data-row">
             <div class="label">Indikator Lingkungan</div>
             <div class="separator">:</div>
-            <div class="value">{!! nl2br(e($data->indikator_lingkungan)) !!}</div>
+            <div class="value" style="text-align:justify;">
+                {!! nl2br(e($data->indikator_lingkungan)) !!}
+            </div>
         </div>
 
         <div class="data-row">
             <div class="label">Indikator Sosial</div>
             <div class="separator">:</div>
-            <div class="value">
+            <div class="value" style="text-align:justify;">
                 {!! nl2br(e($data->indikator_sosial)) !!}
             </div>
         </div>
@@ -463,7 +477,12 @@
         <div class="data-row">
             <div class="label">Contact Person</div>
             <div class="separator">:</div>
-            <div class="value">{{ $data->proposal->contact_person }}</div>
+            <div class="value">
+                {{ $data->proposal->contact_person }}
+                @if(!empty($data->proposal->nama_cp))
+                    ({{ $data->proposal->nama_cp}})
+                @endif
+            </div>
         </div>
 
         <div class="data-row">
