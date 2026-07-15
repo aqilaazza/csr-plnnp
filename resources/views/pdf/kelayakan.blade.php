@@ -463,7 +463,12 @@
         <div class="data-row">
             <div class="label">Contact Person</div>
             <div class="separator">:</div>
-            <div class="value">{{ $data->proposal->contact_person }}</div>
+            <div class="value">
+                {{ $data->proposal->contact_person }}
+                @if(!empty($data->proposal->nama_cp))
+                    ({{ $data->proposal->nama_cp}})
+                @endif
+            </div>
         </div>
 
         <div class="data-row">
