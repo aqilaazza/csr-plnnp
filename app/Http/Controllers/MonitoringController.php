@@ -16,7 +16,9 @@ class MonitoringController extends Controller
             'tipeProses:id,nama',
             'tipeProses.subProses:id,tipe_proses_id,nama_sub',
             'checklist' // untuk mengetahui progress berdasarkan checklist
-        ])->get();
+        ])
+        ->latest()
+        ->get();
 
         return view('proposal.monitoring.index', [
             'proposals' => $proposals,
