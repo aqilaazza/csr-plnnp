@@ -214,6 +214,11 @@
                             <input type="text" class="form-control field-locked"
                                 value="{{ $kelayakan->contact_person ?? '-' }}" readonly tabindex="-1">
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Contact Person</label>
+                            <input type="text" class="form-control field-locked"
+                                value="{{ $kelayakan->nama_cp ?? '-' }}" readonly tabindex="-1">
+                        </div>
 
                         {{-- 11. KATEGORI STAKEHOLDER (otomatis dari Proposal->kategoriInstansi, dibekukan) --}}
                         <div class="mb-3">

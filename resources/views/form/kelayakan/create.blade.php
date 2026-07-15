@@ -105,6 +105,7 @@
                                         data-instansi="{{ $item->instansi_pengajuan }}"
                                         data-kategori="{{ $item->kategoriInstansi->nama ?? '-' }}"
                                         data-contact="{{ $item->contact_person ?? '-' }}"
+                                        data-nama-cp="{{ $item->nama_cp ?? '-' }}"
                                         data-bantuan="{{ $item->barang_pengajuan ?? '-' }}"
                                         data-nominal="{{ $item->nominal_pengajuan ? number_format($item->nominal_pengajuan, 0, ',', '.') : '' }}"
                                         data-nominal-disetujui="{{ $item->nominal_disetujui ? number_format($item->nominal_disetujui, 0, ',', '.') : '' }}"
@@ -229,6 +230,10 @@
                             <label class="form-label">Contact Person</label>
                             <input type="text" id="prev-contact" class="form-control field-locked" readonly tabindex="-1" value="-">
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Contact Person</label>
+                            <input type="text" id="prev-nama-cp" class="form-control field-locked" readonly tabindex="-1" value="-">
+                        </div>
 
                         {{-- 11. KATEGORI STAKEHOLDER (otomatis dari Proposal->kategori_instansi, dibekukan) --}}
                         <div class="mb-3">
@@ -341,7 +346,7 @@
                 const $selected = $('#select-proposal option:selected');
 
                 if (!$selected.val()) {
-                    $('#prev-judul, #prev-tipologi, #prev-instansi, #prev-kategori, #prev-contact, #prev-bantuan, #prev-nominal-disetujui').val('-');
+                    $('#prev-judul, #prev-tipologi, #prev-instansi, #prev-kategori, #prev-contact, #prev-nama-cp, #prev-bantuan, #prev-nominal-disetujui').val('-');
                     return;
                 }
 
@@ -350,6 +355,7 @@
                 $('#prev-instansi').val($selected.data('instansi') || '-');
                 $('#prev-kategori').val($selected.data('kategori') || '-');
                 $('#prev-contact').val($selected.data('contact') || '-');
+                $('#prev-nama-cp').val($selected.data('nama-cp') || '-');
 
                 const barang = $selected.data('bantuan') || '-';
                 const nominal = $selected.data('nominal');
