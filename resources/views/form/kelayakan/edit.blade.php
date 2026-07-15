@@ -56,13 +56,29 @@
                             @enderror
                         </div>
 
-                        {{-- 5. LATAR BELAKANG (input user) --}}
+                        {{-- 5. LATAR BELAKANG (input user, dynamic list) --}}
                         <div class="mb-3">
-                            <label for="latar_belakang" class="form-label">Latar Belakang</label>
-                            <textarea class="form-control @error('latar_belakang') is-invalid @enderror" id="latar_belakang"
-                                name="latar_belakang">{{ old('latar_belakang', $kelayakan->latar_belakang) }}</textarea>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Latar Belakang</label>
+
+                                <button type="button"
+                                    id="btn-add-latar"
+                                    class="btn btn-sm"
+                                    style="background-color:#78C841;color:white;">
+                                    <i class="fas fa-plus me-1"></i> Tambah
+                                </button>
+                            </div>
+
+                            <div id="latar-list"></div>
+
+                            <input
+                                type="hidden"
+                                name="latar_belakang"
+                                id="latar-hidden"
+                                value="{{ old('latar_belakang', $kelayakan->latar_belakang) }}">
+
                             @error('latar_belakang')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -85,16 +101,50 @@
                             @enderror
                         </div>
 
-                        {{-- 7. INDIKATOR LINGKUNGAN (input user) --}}
+                        {{-- 7. INDIKATOR LINGKUNGAN (input user, dynamic list) --}}
                         <div class="mb-3">
-                            <label for="indikator_lingkungan" class="form-label">Indikator Lingkungan</label>
-                            <textarea class="form-control" id="indikator_lingkungan" name="indikator_lingkungan">{{ old('indikator_lingkungan', $kelayakan->indikator_lingkungan) }}</textarea>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Indikator Lingkungan</label>
+
+                                <button
+                                    type="button"
+                                    id="btn-add-lingkungan"
+                                    class="btn btn-sm"
+                                    style="background-color:#78C841;color:white;">
+                                    <i class="fas fa-plus me-1"></i> Tambah
+                                </button>
+                            </div>
+
+                            <div id="lingkungan-list"></div>
+
+                            <input
+                                type="hidden"
+                                name="indikator_lingkungan"
+                                id="lingkungan-hidden"
+                                value="{{ old('indikator_lingkungan', $kelayakan->indikator_lingkungan) }}">
                         </div>
 
-                        {{-- 8. INDIKATOR SOSIAL (input user) --}}
+                        {{-- 8. INDIKATOR SOSIAL (input user, dynamic list) --}}
                         <div class="mb-3">
-                            <label for="indikator_sosial" class="form-label">Indikator Sosial</label>
-                            <textarea class="form-control" id="indikator_sosial" name="indikator_sosial">{{ old('indikator_sosial', $kelayakan->indikator_sosial) }}</textarea>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label mb-0">Indikator Sosial</label>
+
+                                <button
+                                    type="button"
+                                    id="btn-add-sosial"
+                                    class="btn btn-sm"
+                                    style="background-color:#78C841;color:white;">
+                                    <i class="fas fa-plus me-1"></i> Tambah
+                                </button>
+                            </div>
+
+                            <div id="sosial-list"></div>
+
+                            <input
+                                type="hidden"
+                                name="indikator_sosial"
+                                id="sosial-hidden"
+                                value="{{ old('indikator_sosial', $kelayakan->indikator_sosial) }}">
                         </div>
 
                         {{-- 9. JUMLAH PENERIMA MANFAAT (input user) --}}
@@ -235,91 +285,166 @@
 @push('scripts')
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script>
-        $(document).ready(function() {
-            const $list = $('#tujuan-list');
-            const $hidden = $('#tujuan-hidden');
+        $(document).ready(function(){
 
-            // Angka hanya ditampilkan kalau item tujuan lebih dari 1
-            function renumberTujuan() {
-                const $items = $list.find('.tujuan-item');
-                const total = $items.length;
+        function initDynamicList(config){
+const $list = $(config.list);
+                const $hidden = $(config.hidden);
 
-                $items.each(function(index) {
-                    const $number = $(this).find('.tujuan-number');
-                    if (total > 1) {
-                        $number.text((index + 1) + '.').removeClass('d-none');
-                    } else {
-                        $number.text('').addClass('d-none');
-                    }
-                });
-            }
+                function renumber() {
+                    const $items = $list.find('.dynamic-item');
+                    const total = $items.length;
 
-            // Data yang disimpan ke hidden input mengikuti aturan yang sama:
-            // nomor hanya ditulis kalau jumlah tujuan lebih dari 1
-            function syncTujuanHidden() {
-                let values = [];
-                $list.find('.tujuan-item textarea').each(function() {
-                    const val = $(this).val().trim();
-                    if (val !== '') {
-                        values.push(val);
-                    }
-                });
+                    $items.each(function(index) {
 
-                let combined;
-                if (values.length > 1) {
-                    combined = values.map((val, index) => (index + 1) + '. ' + val);
-                } else {
-                    combined = values;
+                        const $number = $(this).find('.dynamic-number');
+
+                        if(total > 1){
+                            $number.text((index+1)+'.').removeClass('d-none');
+                        }else{
+                            $number.text('').addClass('d-none');
+                        }
+
+                    });
                 }
 
-                $hidden.val(combined.join('\n'));
-            }
+                function syncHidden() {
 
-            function addTujuanRow(text = '') {
-                // tujuan-number dan textarea disamakan padding-top-nya (0.375rem, sama dengan
-                // padding bawaan Bootstrap .form-control) supaya nomor sejajar lurus dengan baris pertama teks
-                const row = $(`
-                    <div class="tujuan-item d-flex align-items-start gap-2 mb-2">
-                        <span class="tujuan-number fw-semibold" style="min-width: 24px; padding-top: 0.375rem; line-height: 1.5;"></span>
-                        <textarea class="form-control" rows="2" placeholder="Tulis tujuan..."></textarea>
-                        <button type="button" class="btn btn-sm btn-light text-danger btn-remove-tujuan">
+                    let values=[];
+
+                    $list.find('textarea').each(function(){
+
+                        const val=$(this).val().trim();
+
+                        if(val!=''){
+                            values.push(val);
+                        }
+
+                    });
+
+                    let result;
+
+                    if(values.length>1){
+                        result=values.map((v,i)=>(i+1)+'. '+v);
+                    }else{
+                        result=values;
+                    }
+
+                    $hidden.val(result.join('\n'));
+
+                }
+
+                function addRow(text=''){
+
+                    const row = $(`
+                    <div class="dynamic-item d-flex align-items-start gap-2 mb-2">
+
+                        <span class="dynamic-number fw-semibold"
+                            style="min-width:24px;padding-top:.375rem;line-height:1.5">
+                        </span>
+
+                        <textarea
+                            class="form-control"
+                            rows="2"
+                            placeholder="${config.placeholder}"></textarea>
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-light text-danger btn-remove">
                             <i class="fas fa-trash-alt"></i>
                         </button>
+
                     </div>
-                `);
-                row.find('textarea').val(text);
-                $list.append(row);
-                renumberTujuan();
-            }
+                    `);
 
-            // Isi ulang dari data tujuan yang sudah tersimpan (format: "1. isi\n2. isi" atau "isi" tanpa nomor)
-            const oldTujuan = $hidden.val();
-            if (oldTujuan && oldTujuan.trim() !== '') {
-                const lines = oldTujuan.split('\n').filter(l => l.trim() !== '');
-                lines.forEach(line => {
-                    const cleaned = line.replace(/^\d+\.\s*/, '');
-                    addTujuanRow(cleaned);
-                });
-            } else {
-                addTujuanRow();
-            }
+                    row.find('textarea').val(text);
 
-            $('#btn-add-tujuan').on('click', function() {
-                addTujuanRow();
-            });
+                    $list.append(row);
 
-            $list.on('click', '.btn-remove-tujuan', function() {
-                if ($list.find('.tujuan-item').length > 1) {
-                    $(this).closest('.tujuan-item').remove();
-                    renumberTujuan();
-                } else {
-                    $(this).closest('.tujuan-item').find('textarea').val('');
+                    renumber();
+
                 }
-            });
 
-            $('form').on('submit', function() {
-                syncTujuanHidden();
-            });
+                const oldValue=$hidden.val();
+
+                if(oldValue && oldValue.trim()!=''){
+
+                    oldValue
+                        .split('\n')
+                        .filter(x=>x.trim()!='')
+                        .forEach(function(line){
+
+                            addRow(
+                                line.replace(/^\d+\.\s*/,'')
+                            );
+
+                        });
+
+                }else{
+
+                    addRow();
+
+                }
+
+                $(config.button).on('click',function(){
+
+                    addRow();
+
+                });
+
+                $list.on('click','.btn-remove',function(){
+
+                    if($list.find('.dynamic-item').length>1){
+
+                        $(this).closest('.dynamic-item').remove();
+
+                        renumber();
+
+                    }else{
+
+                        $(this).closest('.dynamic-item')
+                            .find('textarea')
+                            .val('');
+
+                    }
+
+                });
+
+                $('form').on('submit',function(){
+
+                    syncHidden();
+
+                });
+        }
+
+        initDynamicList({
+            list:'#tujuan-list',
+            hidden:'#tujuan-hidden',
+            button:'#btn-add-tujuan',
+            placeholder:'Tulis tujuan...'
         });
+
+        initDynamicList({
+            list:'#latar-list',
+            hidden:'#latar-hidden',
+            button:'#btn-add-latar',
+            placeholder:'Tulis latar belakang...'
+        });
+
+        initDynamicList({
+            list:'#lingkungan-list',
+            hidden:'#lingkungan-hidden',
+            button:'#btn-add-lingkungan',
+            placeholder:'Tulis indikator lingkungan...'
+        });
+
+        initDynamicList({
+            list:'#sosial-list',
+            hidden:'#sosial-hidden',
+            button:'#btn-add-sosial',
+            placeholder:'Tulis indikator sosial...'
+        });
+
+    });
     </script>
 @endpush
