@@ -148,6 +148,7 @@
         .judul-cell {
             width: 50%;
             text-align: center;
+            vertical-align: middle;
             font-weight: bold;
             font-size: 10px;
             line-height: 1.3;
@@ -156,6 +157,7 @@
         .info-cell {
             width: 35%;
             font-size: 8px;
+            vertical-align: middle;
         }
 
         .section {
@@ -255,7 +257,7 @@
                 <td class="info-cell"><strong>Revisi</strong> : {{ str_pad($data->revisi, 2, '0', STR_PAD_LEFT) }}</td>
             </tr>
             <tr>
-                <td rowspan="2" class="judul-cell">
+                <td rowspan="2" class="judul-cell" style="padding-top:8px; padding-bottom:8px;">
                     FORMULIR ANALISIS PERMINTAAN BANTUAN PROGRAM CSR
                 </td>
                 <td class="info-cell"><strong>Tanggal Terbit</strong> : {{ \Carbon\Carbon::now()->format('d - m - Y') }}
