@@ -36,6 +36,13 @@
              box-shadow: 3px 0 5px rgba(0, 0, 0, 0.1);
              z-index: 2 !important;
          }
+
+         .bantuan-item{
+            border: 2px solid #adb5bd !important;
+            border-radius: .5rem;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(0,0,0,.04);
+         }
      </style>
  @endpush
  @section('content')
@@ -292,26 +299,60 @@
                              <textarea class="form-control" id="jabatan_penerima" name="jabatan_penerima" required>{{ old('jabatan_penerima') }}</textarea>
                          </div>
 
-                         <div id="bantuan-wrapper">
-                             <div class="bantuan-item mb-3 d-flex align-items-start gap-2">
-                                 <div style="flex-grow:1;">
-                                     <label class="form-label">Jenis Bantuan</label>
-                                     <input type="text" name="jenis_bantuan[]" class="form-control mb-2"
-                                         placeholder="Contoh: Bibit Alpukat" required>
+                    <div id="bantuan-wrapper">
 
-                                     <label class="form-label">Jumlah</label>
-                                     <input type="text" name="jumlah_bantuan[]" class="form-control"
-                                         placeholder="Contoh: 500 buah" required>
-                                 </div>
-                                 <button type="button" class="btn btn-danger btn-remove"
-                                     style="height: fit-content; margin-top: 28px;">&times;</button>
-                             </div>
-                         </div>
+                        <div class="bantuan-item mb-4 border border-2 rounded p-3 position-relative">
 
-                         <button type="button" id="add-bantuan" class="btn btn-sm btn-secondary mb-3">
-                             + Tambah Jenis Bantuan
-                         </button>
-                     </div>
+                            <button type="button"
+                                class="btn btn-danger btn-sm btn-remove position-absolute top-0 end-0 m-2">
+                                &times;
+                            </button>
+
+                            <div class="mb-3">
+                                <label class="form-label">Jenis Bantuan</label>
+                                <input type="text"
+                                    name="jenis_bantuan[]"
+                                    class="form-control"
+                                    placeholder="Contoh: Bantuan Cangkul"
+                                    required>
+                            </div>
+
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Jumlah</label>
+                                    <input type="number"
+                                        name="jumlah_barang[]"
+                                        class="form-control jumlah-input"
+                                        placeholder="Contoh: 100">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Satuan</label>
+                                    <input type="text"
+                                        name="satuan_barang[]"
+                                        class="form-control satuan-input"
+                                        placeholder="Unit / Paket / Bibit">
+                                </div>
+
+                            </div>
+
+                            <div class="mt-3">
+                                <label class="form-label">Nominal</label>
+                                <input type="text"
+                                    name="nominal[]"
+                                    class="form-control nominal-input"
+                                    placeholder="Masukkan Nominal">
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <button type="button"id="add-bantuan"class="btn btn-sm btn-primary">
+                        + Tambah Jenis Bantuan
+                    </button>
+                    
+                </div> {{-- tutup modal-body --}}
 
                      <div class="modal-footer">
                          <button type="button" class="btn bg-secondary-subtle text-dark"
@@ -321,40 +362,6 @@
                      </div>
                  </div>
              </form>
-         </div>
-     </div>
-
-     <!-- Modal Upload -->
-     <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
-         <div class="modal-dialog modal-dialog-centered">
-             <div class="modal-content">
-                 <form id="uploadForm" method="POST" enctype="multipart/form-data">
-                     @csrf
-                     <div class="modal-header">
-                         <h5 class="modal-title" id="uploadModalLabel">Upload File Berita Acara</h5>
-                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                     </div>
-
-                     <div class="modal-body">
-                         <input type="file" name="file_upload" id="fileInput" class="form-control" required>
-                         <small class="text-muted">File yang diizinkan: PDF atau Gambar</small>
-
-                         <div id="fileError" class="text-danger mt-2 d-none">
-                             Format file tidak sesuai.
-                         </div>
-                     </div>
-
-                     <div class="modal-footer">
-                         <button type="button" class="btn bg-secondary-subtle text-dark"
-                             data-bs-dismiss="modal">Batal</button>
-
-                         <button type="submit" id="btnUpload" style="background-color: #78C841; color:white"
-                             class="btn">
-                             Upload
-                         </button>
-                     </div>
-                 </form>
-             </div>
          </div>
      </div>
 
@@ -419,260 +426,745 @@
          </div>
      </div>
 
-     @push('scripts')
-         <!-- jQuery paling awal -->
-         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-         <!-- DataTables + Plugins -->
-         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-         <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-         <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
-         <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
-         <!-- Select2 -->
-         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    {{-- Modal Upload --}}
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="uploadForm" method="POST" enctype="multipart/form-data">
+                @csrf
 
-         <script>
-             $(document).ready(function() {
-                         $('#select-proposal').select2({
-                             theme: 'bootstrap4',
-                             allowClear: true,
-                             width: '100%',
-                             dropdownParent: $('#createModal'),
-                             language: {
-                                 searching: function() {
-                                     return "Mencari...";
-                                 },
-                                 inputTooShort: function() {
-                                     return "Ketik untuk mencari proposal...";
-                                 },
-                                 noResults: function() {
-                                     return "Tidak ada hasil ditemukan";
-                                 }
-                             }
-                         });
+                <div class="modal-content">
 
-                         // Tambahkan placeholder ke input pencarian Select2 saat dropdown terbuka
-                         $('#select-proposal').on('select2:open', function() {
-                             let searchField = $('.select2-search__field');
-                             searchField.attr('placeholder', 'Ketik untuk mencari proposal...');
-                         });
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="uploadModalLabel">
+                            Upload File
+                        </h5>
 
-                         // Reset nilai saat modal ditutup
-                         $('#createModal').on('hidden.bs.modal', function() {
-                             $('#select-proposal').val(null).trigger('change');
-                         });
-         </script>
-
-         <script>
-             $(document).ready(function() {
-                 // Select2 di modal tambah
-                 $('#createModal').on('shown.bs.modal', function() {
-                     $('#select-proposal').select2({
-                         dropdownParent: $('#createModal'),
-                         width: '100%',
-                         theme: 'bootstrap4',
-                         placeholder: '-- Pilih Proposal --'
-                     });
-                 });
-
-                 // DataTables dengan freeze header & kolom
-                 $('#tipologiTable').DataTable({
-                     scrollX: true,
-                     scrollY: "500px",
-                     scrollCollapse: true,
-                     paging: true,
-                     fixedHeader: true,
-                     fixedColumns: {
-                         leftColumns: 2
-                     },
-                     language: {
-                         search: "Cari",
-                         lengthMenu: "Tampil _MENU_",
-                         zeroRecords: "Data tidak ditemukan",
-                         info: "Menampilkan _START_–_END_ dari _TOTAL_ data",
-                         infoEmpty: "Menampilkan 0–0 dari 0 data",
-                         infoFiltered: "(difilter dari _MAX_ total data)",
-                         paginate: {
-                             first: "«",
-                             last: "»",
-                             previous: "‹",
-                             next: "›"
-                         }
-                     },
-                     pageLength: 10,
-                     lengthChange: true,
-                     lengthMenu: [
-                         [10, 25, 50, -1],
-                         [10, 25, 50, "Semua"]
-                     ],
-                     pagingType: "full_numbers",
-                     drawCallback: function() {
-                         $('.dataTables_paginate > .pagination').addClass('pagination-sm');
-                     }
-                 });
-             });
-         </script>
-
-         <script>
-             document.getElementById('add-bantuan').addEventListener('click', function() {
-                 let wrapper = document.getElementById('bantuan-wrapper');
-                 let newItem = document.createElement('div');
-                 newItem.classList.add('bantuan-item', 'mb-3', 'd-flex', 'align-items-start', 'gap-2');
-                 newItem.innerHTML = `
-        <div style="flex-grow:1;">
-            <label class="form-label">Jenis Bantuan</label>
-            <input type="text" name="jenis_bantuan[]" class="form-control mb-2" placeholder="Contoh: Bibit Alpukat" required>
-
-            <label class="form-label">Jumlah</label>
-            <input type="text" name="jumlah_bantuan[]" class="form-control" placeholder="Contoh: 500 buah" required>
-        </div>
-        <button type="button" class="btn btn-danger btn-remove" style="height: fit-content; margin-top: 28px;">&times;</button>
-    `;
-                 wrapper.appendChild(newItem);
-             });
-
-             // Event delegation untuk tombol hapus
-             document.getElementById('bantuan-wrapper').addEventListener('click', function(e) {
-                 if (e.target && e.target.classList.contains('btn-remove')) {
-                     e.target.closest('.bantuan-item').remove();
-                 }
-             });
-         </script>
-
-         {{-- TAMBAHAN: Toggle input manual saat pilih "Lainnya" --}}
-         <script>
-             $(document).ready(function() {
-                 // Toggle - modal Create
-                 $('#business_support_choice').on('change', function() {
-                     if ($(this).val() === 'lainnya') {
-                         $('#bisnis-support-lainnya-wrapper').removeClass('d-none');
-                         $('#bisnis_support_lainnya').prop('required', true);
-                     } else {
-                         $('#bisnis-support-lainnya-wrapper').addClass('d-none');
-                         $('#bisnis_support_lainnya').prop('required', false).val('');
-                     }
-                 });
-
-                 // Reset saat modal create ditutup
-                 $('#createModal').on('hidden.bs.modal', function() {
-                     $('#business_support_choice').val('');
-                     $('#bisnis-support-lainnya-wrapper').addClass('d-none');
-                     $('#bisnis_support_lainnya').prop('required', false).val('');
-                 });
-
-                 // Toggle - modal Edit
-                 $('#edit-business_support_choice').on('change', function() {
-                     if ($(this).val() === 'lainnya') {
-                         $('#edit-bisnis-support-lainnya-wrapper').removeClass('d-none');
-                         $('#edit-bisnis_support_lainnya').prop('required', true);
-                     } else {
-                         $('#edit-bisnis-support-lainnya-wrapper').addClass('d-none');
-                         $('#edit-bisnis_support_lainnya').prop('required', false).val('');
-                     }
-                 });
-             });
-         </script>
-         {{-- END TAMBAHAN --}}
-
-         {{-- EDIT MODAL --}}
-         <script>
-             $(document).on('click', '.btn-edit', function() {
-                 const id = $(this).data('id');
-                 const nama = $(this).data('nama');
-                 const jabatan = $(this).data('jabatan');
-                 const proposal = $(this).data('proposal');
-                 const businessSupportId = $(this).data('business-support-id'); // TAMBAHAN
-                 const bisnisLainnya = $(this).data('bisnis-lainnya'); // TAMBAHAN
-
-                 // Isi field dasar
-                 $('#edit-nama').val(nama);
-                 $('#edit-jabatan').val(jabatan);
-                 $('#edit-proposal').val(proposal);
-
-                 // Update action form
-                 $('#editForm').attr('action', '/berita-acara/' + id);
-
-                 // TAMBAHAN: Prefill dropdown Business Support
-                 if (bisnisLainnya) {
-                     $('#edit-business_support_choice').val('lainnya').trigger('change');
-                     $('#edit-bisnis_support_lainnya').val(bisnisLainnya);
-                 } else if (businessSupportId) {
-                     $('#edit-business_support_choice').val(String(businessSupportId)).trigger('change');
-                 } else {
-                     $('#edit-business_support_choice').val('').trigger('change');
-                 }
-                 // END TAMBAHAN
-
-                 // Kosongkan dulu bantuan lama
-                 $('#edit-bantuan-wrapper').html('');
-
-                 // Ambil data bantuan dari server (pastikan route-nya ada)
-                 $.get(`/berita-acara/${id}/bantuan`, function(data) {
-                     data.forEach(function(item) {
-                         let row = `
-                    <div class="bantuan-item mb-3 d-flex align-items-start gap-2">
-                        <div style="flex-grow:1;">
-                            <label class="form-label">Jenis Bantuan</label>
-                            <input type="text" name="jenis_bantuan[]" value="${item.jenis_bantuan}" class="form-control mb-2" required>
-
-                            <label class="form-label">Jumlah</label>
-                            <input type="text" name="jumlah_bantuan[]" value="${item.jumlah_bantuan}" class="form-control" required>
-                        </div>
-                        <button type="button" class="btn btn-danger btn-remove" style="height: fit-content; margin-top: 28px;">&times;</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                `;
-                         $('#edit-bantuan-wrapper').append(row);
-                     });
-                 });
-             });
 
-             // Tambah bantuan di modal edit
-             $('#edit-add-bantuan').on('click', function() {
-                 let row = `
-            <div class="bantuan-item mb-3 d-flex align-items-start gap-2">
-                <div style="flex-grow:1;">
-                    <label class="form-label">Jenis Bantuan</label>
-                    <input type="text" name="jenis_bantuan[]" class="form-control mb-2" required>
+                    <div class="modal-body">
 
-                    <label class="form-label">Jumlah</label>
-                    <input type="text" name="jumlah_bantuan[]" class="form-control" required>
+                        <input
+                            type="file"
+                            name="file_upload"
+                            class="form-control"
+                            accept=".pdf,.jpg,.jpeg,.png,.heic"
+                            required>
+
+                        <small class="text-muted">
+                            File yang diizinkan: PDF atau Gambar
+                        </small>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+                            Batal
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-success">
+                            Upload
+                        </button>
+                    </div>
+
                 </div>
-                <button type="button" class="btn btn-danger btn-remove" style="height: fit-content; margin-top: 28px;">&times;</button>
-            </div>
-        `;
-                 $('#edit-bantuan-wrapper').append(row);
-             });
+            </form>
+        </div>
+    </div>
 
-             // Hapus field bantuan
-             $(document).on('click', '.btn-remove', function() {
-                 $(this).closest('.bantuan-item').remove();
-             });
-         </script>
+    @push('scripts')
+
+        <!-- jQuery paling awal -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <!-- DataTables + Plugins -->
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+        <script src="https://cdn.datatables.net/fixedheader/3.4.0/js/dataTables.fixedHeader.min.js"></script>
+        <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
+
+        <!-- Select2 -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+        {{-- DATATABLE & SELECT2 --}}
+        <script>
+            $(document).ready(function() {
+
+                $('#select-proposal').select2({
+                    theme: 'bootstrap4',
+                    allowClear: true,
+                    width: '100%',
+                    dropdownParent: $('#createModal'),
+                    language: {
+                        searching: function() {
+                            return "Mencari...";
+                        },
+                        inputTooShort: function() {
+                            return "Ketik untuk mencari proposal...";
+                        },
+                        noResults: function() {
+                            return "Tidak ada hasil ditemukan";
+                        }
+                    }
+                });
+
+                $('#select-proposal').on('select2:open', function() {
+                    $('.select2-search__field')
+                        .attr('placeholder', 'Ketik untuk mencari proposal...');
+                });
+
+                $('#createModal').on('hidden.bs.modal', function() {
+                    $('#select-proposal').val(null).trigger('change');
+                });
+
+                $('#createModal').on('shown.bs.modal', function() {
+                    $('#select-proposal').select2({
+                        dropdownParent: $('#createModal'),
+                        width: '100%',
+                        theme: 'bootstrap4',
+                        placeholder: '-- Pilih Proposal --'
+                    });
+                });
+
+                $('#tipologiTable').DataTable({
+                    scrollX: true,
+                    scrollY: "500px",
+                    scrollCollapse: true,
+                    paging: true,
+                    fixedHeader: true,
+                    fixedColumns: {
+                        leftColumns: 2
+                    },
+                    language: {
+                        search: "Cari",
+                        lengthMenu: "Tampil _MENU_",
+                        zeroRecords: "Data tidak ditemukan",
+                        info: "Menampilkan _START_–_END_ dari _TOTAL_ data",
+                        infoEmpty: "Menampilkan 0–0 dari 0 data",
+                        infoFiltered: "(difilter dari _MAX_ total data)",
+                        paginate: {
+                            first: "«",
+                            last: "»",
+                            previous: "‹",
+                            next: "›"
+                        }
+                    },
+                    pageLength: 10,
+                    lengthChange: true,
+                    lengthMenu: [
+                        [10, 25, 50, -1],
+                        [10, 25, 50, "Semua"]
+                    ],
+                    pagingType: "full_numbers",
+                    drawCallback: function() {
+                        $('.dataTables_paginate > .pagination')
+                            .addClass('pagination-sm');
+                    }
+                });
+
+            });
+        </script>
+
+        {{-- UTILITY FUNCTION --}}
+        <script>
+
+            function formatRupiah(input){
+
+                let angka = input.value.replace(/\D/g,'');
+
+                if(angka === ''){
+                    input.value = '';
+                    return;
+                }
+
+                input.value = new Intl.NumberFormat('id-ID',{
+                    style:'currency',
+                    currency:'IDR',
+                    minimumFractionDigits:0
+                }).format(angka);
+            }
+
+            function toggleJenis(item){
+
+                let jenis = item.find('input[name="jenis_bantuan[]"]')
+                                .val()
+                                .toLowerCase();
+
+                if(jenis.includes('dana')){
+
+                    item.find('.jumlah-input')
+                        .val('')
+                        .prop('disabled', true);
+
+                    item.find('.satuan-input')
+                        .val('')
+                        .prop('disabled', true);
+
+                }else{
+
+                    item.find('.jumlah-input')
+                        .prop('disabled', false);
+
+                    item.find('.satuan-input')
+                        .prop('disabled', false);
+
+                }
+
+            }
+
+        </script>
+
+        {{--  CREATE MODAL --}}
+        <script>
+
+            document.getElementById('add-bantuan')
+                .addEventListener('click', function () {
+
+                    let wrapper = document.getElementById('bantuan-wrapper');
+
+                    let newItem = document.createElement('div');
+
+                    newItem.className =
+                        'bantuan-item mb-4 border rounded p-3 position-relative';
+
+                    newItem.innerHTML = `
+                        <button type="button"
+                            class="btn btn-danger btn-sm btn-remove position-absolute top-0 end-0 m-2">
+                            &times;
+                        </button>
+
+                        <div class="mb-3">
+                            <label class="form-label">Jenis Bantuan</label>
+                            <input type="text"
+                                name="jenis_bantuan[]"
+                                class="form-control"
+                                placeholder="Contoh: Bantuan Cangkul"
+                                required>
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+                                <label class="form-label">Jumlah</label>
+                                <input type="number"
+                                    name="jumlah_barang[]"
+                                    class="form-control jumlah-input"
+                                    placeholder="Contoh: 100">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Satuan</label>
+                                <input type="text"
+                                    name="satuan_barang[]"
+                                    class="form-control satuan-input"
+                                    placeholder="Unit/Paket/Bibit">
+                            </div>
+
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label">Nominal</label>
+                            <input
+                                type="text"
+                                name="nominal[]"
+                                class="form-control nominal-input"
+                                placeholder="Masukkan Nominal">
+                        </div>
+                    `;
+
+                    wrapper.appendChild(newItem);
+
+                    let lastItem = $(wrapper)
+                        .find('.bantuan-item')
+                        .last();
+
+                    toggleJenis(lastItem);
+                    toggleInput(lastItem);
+
+            });
+
+            $(document).on('input','.nominal-input',function(){
+
+                formatRupiah(this);
+
+                toggleInput($(this).closest('.bantuan-item'));
+
+            });
+
+            function toggleInput(item){
+
+                const nominal = item.find('.nominal-input').val().trim();
+
+                if(nominal !== ""){
+
+                    item.find('.jumlah-input').prop('disabled', true);
+                    item.find('.satuan-input').prop('disabled', true);
+
+                }else{
+
+                    item.find('.jumlah-input').prop('disabled', false);
+                    item.find('.satuan-input').prop('disabled', false);
+
+                }
+
+                // Nominal selalu bisa diisi
+                item.find('.nominal-input').prop('disabled', false);
+
+            }
+
+            $(document).on('input','input[name="jenis_bantuan[]"]',function(){
+
+                toggleJenis(
+                    $(this).closest('.bantuan-item')
+                );
+
+            });
+
+            $(document).on('input', '.jumlah-input, .satuan-input', function(){
+
+                toggleInput($(this).closest('.bantuan-item'));
+
+            });
+
+            document.getElementById('bantuan-wrapper')
+                .addEventListener('click', function(e){
+
+                    if(e.target.classList.contains('btn-remove')){
+
+                        e.target
+                            .closest('.bantuan-item')
+                            .remove();
+
+                    }
+
+            });
+
+        </script>
+
+        {{-- BUSINESS SUPPORT --}}
+        <script>
+
+            $(document).ready(function(){
+
+                $('#business_support_choice').on('change', function(){
+
+                    if($(this).val() === 'lainnya'){
+
+                        $('#bisnis-support-lainnya-wrapper')
+                            .removeClass('d-none');
+
+                        $('#bisnis_support_lainnya')
+                            .prop('required', true);
+
+                    }else{
+
+                        $('#bisnis-support-lainnya-wrapper')
+                            .addClass('d-none');
+
+                        $('#bisnis_support_lainnya')
+                            .prop('required', false)
+                            .val('');
+
+                    }
+
+                });
+
+                $('#createModal').on('hidden.bs.modal', function(){
+
+                    $('#business_support_choice').val('');
+
+                    $('#bisnis-support-lainnya-wrapper')
+                        .addClass('d-none');
+
+                    $('#bisnis_support_lainnya')
+                        .prop('required', false)
+                        .val('');
+
+                });
+
+                $('#edit-business_support_choice').on('change', function(){
+
+                    if($(this).val() === 'lainnya'){
+
+                        $('#edit-bisnis-support-lainnya-wrapper')
+                            .removeClass('d-none');
+
+                        $('#edit-bisnis_support_lainnya')
+                            .prop('required', true);
+
+                    }else{
+
+                        $('#edit-bisnis-support-lainnya-wrapper')
+                            .addClass('d-none');
+
+                        $('#edit-bisnis_support_lainnya')
+                            .prop('required', false)
+                            .val('');
+
+                    }
+
+                });
+
+            });
+
+        </script>
+
+        {{-- EDIT MODAL --}}
+        <script>
+
+            // ==========================
+            // BUKA MODAL EDIT
+            // ==========================
+
+            $(document).on('click', '.btn-edit', function () {
+
+                const id = $(this).data('id');
+                const nama = $(this).data('nama');
+                const jabatan = $(this).data('jabatan');
+                const proposal = $(this).data('proposal');
+
+                const businessSupportId = $(this).data('business-support-id');
+                const bisnisLainnya    = $(this).data('bisnis-lainnya');
+
+                // isi field utama
+                $('#edit-nama').val(nama);
+                $('#edit-jabatan').val(jabatan);
+                $('#edit-proposal').val(proposal);
+
+                // action form
+                $('#editForm').attr('action', '/berita-acara/' + id);
+
+                // Business Support
+                if (bisnisLainnya) {
+
+                    $('#edit-business_support_choice')
+                        .val('lainnya')
+                        .trigger('change');
+
+                    $('#edit-bisnis_support_lainnya')
+                        .val(bisnisLainnya);
+
+                } else if (businessSupportId) {
+
+                    $('#edit-business_support_choice')
+                        .val(String(businessSupportId))
+                        .trigger('change');
+
+                } else {
+
+                    $('#edit-business_support_choice')
+                        .val('')
+                        .trigger('change');
+
+                }
+
+                // kosongkan bantuan
+                $('#edit-bantuan-wrapper').html('');
+
+                // ambil bantuan
+                $.get(`/berita-acara/${id}/bantuan`, function (data) {
+
+                    $('#edit-bantuan-wrapper').html('');
+
+                    data.forEach(function(item){
+
+                        let row = `
+                        <div class="bantuan-item mb-4 border border-2 rounded p-3 position-relative">
+
+                            <button
+                                type="button"
+                                class="btn btn-danger btn-sm btn-remove position-absolute top-0 end-0 m-2">
+                                &times;
+                            </button>
+
+                            <div class="mb-3">
+                                <label class="form-label">Jenis Bantuan</label>
+                                <input
+                                    type="text"
+                                    name="jenis_bantuan[]"
+                                    value="${item.jenis}"
+                                    class="form-control"
+                                    required>
+                            </div>
+
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Jumlah</label>
+                                    <input
+                                        type="number"
+                                        name="jumlah_barang[]"
+                                        value="${item.jumlah ?? ''}"
+                                        class="form-control jumlah-input">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Satuan</label>
+                                    <input
+                                        type="text"
+                                        name="satuan_barang[]"
+                                        value="${item.satuan ?? ''}"
+                                        class="form-control satuan-input">
+                                </div>
+
+                            </div>
+
+                            <div class="mt-3">
+                                <label class="form-label">Nominal</label>
+                                <input
+                                    type="text"
+                                    name="nominal[]"
+                                    value="${item.nominal ?? ''}"
+                                    class="form-control nominal-input">
+                            </div>
+
+                        </div>
+                        `;
+
+                        $('#edit-bantuan-wrapper').append(row);
+
+                        let lastItem = $('#edit-bantuan-wrapper .bantuan-item').last();
+
+                        // format rupiah
+                        let nominalInput = lastItem.find('.nominal-input')[0];
+                        formatRupiah(nominalInput);
+
+                        toggleJenis(lastItem);
+                        toggleInput(lastItem);
+
+                    });
+
+                });
+
+            });
 
 
-         {{-- DELETE MODAL --}}
-         <script>
-             $(document).on('click', '.btn-delete', function() {
-                 const id = $(this).data('id');
-                 const nama = $(this).data('nama');
+            // ==========================
+            // TAMBAH BANTUAN
+            // ==========================
 
-                 $('#deleteDataName').text(nama);
-                 $('#deleteForm').attr('action', '/berita-acara/' + id);
-             });
-         </script>
+            $('#edit-add-bantuan').on('click', function(){
+
+                let row = `
+                <div class="bantuan-item mb-4 border border-2 rounded p-3 position-relative">
+
+                    <button
+                        type="button"
+                        class="btn btn-danger btn-sm btn-remove position-absolute top-0 end-0 m-2">
+                        &times;
+                    </button>
+
+                    <div class="mb-3">
+                        <label class="form-label">Jenis Bantuan</label>
+                        <input
+                            type="text"
+                            name="jenis_bantuan[]"
+                            class="form-control"
+                            required>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Jumlah</label>
+                            <input
+                                type="number"
+                                name="jumlah_barang[]"
+                                class="form-control jumlah-input">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Satuan</label>
+                            <input
+                                type="text"
+                                name="satuan_barang[]"
+                                class="form-control satuan-input">
+                        </div>
+
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label">Nominal</label>
+                        <input
+                            type="text"
+                            name="nominal[]"
+                            class="form-control nominal-input">
+                    </div>
+
+                </div>
+                `;
+
+                $('#edit-bantuan-wrapper').append(row);
+
+                let lastItem = $('#edit-bantuan-wrapper .bantuan-item').last();
+
+                toggleJenis(lastItem);
+                toggleInput(lastItem);
+
+            });
+
+
+            // ==========================
+            // HAPUS
+            // ==========================
+
+            $(document).on('click','.btn-remove',function(){
+
+                $(this).closest('.bantuan-item').remove();
+
+            });
+
+
+            // ==========================
+            // CEK JENIS BANTUAN
+            // ==========================
+
+            function toggleJenis(item){
+
+                let jenis = item.find('input[name="jenis_bantuan[]"]')
+                                .val()
+                                .toLowerCase();
+
+                if(jenis.includes('dana')){
+
+                    item.find('.jumlah-input')
+                        .val('')
+                        .prop('disabled',true);
+
+                    item.find('.satuan-input')
+                        .val('')
+                        .prop('disabled',true);
+
+                    item.find('.nominal-input')
+                        .prop('disabled',false);
+
+                }else{
+
+                    item.find('.jumlah-input').prop('disabled',false);
+                    item.find('.satuan-input').prop('disabled',false);
+
+                }
+
+            }
+
+
+            // ==========================
+            // CEK NOMINAL / JUMLAH
+            // ==========================
+
+            function toggleInput(item){
+
+                const nominal = item.find('.nominal-input').val().trim();
+
+                if(nominal !== ""){
+
+                    item.find('.jumlah-input').prop('disabled',true);
+                    item.find('.satuan-input').prop('disabled',true);
+
+                }else{
+
+                    item.find('.jumlah-input').prop('disabled',false);
+                    item.find('.satuan-input').prop('disabled',false);
+
+                }
+
+                // Nominal selalu bisa diisi
+                item.find('.nominal-input').prop('disabled', false);
+
+            }
+
+
+            // ==========================
+            // EVENT JENIS
+            // ==========================
+
+            $(document).on('input','input[name="jenis_bantuan[]"]',function(){
+
+                toggleJenis($(this).closest('.bantuan-item'));
+
+            });
+
+
+            // ==========================
+            // EVENT NOMINAL
+            // ==========================
+
+            $(document).on('input','.nominal-input',function(){
+
+                formatRupiah(this);
+
+                toggleInput($(this).closest('.bantuan-item'));
+
+            });
+
+
+            // ==========================
+            // EVENT JUMLAH / SATUAN
+            // ==========================
+
+            $(document).on('input','.jumlah-input, .satuan-input',function(){
+
+                toggleInput($(this).closest('.bantuan-item'));
+
+            });
+
+        </script>
+
+        {{-- DELETE MODAL --}}
+        <script>
+            $(document).on('click', '.btn-delete', function () {
+
+                const id   = $(this).data('id');
+                const nama = $(this).data('nama');
+
+                // Tampilkan nama pada modal konfirmasi
+                $('#deleteDataName').text(nama);
+
+                // Set action form delete
+                $('#deleteForm').attr('action', '/berita-acara/' + id);
+
+            });
+        </script>
+
+        {{-- UPLOAD MODAL --}}
+        <script>
+        $(document).on('click', '[data-bs-target="#uploadModal"]', function(){
+
+            const id = $(this).data('id');
+
+            $('#uploadForm').attr(
+                'action',
+                '/berita-acara/' + id + '/upload'
+            );
+
+        });
+        </script>
 
          {{-- TOAST --}}
-         <script>
-             document.addEventListener("DOMContentLoaded", function() {
-                 const toastElList = [].slice.call(document.querySelectorAll('.toast'))
-                 toastElList.map(function(toastEl) {
-                     const toast = new bootstrap.Toast(toastEl, {
-                         delay: 8000,
-                     });
-                     toast.show();
-                 });
-             });
-         </script>
-     @endpush
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+
+                toastElList.map(function (toastEl) {
+
+                    const toast = new bootstrap.Toast(toastEl, {
+                        delay: 8000
+                    });
+
+                    toast.show();
+
+                });
+
+            });
+        </script>
+
+    @endpush
      @if (session('success'))
          <div class="position-fixed top-0 end-0 p-3 mt-5 me-5" style="z-index: 9999">
              <div style="background-color: #78C841; color: white;" class="toast align-items-center border-0 show"
