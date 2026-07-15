@@ -89,20 +89,24 @@
   .dm-pic-wrap .card{box-shadow:none;border-radius:0;}
   .dm-pic-wrap thead tr:first-child th{background:linear-gradient(90deg,var(--pln-green-dark),var(--pln-green));color:#fff;font-size:13px;letter-spacing:.6px;padding:12px;}
 
-  /* ---- reminders ---- */
-  .dm-reminder-scroll{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 12px;}
-  .dm-reminder-scroll::-webkit-scrollbar{height:6px;}
-  .dm-reminder-scroll::-webkit-scrollbar-thumb{background:#dfe3e9;border-radius:10px;}
-  .dm-rcard{flex:0 0 300px;background:#fff;border-radius:var(--radius);padding:16px;box-shadow:0 8px 22px rgba(22,32,46,0.09);border-top:3px solid var(--amber);text-decoration:none;color:inherit;display:block;transition:transform .15s ease;}
-  .dm-rcard:hover{transform:translateY(-3px);color:inherit;}
-  .dm-rcard.today{border-top-color:var(--red);}
-  .dm-rcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;}
-  .dm-rcard-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--amber-bg);color:#a3720f;white-space:nowrap;}
-  .dm-rcard-badge.today{background:var(--red-bg);color:#a3241c;}
-  .dm-rcard h6{font-size:13.5px;margin:0 0 4px;font-weight:700;line-height:1.35;}
-  .dm-rcard p{margin:0;font-size:12px;color:var(--ink-600);}
-  .dm-rcard .berkas{margin-top:8px;font-size:11.5px;color:var(--ink-400);}
-  .dm-ring text{font-family:'Manrope',sans-serif;}
+  /* ---- reminders (compact) ---- */
+  .dm-reminder-card{background:#fff;border-radius:var(--radius);box-shadow:0 3px 14px rgba(22,32,46,0.06);overflow:hidden;margin-bottom:22px;}
+  .dm-reminder-head{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);}
+  .dm-reminder-head span.title{font-size:12.5px;font-weight:800;color:var(--ink-600);text-transform:uppercase;letter-spacing:.4px;}
+  .dm-reminder-head .count{margin-left:auto;font-size:11px;font-weight:700;background:var(--amber-bg);color:#a3720f;padding:2px 9px;border-radius:20px;}
+  .dm-reminder-list{max-height:184px;overflow-y:auto;}
+  .dm-reminder-list::-webkit-scrollbar{width:6px;}
+  .dm-reminder-list::-webkit-scrollbar-thumb{background:#dfe3e9;border-radius:10px;}
+  .dm-ritem{display:flex;align-items:center;gap:12px;padding:9px 16px;text-decoration:none;color:inherit;border-bottom:1px solid var(--line);transition:background .12s ease;}
+  .dm-ritem:last-child{border-bottom:none;}
+  .dm-ritem:hover{background:#fafcfa;color:inherit;}
+  .dm-ritem .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0;}
+  .dm-ritem.today .dot{background:var(--red);}
+  .dm-ritem .info{min-width:0;flex:1;}
+  .dm-ritem .info .judul{font-size:12.5px;font-weight:700;color:var(--ink-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dm-ritem .info .berkas{font-size:11px;color:var(--ink-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .dm-ritem .tag{flex-shrink:0;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--amber-bg);color:#a3720f;white-space:nowrap;}
+  .dm-ritem.today .tag{background:var(--red-bg);color:#a3241c;}
 
   @media (max-width:767px){
     .dm-filter-card .row > div{margin-bottom:8px;}
@@ -110,6 +114,7 @@
 </style>
 
 <div class="dash-modern">
+
 
     <div class="dm-filter-card">
         <form method="GET" action="{{ route('dashboard.index') }}">
@@ -282,9 +287,36 @@
             </div>
         </div>
 
-        <!-- Kolom 3: Rincian Nominal Disetujui -->
-        <div class="col-lg-4 col-md-12 mb-4">
-            <div class="card h-100">
+        <!-- Kolom 3: Reminder + Rincian Nominal Disetujui -->
+        <div class="col-lg-4 col-md-12 mb-4 d-flex flex-column gap-3">
+            @if($dashboardReminders->count())
+                <div class="dm-reminder-card mb-0">
+                    <div class="dm-reminder-head">
+                        <span>🔔</span>
+                        <span class="title">Reminder Jatuh Tempo</span>
+                        <span class="count">{{ $dashboardReminders->count() }}</span>
+                    </div>
+                    <div class="dm-reminder-list">
+                        @foreach($dashboardReminders as $reminder)
+                            @php
+                                $isToday = $reminder['sisaHari'] == 0;
+                                $badgeText = $isToday ? 'Hari Ini' : ($reminder['sisaHari'] == 1 ? 'H-1' : 'H-2');
+                            @endphp
+                            <a href="{{ route('monitoring.index', ['search' => $reminder['judul']]) }}"
+                               class="dm-ritem {{ $isToday ? 'today' : '' }}">
+                                <span class="dot"></span>
+                                <div class="info">
+                                    <div class="judul">{{ $reminder['judul'] }}</div>
+                                    <div class="berkas">{{ $reminder['berkas'] }} &middot; {{ $reminder['deadline']->format('d M Y') }}</div>
+                                </div>
+                                <span class="tag {{ $isToday ? 'today' : '' }}">{{ $badgeText }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            <div class="card flex-grow-1">
                 <div class="card-body">
                     <div class="dm-stat-top" style="margin-bottom:16px;">
                         <div class="dm-icon slate">
@@ -409,38 +441,6 @@
         </div>
     </div>
 
-    <!-- Reminder Proposal -->
-    @if($dashboardReminders->count())
-        <div class="dm-section-title">🔔 Reminder proposal jatuh tempo</div>
-        <div class="dm-reminder-scroll">
-            @foreach($dashboardReminders as $reminder)
-                @php
-                    $isToday = $reminder['sisaHari'] == 0;
-                    $ringColor = $isToday ? '#e0463c' : '#e69a1f';
-                    $ringPct = $isToday ? 1 : ($reminder['sisaHari'] == 1 ? 0.66 : 0.33);
-                    $circumference = 2 * M_PI * 15;
-                    $offset = $circumference * (1 - $ringPct);
-                    $badgeText = $isToday ? 'Hari Ini' : ($reminder['sisaHari'] == 1 ? 'H-1' : 'H-2');
-                @endphp
-                <a href="{{ route('monitoring.index', ['search' => $reminder['judul']]) }}"
-                   class="dm-rcard {{ $isToday ? 'today' : '' }}">
-                    <div class="dm-rcard-top">
-                        <span class="dm-rcard-badge {{ $isToday ? 'today' : '' }}">{{ $badgeText }} &middot; {{ $reminder['deadline']->format('d M Y') }}</span>
-                        <svg class="dm-ring" width="38" height="38" viewBox="0 0 36 36">
-                            <circle cx="18" cy="18" r="15" fill="none" stroke="#eef1f5" stroke-width="4"/>
-                            <circle cx="18" cy="18" r="15" fill="none" stroke="{{ $ringColor }}" stroke-width="4"
-                                stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $offset }}"
-                                stroke-linecap="round" transform="rotate(-90 18 18)"/>
-                            <text x="18" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="{{ $ringColor }}">{{ $reminder['sisaHari'] }}</text>
-                        </svg>
-                    </div>
-                    <h6>{{ $reminder['judul'] }}</h6>
-                    <p>Menunggu penyelesaian berkas</p>
-                    <div class="berkas">{{ $reminder['berkas'] }}</div>
-                </a>
-            @endforeach
-        </div>
-    @endif
 
 </div>
 @endsection
