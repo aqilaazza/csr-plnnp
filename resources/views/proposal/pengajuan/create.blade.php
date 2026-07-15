@@ -85,22 +85,40 @@
                                         <div class="invalid-feedback">Instansi Pengajuan wajib diisi</div>
                                     @enderror
                                 </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">Contact Person / No. HP Instansi</label>
-                                    <input type="text"
-                                        class="form-control @error('contact_person') is-invalid @enderror"
-                                        name="contact_person"
-                                        value="{{ old('contact_person') }}"
-                                        placeholder="Contoh: 081234567890"
-                                        inputmode="numeric"
-                                        pattern="[0-9]+"
-                                        required>
 
-                                    @error('contact_person')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                {{-- ===================== CONTACT PERSON (UPDATED: tambah Nama CP) ===================== --}}
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nomor Contact Person/Instansi</label>
+                                        <input type="text"
+                                            class="form-control @error('contact_person') is-invalid @enderror"
+                                            name="contact_person"
+                                            value="{{ old('contact_person') }}"
+                                            placeholder="Contoh: 081234567890"
+                                            inputmode="numeric"
+                                            pattern="[0-9]+"
+                                            required>
+
+                                        @error('contact_person')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nama Contact Person/Instansi</label>
+                                        <input type="text"
+                                            class="form-control @error('nama_cp') is-invalid @enderror"
+                                            name="nama_cp"
+                                            value="{{ old('nama_cp') }}"
+                                            placeholder="Contoh: Budi Santoso"
+                                            required>
+
+                                        @error('nama_cp')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
+                                {{-- ===================== END CONTACT PERSON (UPDATED) ===================== --}}
 
 
 
@@ -530,25 +548,24 @@
             });
         </script>
 
+        {{-- ===================== CONTACT PERSON: hanya angka (BARU) ===================== --}}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const contactPerson = document.querySelector('input[name="contact_person"]');
+
+                if (contactPerson) {
+                    contactPerson.addEventListener('input', function () {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                    });
+                }
+            });
+        </script>
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // Format Rupiah
                 const inputPengajuan = document.getElementById('nominal_pengajuan');
                 const inputDisetujui = document.getElementById('nominal_disetujui');
-
-
-                input.addEventListener('input', function(e) {
-                    let raw = e.target.value; // nilai asli dari input
-
-                    // Kalau user isi "-", langsung biarkan tanpa format
-                    if (raw === '-') {
-                        return; // biarkan apa adanya
-                    }
-
-                    // Kalau bukan "-", baru kita bersihkan ke angka
-                    let value = raw.replace(/[^0-9]/g, '');
-                    e.target.value = value ? formatRupiah(value) : '';
-                });
 
                 function formatRupiah(angka, prefix = 'Rp') {
                     let number_string = angka.replace(/[^,\d]/g, '').toString(),
@@ -565,14 +582,26 @@
                     rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
                     return prefix + ' ' + rupiah;
                 }
+
+                [inputPengajuan, inputDisetujui].forEach(input => {
+                    if (!input) return;
+                    input.addEventListener('input', function(e) {
+                        let raw = e.target.value;
+
+                        // Kalau user isi "-", langsung biarkan tanpa format
+                        if (raw === '-') {
+                            return;
+                        }
+
+                        let value = raw.replace(/[^0-9]/g, '');
+                        e.target.value = value ? formatRupiah(value) : '';
+                    });
+                });
             });
         </script>
         <script>
-            function formatRupiah(input) {
-                // Hapus karakter selain angka
+            function formatRupiahTitik(input) {
                 let angka = input.value.replace(/[^0-9]/g, "");
-
-                // Format dengan titik ribuan
                 input.value = angka.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
 
@@ -583,13 +612,11 @@
                     const input = document.getElementById(id);
 
                     if (input) {
-                        // Format ulang saat halaman dimuat
                         input.value = input.value.replace(/\D/g, "")
                             .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-                        // Format saat mengetik
                         input.addEventListener("input", function() {
-                            formatRupiah(this);
+                            formatRupiahTitik(this);
                         });
                     }
                 });
