@@ -1,4 +1,5 @@
 <?php
+// app/Models/KategoriInstansi.php
 
 namespace App\Models;
 
@@ -8,7 +9,7 @@ class KategoriInstansi extends Model
 {
     protected $table = 'kategori_instansi';
 
-    protected $fillable = ['nama'];
+    protected $fillable = ['nama', 'contoh'];
 
     public function proposal()
     {

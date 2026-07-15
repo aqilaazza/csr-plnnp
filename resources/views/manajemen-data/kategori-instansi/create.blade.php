@@ -20,15 +20,39 @@
                         @enderror
                     </div>
 
+                    <div class="mb-3" id="kategori-contoh-wrapper">
+                        <label class="form-label">Contoh Nama Instansi</label>
+                        <input type="text" name="contoh" id="kategori-contoh-input"
+                            class="form-control @error('contoh') is-invalid @enderror"
+                            value="{{ old('contoh') }}"
+                            placeholder="Contoh: Dinas Sosial Kabupaten Malang">
+                        @error('contoh')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Wajib diisi jika kategori ini tidak punya sub instansi. Teks ini dipakai sebagai contoh pada form pengajuan proposal.</small>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">Sub Instansi <span class="text-muted fw-normal">(opsional)</span></label>
+                        <small class="text-muted d-block mb-2">Jika diisi, kolom "Contoh nama instansi" pada tiap baris sub instansi wajib diisi.</small>
                         <div id="sub-instansi-wrapper">
                             @if (old('sub_instansi'))
-                                @foreach (old('sub_instansi') as $sub)
+                                @foreach (old('sub_instansi') as $index => $sub)
                                     <div class="sub-instansi-item mb-2 d-flex gap-2">
-                                        <input type="text" name="sub_instansi[]" class="form-control"
-                                            value="{{ $sub }}" placeholder="Contoh: Pengadilan">
-                                        <button type="button" class="btn btn-outline-danger btn-remove-sub">
+                                        <div class="flex-fill">
+                                            <input type="text" name="sub_instansi[]" class="form-control"
+                                                value="{{ $sub }}" placeholder="Nama sub instansi, contoh: Pengadilan">
+                                        </div>
+                                        <div class="flex-fill">
+                                            <input type="text" name="sub_instansi_contoh[]"
+                                                class="form-control @error('sub_instansi_contoh.' . $index) is-invalid @enderror"
+                                                value="{{ old('sub_instansi_contoh')[$index] ?? '' }}"
+                                                placeholder="Contoh nama instansi, mis: Pengadilan Negeri Malang">
+                                            @error('sub_instansi_contoh.' . $index)
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <button type="button" class="btn btn-outline-danger btn-remove-sub align-self-start">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </div>
@@ -54,24 +78,56 @@
 
 @push('scripts')
 <script>
+    const kategoriContohWrapper = document.getElementById('kategori-contoh-wrapper');
+    const kategoriContohInput = document.getElementById('kategori-contoh-input');
+    const subInstansiWrapper = document.getElementById('sub-instansi-wrapper');
+
+    function toggleKategoriContoh() {
+        const hasSub = subInstansiWrapper.querySelectorAll('.sub-instansi-item').length > 0;
+
+        if (hasSub) {
+            kategoriContohWrapper.style.display = 'none';
+            kategoriContohInput.disabled = true;
+            kategoriContohInput.required = false;
+        } else {
+            kategoriContohWrapper.style.display = '';
+            kategoriContohInput.disabled = false;
+            kategoriContohInput.required = true;
+        }
+
+        // Kolom "contoh" tiap sub instansi wajib diisi hanya jika ada sub instansi
+        subInstansiWrapper.querySelectorAll('input[name="sub_instansi_contoh[]"]').forEach(function (input) {
+            input.required = hasSub;
+        });
+    }
+
     document.getElementById('btn-add-sub').addEventListener('click', function () {
-        const wrapper = document.getElementById('sub-instansi-wrapper');
         const div = document.createElement('div');
         div.className = 'sub-instansi-item mb-2 d-flex gap-2';
         div.innerHTML = `
-            <input type="text" name="sub_instansi[]" class="form-control" placeholder="Contoh: Pengadilan">
-            <button type="button" class="btn btn-outline-danger btn-remove-sub">
+            <div class="flex-fill">
+                <input type="text" name="sub_instansi[]" class="form-control" placeholder="Nama sub instansi, contoh: Pengadilan">
+            </div>
+            <div class="flex-fill">
+                <input type="text" name="sub_instansi_contoh[]" class="form-control" placeholder="Contoh nama instansi, mis: Pengadilan Negeri Malang">
+            </div>
+            <button type="button" class="btn btn-outline-danger btn-remove-sub align-self-start">
                 <i class="fas fa-times"></i>
             </button>
         `;
-        wrapper.appendChild(div);
+        subInstansiWrapper.appendChild(div);
+        toggleKategoriContoh();
     });
 
     document.addEventListener('click', function (e) {
         if (e.target.closest('.btn-remove-sub')) {
             e.target.closest('.sub-instansi-item').remove();
+            toggleKategoriContoh();
         }
     });
+
+    // Jalankan sekali saat halaman dimuat (menangani kasus old() input setelah validasi gagal)
+    toggleKategoriContoh();
 </script>
 @endpush
 @endsection
