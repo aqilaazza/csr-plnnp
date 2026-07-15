@@ -25,6 +25,8 @@ class Kelayakan extends Model
         'catatan_khusus',
         'prioritas',
         'dampak',
+        'contact_person',
+        'nama_cp',
         'revisi',
         'berkas_pdf',
         'file_pdf',
