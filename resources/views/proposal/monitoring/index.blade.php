@@ -257,69 +257,47 @@
                         <table id="proposalTable" class="table table-bordered nowrap" style="width: 100%">
                             <thead class="text-dark fs-4">
                                 <tr>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">No</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Judul</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Instansi</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Lokasi</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Tanggal</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Nominal Pengajuan</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Barang Pengajuan</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Tipologi</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Status</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Nominal Disetujui</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Barang Disetujui</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">PIC</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Contact Person/Instansi</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Nama CP</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Proses</span>
-                                    </th>
-                                    <th class="berkas-checklist">
-                                        <span class="fw-semibold mb-0">Berkas</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Keterangan</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Deadline</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Progress (%)</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Berita Acara</span>
-                                    </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
-                                        <span class="fw-semibold mb-0">Kelayakan</span>
-                                    </th>
+                                    <th><span class="fw-semibold mb-0">No</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Judul</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Nama Instansi</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Lokasi</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Tanggal</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Nominal Pengajuan </span> </th>
+
+                                    <th><span class="fw-semibold mb-0">Barang Pengajuan</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Tipologi</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Status</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Nominal Disetujui</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Barang Disetujui</span></th>
+
+                                    <th><span class="fw-semibold mb-0">PIC</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Contact Person/Instansi</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Nama CP</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Proses</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Berkas</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Keterangan</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Deadline</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Progress (%)</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Berita<br>Acara</span></th>
+
+                                    <th><span class="fw-semibold mb-0">Kelayakan</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -501,18 +479,42 @@
             $(document).ready(function() {
                 // Inisialisasi DataTable
                 table = $('#proposalTable').DataTable({
-
                     scrollX: true,
                     scrollY: "500px",
                     scrollCollapse: true,
                     paging: true,
+
                     fixedHeader: true,
+                    fixedColumns: {
+                        leftColumns: 2
+                    },
 
-                    language:{
-                        search:"Cari",
-                        lengthMenu:"Tampil _MENU_"
+                    language: {
+                        search: "Cari",
+                        lengthMenu: "Tampil _MENU_",
+                        zeroRecords: "Data tidak ditemukan",
+                        info: "Menampilkan _START_–_END_ dari _TOTAL_ data",
+                        infoEmpty: "Menampilkan 0–0 dari 0 data",
+                        infoFiltered: "(difilter dari _MAX_ total data)",
+                        paginate: {
+                            first: "«",
+                            last: "»",
+                            previous: "‹",
+                            next: "›"
+                        }
+                    },
+
+                    pageLength: 10,
+                    lengthChange: true,
+                    lengthMenu: [
+                        [10, 25, 50, -1],
+                        [10, 25, 50, "Semua"]
+                    ],
+                    pagingType: "full_numbers",
+
+                    drawCallback: function () {
+                        $('.dataTables_paginate > .pagination').addClass('pagination-sm');
                     }
-
                 });
                     
                     const searchProposal = @json($search);
@@ -670,11 +672,11 @@
                 // Filter Tipologi (kolom 7)
                 table.columns(7).search(tipologi);
 
-                // Filter Progress (kolom 16)
+                // Filter Progress (kolom 18)
                 if (progressFilter) {
-                    table.column(16).search('^' + progressFilter + '%$', true, false);
+                    table.column(18).search('^' + progressFilter + '%$', true, false);
                 } else {
-                    table.column(16).search('', true, false);
+                    table.column(18).search('', true, false);
                 }
 
                 // Filter Tahun menggunakan custom filter DataTables
