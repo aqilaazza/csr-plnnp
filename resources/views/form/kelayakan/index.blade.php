@@ -315,10 +315,10 @@
                                             </p>
                                         </td>
                                         <td>
-                                            <p class="mb-0 fw-normal">{{ $data->contact_person ?? '-' }}</p>
+                                            <p class="mb-0 fw-normal">{{ $data->proposal->contact_person ?? '-' }}</p>
                                         </td>
                                         <td>
-                                            <p class="mb-0 fw-normal">{{ $data->nama_cp ?? '-' }}</p>
+                                            <p class="mb-0 fw-normal">{{ $data->proposal->nama_cp ?? '-' }}</p>
                                         </td>
                                         <td>
                                             <p class="mb-0 fw-normal">{{ $data->catatan_khusus }}</p>
