@@ -9,8 +9,8 @@
             /* margin: 130px 30px 60px 30px; sesuaikan margin atas agar tidak tabrakan dengan header */
             margin-top: 72pt;
             margin-bottom: 60pt;
-            margin-left: 60pt;
-            margin-right: 60pt;
+            margin-left: 40pt;
+            margin-right: 40pt;
         }
 
         .kop-header {
@@ -24,9 +24,9 @@
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;
-            margin: 30px;
+            margin: 20px;
             line-height: 1.5;
-            padding-top: 80px;
+            padding-top: 100px;
         }
 
         h3 {
