@@ -9,8 +9,8 @@
             /* margin: 130px 30px 60px 30px; sesuaikan margin atas agar tidak tabrakan dengan header */
             margin-top: 72pt;
             margin-bottom: 60pt;
-            margin-left: 60pt;
-            margin-right: 60pt;
+            margin-left: 40pt;
+            margin-right: 40pt;
         }
 
         .kop-header {
@@ -24,9 +24,9 @@
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;
-            margin: 30px;
+            margin: 20px;
             line-height: 1.5;
-            padding-top: 80px;
+            padding-top: 100px;
         }
 
         h3 {
@@ -58,8 +58,9 @@
         .table-matriks {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 20px;
             font-size: 10px;
+            page-break-inside: avoid;
         }
 
         /* Hilangkan border kolom pertama (Prioritas) */
@@ -70,6 +71,10 @@
         /* Hilangkan border baris terakhir (penjelasan kategori) */
         .table-matriks tr:last-child td {
             border: none;
+        }
+
+        .matriks-section {
+            margin-top:60px;
         }
 
         .table-matriks th,
@@ -210,6 +215,7 @@
             border-collapse: collapse;
             margin-top: 5px;
             font-size: 11px;
+            page-break-inside: avoid;
         }
 
         .kategori-table th,
@@ -224,6 +230,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 11px;
+            page-break-inside: avoid;
         }
 
         .ttd td {
@@ -378,8 +385,8 @@
         </div>
     </div>
 
-    <div class="section">
-        <div class="page-break">
+    <div class="section matriks-section">
+
             <p><strong>Analisa Matriks</strong>:</p>
             @php
                 $matriks = [
