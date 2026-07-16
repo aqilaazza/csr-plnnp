@@ -58,8 +58,9 @@
         .table-matriks {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 20px;
             font-size: 10px;
+            page-break-inside: avoid;
         }
 
         /* Hilangkan border kolom pertama (Prioritas) */
@@ -70,6 +71,10 @@
         /* Hilangkan border baris terakhir (penjelasan kategori) */
         .table-matriks tr:last-child td {
             border: none;
+        }
+
+        .matriks-section {
+            margin-top:60px;
         }
 
         .table-matriks th,
@@ -210,6 +215,7 @@
             border-collapse: collapse;
             margin-top: 5px;
             font-size: 11px;
+            page-break-inside: avoid;
         }
 
         .kategori-table th,
@@ -224,6 +230,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 11px;
+            page-break-inside: avoid;
         }
 
         .ttd td {
@@ -378,8 +385,8 @@
         </div>
     </div>
 
-    <div class="section">
-        <div class="page-break">
+    <div class="section matriks-section">
+
             <p><strong>Analisa Matriks</strong>:</p>
             @php
                 $matriks = [
