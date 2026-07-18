@@ -58,13 +58,13 @@
                                 </button>
 
                                 <button
-                                    class="btn btn-sm btn-orange reminder-filter"
+                                    class="btn btn-sm btn-danger reminder-filter"
                                     data-filter="today">
                                     Hari Ini ({{ $reminderGroups['today']->count() }})
                                 </button>
 
                                 <button
-                                    class="btn btn-sm btn-danger reminder-filter"
+                                    class="btn btn-sm btn-orange reminder-filter"
                                     data-filter="h1">
                                     H-1 ({{ $reminderGroups['h1']->count() }})
                                 </button>
