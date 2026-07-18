@@ -235,6 +235,15 @@
                      </div>
 
                      <div class="modal-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                          {{-- TAMBAHAN: Dropdown Business Support (Create) - dipindah ke paling atas --}}
                          <div class="mb-3">
                              <label for="business_support_choice" class="form-label">Business Support</label>
@@ -1162,6 +1171,16 @@
                 });
 
             });
+        </script>
+
+        {{-- AUTO-OPEN MODAL CREATE JIKA ADA VALIDATION ERROR --}}
+        <script>
+            @if ($errors->any())
+                document.addEventListener('DOMContentLoaded', function () {
+                    var modal = new bootstrap.Modal(document.getElementById('createModal'));
+                    modal.show();
+                });
+            @endif
         </script>
 
     @endpush
