@@ -56,7 +56,9 @@ class BeritaAcaraController extends Controller
         }, $request->nominal ?? []);   
 
         // ======== GENERATE NOMOR SURAT PERMANEN =========
-        $tahun = now()->format('Y');
+
+        $tahun = now()->format('Y'); // reset 00 tiap tahun baru
+        // $tahun = 2027; cek untuk testing, biar bisa generate nomor surat baru tiap tahun
 
         $lastNumber = BeritaAcara::whereYear('created_at', $tahun)
             ->get()

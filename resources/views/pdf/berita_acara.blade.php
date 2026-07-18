@@ -220,13 +220,15 @@
         <tbody>
             @foreach($bantuan as $i => $item)
             <tr>
-                <td>{{ $i + 1 }}</td>
+                <td style="text-align: center;">
+                    {{ $i + 1 }}
+                </td>
 
-                <td>
+                <td style="text-align: left; padding-left: 10px;">
                     {{ $item['jenis'] }}
                 </td>
 
-                <td>
+                <td style="text-align: center;">
                     @if(!empty($item['nominal']))
                         Rp {{ number_format($item['nominal'],0,',','.') }}
                     @else
