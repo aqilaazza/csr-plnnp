@@ -44,8 +44,6 @@ class BeritaAcaraController extends Controller
             'nominal.*' => 'nullable|string',
             'business_support_choice' => 'required|string',
             'bisnis_support_lainnya' => 'nullable|required_if:business_support_choice,lainnya|string|max:255',
-            'satuan_bantuan' => 'required|array|min:1',
-            'satuan_bantuan.*' => 'required|string|max:100',
         ]);
 
         $jenis   = $request->jenis_bantuan ?? [];
@@ -172,8 +170,6 @@ class BeritaAcaraController extends Controller
             'nominal.*' => 'nullable|string',
             'business_support_choice' => 'required|string',
             'bisnis_support_lainnya' => 'nullable|required_if:business_support_choice,lainnya|string|max:255',
-            'satuan_bantuan' => 'required|array|min:1',
-            'satuan_bantuan.*' => 'required|string|max:100',
         ]);
 
         $beritaAcara = BeritaAcara::findOrFail($id);
