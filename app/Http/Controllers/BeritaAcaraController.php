@@ -346,7 +346,7 @@ class BeritaAcaraController extends Controller
         if ($beritaAcara->bisnis_support_lainnya) {
             return [
                 'nama' => $beritaAcara->bisnis_support_lainnya,
-                'jabatan' => 'PH Manager Bisnis Support',
+                'jabatan' => 'PH Manager Business Support',
             ];
         }
 
