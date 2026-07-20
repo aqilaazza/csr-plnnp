@@ -22,7 +22,7 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: Cambria;
             font-size: 12px;
             margin: 20px;
             line-height: 1.5;
@@ -43,7 +43,7 @@
         .header,
         .footer {
             text-align: left;
-            font-size: 10px;
+            font-size: 12px;
             margin-bottom: 10px;
         }
 
@@ -59,7 +59,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            font-size: 10px;
+            font-size: 12px;
             page-break-inside: avoid;
         }
 
@@ -94,7 +94,7 @@
         }
 
         .kop-surat {
-            font-size: 10px;
+            font-size: 11px;
             margin-bottom: 10px;
         }
 
@@ -130,7 +130,7 @@
         .kop-table {
             border: 1px solid black;
             border-collapse: collapse;
-            font-size: 10px;
+            font-size: 11px;
             margin-bottom: 10px;
         }
 
@@ -161,14 +161,14 @@
 
         .info-cell {
             width: 35%;
-            font-size: 8px;
+            font-size: 10px;
             vertical-align: middle;
         }
 
         .section {
-            margin-top: 10px;
+            margin-top: 25px;
             font-size: 12px;
-            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif
+            font-family: Cambria,
         }
 
         .section p {
@@ -229,7 +229,7 @@
             margin-top: 40px;
             width: 100%;
             border-collapse: collapse;
-            font-size: 11px;
+            font-size: 12px;
             page-break-inside: avoid;
         }
 
@@ -244,6 +244,31 @@
         .page-break {
             page-break-before: always;
         }
+
+        .keep-together{
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .list-item{
+            margin-bottom:4px;
+        }
+
+        .nomor{
+            display:inline-block;
+            width:24px;
+            vertical-align:top;
+        }
+
+        .isi{
+            display:inline;
+            text-align:justify;
+        }
+
+        .isi-full{
+            display:block;
+            text-align:justify;
+        }
     </style>
 </head>
 
@@ -256,28 +281,27 @@
                         style="height: 0.64cm; width: 3.12cm; margin-top: 25px;">
                 </td>
                 <td class="judul-cell"><strong>PT PLN NUSANTARA POWER</strong></td>
-                <td class="info-cell"><span style="font-size: 7px"><strong>Nomor Dokumen</strong> :
+                <td class="info-cell"><span style="font-size: 10px"><strong>Nomor Dokumen</strong> :
                         FMPT-328-12.5.1.a.b.e-001</span></td>
             </tr>
             <tr>
                 <td class="judul-cell">PLN NP INTEGRATED MANAGEMENT SYSTEM</td>
-                <td class="info-cell"><strong>Revisi</strong> : {{ str_pad($data->revisi, 2, '0', STR_PAD_LEFT) }}</td>
+                <td class="info-cell"><span style="font-size: 10px"><strong>Revisi</strong> : {{ str_pad($data->revisi, 2, '0', STR_PAD_LEFT) }}</span></td>
             </tr>
             <tr>
-                <td rowspan="2" class="judul-cell" style="padding-top:8px; padding-bottom:8px;">
+                <td rowspan="2" class="judul-cell" style="padding-top:16px; padding-bottom:1px;">
                     FORMULIR ANALISIS PERMINTAAN BANTUAN PROGRAM CSR
                 </td>
-                <td class="info-cell"><strong>Tanggal Terbit</strong> : {{ \Carbon\Carbon::now()->format('d - m - Y') }}
-                </td>
+                <td class="info-cell"><span style="font-size: 10px"><strong>Tanggal Terbit</strong> : {{ \Carbon\Carbon::now()->format('d - m - Y') }}</span></td>
             </tr>
             <tr>
-                {{-- <td class="info-cell"><strong>Halaman</strong> : 1 dari 3</td> --}}
+                <td class="info-cell">&nbsp;</td>
             </tr>
         </table>
     </div>
 
     <h3>FORMULIR ANALISIS KELAYAKAN PERMINTAAN BANTUAN PROGRAM CSR</h3>
-    <h4>PT PLN NP UNIT PEMBANGKITAN PAITON</h4>
+    <h3>PT PLN NP UNIT PEMBANGKITAN PAITON</h3>
 
     <div class="section">
         <div class="data-row">
@@ -300,10 +324,30 @@
         </div>
 
         <div class="data-row">
-            <div class="label">Latar Belakang Program</div>
+            <div class="label">Latar Belakang</div>
             <div class="separator">:</div>
-            <div class="value" style="text-align:justify;">
-                {!! nl2br(e($data->latar_belakang)) !!}
+            <div class="value">
+                @php $baris = explode("\n", $data->latar_belakang ?? ''); @endphp
+                <table style="width:100%; border-collapse: collapse;">
+                    @foreach($baris as $line)
+                        @php $line = trim($line); @endphp
+                        @if($line !== '')
+                            @php
+                                preg_match('/^(\d+[\.\)])\s*(.*)$/', $line, $m);
+                                $nomor = $m[1] ?? '';
+                                $isi = $m[2] ?? $line;
+                            @endphp
+                            <tr>
+                                @if($nomor !== '')
+                                    <td style="width:22px; vertical-align:top; padding:0; border:none;">{{ $nomor }}</td>
+                                    <td style="vertical-align:top; padding:0; border:none; text-align:justify;">{{ $isi }}</td>
+                                @else
+                                    <td colspan="2" style="vertical-align:top; padding:0; border:none; text-align:justify;">{{ $isi }}</td>
+                                @endif
+                            </tr>
+                        @endif
+                    @endforeach
+                </table>
             </div>
         </div>
 
@@ -324,9 +368,9 @@
                             <tr>
                                 @if($nomor !== '')
                                     <td style="width:22px; vertical-align:top; padding:0; border:none;">{{ $nomor }}</td>
-                                    <td style="vertical-align:top; padding:0; border:none;">{{ $isi }}</td>
+                                    <td style="vertical-align:top; padding:0; border:none; text-align:justify;">{{ $isi }}</td>
                                 @else
-                                    <td colspan="2" style="vertical-align:top; padding:0; border:none;">{{ $isi }}</td>
+                                    <td colspan="2" style="vertical-align:top; padding:0; border:none; text-align:justify;">{{ $isi }}</td>
                                 @endif
                             </tr>
                         @endif
@@ -338,16 +382,56 @@
         <div class="data-row">
             <div class="label">Indikator Lingkungan</div>
             <div class="separator">:</div>
-            <div class="value" style="text-align:justify;">
-                {!! nl2br(e($data->indikator_lingkungan)) !!}
+            <div class="value">
+                @php $baris = explode("\n", $data->indikator_lingkungan ?? ''); @endphp
+                <table style="width:100%; border-collapse: collapse;">
+                    @foreach($baris as $line)
+                        @php $line = trim($line); @endphp
+                        @if($line !== '')
+                            @php
+                                preg_match('/^(\d+[\.\)])\s*(.*)$/', $line, $m);
+                                $nomor = $m[1] ?? '';
+                                $isi = $m[2] ?? $line;
+                            @endphp
+                            <tr>
+                                @if($nomor !== '')
+                                    <td style="width:22px; vertical-align:top; padding:0; border:none;">{{ $nomor }}</td>
+                                    <td style="vertical-align:top; padding:0; border:none; text-align:justify;">{{ $isi }}</td>
+                                @else
+                                    <td colspan="2" style="vertical-align:top; padding:0; border:none; text-align:justify;">{{ $isi }}</td>
+                                @endif
+                            </tr>
+                        @endif
+                    @endforeach
+                </table>
             </div>
         </div>
 
         <div class="data-row">
             <div class="label">Indikator Sosial</div>
             <div class="separator">:</div>
-            <div class="value" style="text-align:justify;">
-                {!! nl2br(e($data->indikator_sosial)) !!}
+            <div class="value">
+                @php $baris = explode("\n", $data->indikator_sosial ?? ''); @endphp
+                <table style="width:100%; border-collapse: collapse;">
+                    @foreach($baris as $line)
+                        @php $line = trim($line); @endphp
+                        @if($line !== '')
+                            @php
+                                preg_match('/^(\d+[\.\)])\s*(.*)$/', $line, $m);
+                                $nomor = $m[1] ?? '';
+                                $isi = $m[2] ?? $line;
+                            @endphp
+                            <tr>
+                                @if($nomor !== '')
+                                    <td style="width:22px; vertical-align:top; padding:0; border:none;">{{ $nomor }}</td>
+                                    <td style="vertical-align:top; padding:0; border:none; text-align:justify;">{{ $isi }}</td>
+                                @else
+                                    <td colspan="2" style="vertical-align:top; padding:0; border:none; text-align:justify;">{{ $isi }}</td>
+                                @endif
+                            </tr>
+                        @endif
+                    @endforeach
+                </table>
             </div>
         </div>
 
@@ -385,7 +469,7 @@
         </div>
     </div>
 
-    <div class="section matriks-section">
+    <div class="section matriks-section keep-together">
 
             <p><strong>Analisa Matriks</strong>:</p>
             @php
@@ -437,7 +521,7 @@
             </table>
         </div>
 
-        <div class="section">
+        <div class="section keep-together">
             <p><strong>Keterangan:</strong></p>
             <table class="kategori-table">
                 {{-- <thead>
@@ -468,7 +552,7 @@
         </div>
     </div>
 
-    <div class="section">
+    <div class="section keep-together">
         <div class="data-row">
             <div class="label">Data Terdahulu</div>
             <div class="separator">:</div>
@@ -499,7 +583,7 @@
         </div>
     </div>
 
-    <div class="section">
+    <div class="section keep-together">
         <div class="page-break">
             <table class="ttd" width="100%">
                 <tr>
