@@ -300,6 +300,16 @@ class ProposalController extends Controller
     {
         $query = Proposal::with(['tipologi', 'tipeProses.subProses', 'namaPic']);
 
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request){
+                $q->where('judul','like','%'.$request->search.'%')
+                ->orWhere('instansi_pengajuan','like','%'.$request->search.'%')
+                ->orWhere('kabupaten_nama','like','%'.$request->search.'%')
+                ->orWhere('kecamatan_nama','like','%'.$request->search.'%')
+                ->orWhere('kelurahan_nama','like','%'.$request->search.'%');
+            });
+        }
+
         if ($request->has('pic') && $request->pic !== null) {
             $query->whereHas('namaPic', function ($q) use ($request) {
                 $q->where('nama', $request->pic);
@@ -312,6 +322,18 @@ class ProposalController extends Controller
             });
         }
 
+        if ($request->filled('progress')) {
+            $query->where('progress',$request->progress);
+        }
+
+        if ($request->filled('tahun')) {
+            $query->whereYear('tanggal_disposisi',$request->tahun);
+        }
+
+        if ($request->filled('lokasi')) {
+            $query->where('kabupaten_nama',$request->lokasi);
+        }
+        
         $data = $query->get();
 
         return Excel::download(new ProposalExport($data), 'data_proposal.xlsx');
