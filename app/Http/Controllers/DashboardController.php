@@ -325,29 +325,38 @@ class DashboardController extends Controller
         $pieLokasiLabels = $byKabupaten->keys()->values()->all();
         $pieLokasiData = $byKabupaten->values()->all();
 
-        // Mode 5: Barang - total jumlah barang yang sudah diterima (ada berita acara) vs yang belum
+        // ---------- Breakdown "Belum Diterima" jadi 3 kelompok status (Ditolak / Pending / Disetujui tapi belum ada BA) ----------
+        $tolakList = $belumDiterimaList->where('status', 'tolak')->values();
+        $pendingList = $belumDiterimaList->where('status', 'pending')->values();
+        $disetujuiBelumBAList = $belumDiterimaList->where('status', 'setuju')->values();
+
+        // Mode 5: Barang - breakdown per status (Sudah Diterima / Ditolak / Pending / Disetujui Belum Ada BA)
         // Pakai parseFirstNumber (bukan parseNominal) karena jumlah_barang/barang_pengajuan
         // adalah kolom teks bebas, bukan kolom angka murni seperti nominal.
         $jumlahBarangDiterima = $diterimaList->sum(fn ($p) => $this->parseFirstNumber($p->beritaAcara->jumlah_barang ?? null));
-        $jumlahBarangBelumDiterima = $belumDiterimaList->sum(fn ($p) => $this->parseFirstNumber($p->barang_pengajuan ?? null));
+        $jumlahBarangTolak = $tolakList->sum(fn ($p) => $this->parseFirstNumber($p->barang_pengajuan ?? null));
+        $jumlahBarangPending = $pendingList->sum(fn ($p) => $this->parseFirstNumber($p->barang_pengajuan ?? null));
+        $jumlahBarangDisetujuiBelumBA = $disetujuiBelumBAList->sum(fn ($p) => $this->parseFirstNumber($p->barang_pengajuan ?? null));
 
-        // "Jumlah proposal" untuk rincian barang HARUS dihitung dari proposal yang
-        // benar-benar punya nilai jumlah_barang/barang_pengajuan (>0), bukan sekadar
-        // proposal yang sudah/belum punya berita acara — supaya tidak sama persis
-        // dengan angka jumlah proposal di rincian nominal.
+        // "Jumlah proposal" tiap kelompok dihitung dari proposal yang benar-benar
+        // punya nilai jumlah_barang/barang_pengajuan (>0), bukan sekadar masuk status itu.
         $jumlahProposalBarangDiterima = $diterimaList
             ->filter(fn ($p) => $this->parseFirstNumber($p->beritaAcara->jumlah_barang ?? null) > 0)
             ->count();
-        $jumlahProposalBarangBelumDiterima = $belumDiterimaList
+        $jumlahProposalBarangTolak = $tolakList
+            ->filter(fn ($p) => $this->parseFirstNumber($p->barang_pengajuan ?? null) > 0)
+            ->count();
+        $jumlahProposalBarangPending = $pendingList
+            ->filter(fn ($p) => $this->parseFirstNumber($p->barang_pengajuan ?? null) > 0)
+            ->count();
+        $jumlahProposalBarangDisetujuiBelumBA = $disetujuiBelumBAList
             ->filter(fn ($p) => $this->parseFirstNumber($p->barang_pengajuan ?? null) > 0)
             ->count();
 
-        $pieBarangLabels = ['Sudah Diterima', 'Belum Diterima'];
-        $pieBarangData = [$jumlahBarangDiterima, $jumlahBarangBelumDiterima];
+        $pieBarangLabels = ['Sudah Diterima', 'Ditolak', 'Pending', 'Disetujui, Belum Ada Berita Acara'];
+        $pieBarangData = [$jumlahBarangDiterima, $jumlahBarangTolak, $jumlahBarangPending, $jumlahBarangDisetujuiBelumBA];
 
-        // Rincian detail untuk mode "Barang", ditampilkan sebagai tabel di bawah pie chart —
-        // formatnya disamakan dengan rincian mode "Total Persetujuan" (Status / Jumlah / Nilai),
-        // tapi "Jumlah" di sini dihitung dari proposal yang punya jumlah barang, bukan berita acara.
+        // Rincian detail untuk mode "Barang", ditampilkan sebagai tabel di bawah pie chart.
         $pieBarangDetail = [
             [
                 'label' => 'Sudah Diterima (Ada Berita Acara)',
@@ -355,27 +364,45 @@ class DashboardController extends Controller
                 'barang' => $jumlahBarangDiterima,
             ],
             [
-                'label' => 'Belum Diterima (Belum Ada Berita Acara)',
-                'jumlah' => $jumlahProposalBarangBelumDiterima,
-                'barang' => $jumlahBarangBelumDiterima,
+                'label' => 'Ditolak',
+                'jumlah' => $jumlahProposalBarangTolak,
+                'barang' => $jumlahBarangTolak,
+            ],
+            [
+                'label' => 'Pending',
+                'jumlah' => $jumlahProposalBarangPending,
+                'barang' => $jumlahBarangPending,
+            ],
+            [
+                'label' => 'Disetujui, Belum Ada Berita Acara',
+                'jumlah' => $jumlahProposalBarangDisetujuiBelumBA,
+                'barang' => $jumlahBarangDisetujuiBelumBA,
             ],
         ];
 
-        // Mode 6: total persetujuan - nominal diterima (ada berita acara) vs belum diterima (belum ada berita acara)
+        // Mode 6: Nominal - breakdown per status yang sama (Sudah Diterima / Ditolak / Pending / Disetujui Belum Ada BA)
         $nominalDiterima = (float) $approvedOnly->sum(fn ($p) => $this->parseNominal($p->beritaAcara->nominal ?? null));
-        $nominalBelumDiterima = (float) $belumDiterimaList->sum('nominal_pengajuan');
+        $nominalTolak = (float) $tolakList->sum('nominal_pengajuan');
+        $nominalPending = (float) $pendingList->sum('nominal_pengajuan');
+        $nominalDisetujuiBelumBA = (float) $disetujuiBelumBAList->sum('nominal_pengajuan');
 
-        // "Jumlah proposal" untuk rincian nominal dihitung dari proposal yang benar-benar
-        // punya nilai nominal (>0), bukan sekadar proposal yang sudah/belum punya berita acara.
+        // "Jumlah proposal" tiap kelompok dihitung dari proposal yang benar-benar
+        // punya nilai nominal (>0), bukan sekadar masuk status itu.
         $jumlahProposalNominalDiterima = $diterimaList
             ->filter(fn ($p) => $this->parseNominal($p->beritaAcara->nominal ?? null) > 0)
             ->count();
-        $jumlahProposalNominalBelumDiterima = $belumDiterimaList
+        $jumlahProposalNominalTolak = $tolakList
+            ->filter(fn ($p) => (float) ($p->nominal_pengajuan ?? 0) > 0)
+            ->count();
+        $jumlahProposalNominalPending = $pendingList
+            ->filter(fn ($p) => (float) ($p->nominal_pengajuan ?? 0) > 0)
+            ->count();
+        $jumlahProposalNominalDisetujuiBelumBA = $disetujuiBelumBAList
             ->filter(fn ($p) => (float) ($p->nominal_pengajuan ?? 0) > 0)
             ->count();
 
-        $pieStatusLabels = ['Sudah Diterima (Ada Berita Acara)', 'Belum Diterima'];
-        $pieStatusData = [$nominalDiterima, $nominalBelumDiterima];
+        $pieStatusLabels = ['Sudah Diterima (Ada Berita Acara)', 'Ditolak', 'Pending', 'Disetujui, Belum Ada Berita Acara'];
+        $pieStatusData = [$nominalDiterima, $nominalTolak, $nominalPending, $nominalDisetujuiBelumBA];
         $pieStatusDetail = [
             [
                 'label' => 'Sudah Diterima (Ada Berita Acara)',
@@ -383,9 +410,19 @@ class DashboardController extends Controller
                 'nominal' => $nominalDiterima,
             ],
             [
-                'label' => 'Belum Diterima (Belum Ada Berita Acara)',
-                'jumlah' => $jumlahProposalNominalBelumDiterima,
-                'nominal' => $nominalBelumDiterima,
+                'label' => 'Ditolak',
+                'jumlah' => $jumlahProposalNominalTolak,
+                'nominal' => $nominalTolak,
+            ],
+            [
+                'label' => 'Pending',
+                'jumlah' => $jumlahProposalNominalPending,
+                'nominal' => $nominalPending,
+            ],
+            [
+                'label' => 'Disetujui, Belum Ada Berita Acara',
+                'jumlah' => $jumlahProposalNominalDisetujuiBelumBA,
+                'nominal' => $nominalDisetujuiBelumBA,
             ],
         ];
 
