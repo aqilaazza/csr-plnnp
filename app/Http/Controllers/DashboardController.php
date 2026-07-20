@@ -20,6 +20,69 @@ class DashboardController extends Controller
         return trim(preg_replace('/^(Kabupaten|Kota)\s+/i', '', $kabupaten));
     }
 
+    /**
+     * Ambil angka PERTAMA yang muncul dalam sebuah teks (bukan gabungan semua digit).
+     * Dipakai untuk kolom teks bebas seperti jumlah_barang / barang_pengajuan yang
+     * kadang berisi kalimat atau kode, supaya tidak ikut "tergabung" jadi angka raksasa
+     * seperti yang terjadi kalau memakai parseNominal() (yang menggabung semua digit).
+     */
+    private function parseFirstNumber($value): float
+    {
+        if ($value === null || $value === '') {
+            return 0.0;
+        }
+
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+
+        if (preg_match('/\d+(?:[.,]\d+)?/', (string) $value, $match)) {
+            return (float) str_replace(',', '.', $match[0]);
+        }
+
+        return 0.0;
+    }
+
+    /**
+     * Bersihkan nilai nominal dari berita_acara supaya aman dijumlahkan.
+     * Kolom ini kadang diisi dengan format teks (mis. "Rp 5.000.000"),
+     * jadi tidak bisa langsung dijumlahkan sebagai angka.
+     */
+    private function parseNominal($value): float
+    {
+        if ($value === null || $value === '') {
+            return 0.0;
+        }
+
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+
+        // Buang semua karakter selain digit (mis. "Rp 5.000.000" -> "5000000")
+        $clean = preg_replace('/[^0-9]/', '', (string) $value);
+
+        return $clean === '' ? 0.0 : (float) $clean;
+    }
+
+    /**
+     * Gabungan teks barang disetujui dari data berita acara
+     * (jumlah_barang + satuan + jenis_bantuan).
+     */
+    private function formatBarangBeritaAcara($beritaAcara): ?string
+    {
+        if (!$beritaAcara) {
+            return null;
+        }
+
+        $parts = array_filter([
+            $beritaAcara->jumlah_barang,
+            $beritaAcara->satuan,
+            $beritaAcara->jenis_bantuan,
+        ], fn ($v) => $v !== null && $v !== '');
+
+        return $parts ? implode(' ', $parts) : null;
+    }
+
     public function index(Request $request)
     {
         $loggedInUser = Auth::user();
@@ -28,10 +91,12 @@ class DashboardController extends Controller
         $selectedKecamatan = $request->get('kecamatan');
         $selectedKelurahan = $request->get('kelurahan');
 
-        // Query Proposal dengan eager loading namaPic
+        // Query Proposal dengan eager loading namaPic + beritaAcara
+        // (beritaAcara dipakai sebagai acuan "data diterima/disetujui")
         $proposalQuery = Proposal::with([
             'namaPic',
             'checklist.subProses',
+            'beritaAcara',
         ]);
 
         if ($selectedNamaPic) {
@@ -92,45 +157,35 @@ class DashboardController extends Controller
         }
         $kelurahanList = $kelurahanQuery->pluck('kelurahan_nama')->filter()->unique()->sort()->values();
 
+        // ---------- Proposal yang sudah "diterima": punya minimal 1 berita acara ----------
+        $diterimaList = $proposal->filter(fn ($p) => $p->beritaAcara !== null)->values();
+        $belumDiterimaList = $proposal->filter(fn ($p) => $p->beritaAcara === null)->values();
+
         // Statistik
         $jumlahPengajuan = $proposal->count();
         $totalPengajuan = $proposal->sum('nominal_pengajuan');
-        $totalDisetujui = $proposal->sum('nominal_disetujui');
 
+        // Nominal "diterima" sekarang diambil dari berita_acara.nominal, bukan proposal.nominal_disetujui
+        $totalDisetujui = $diterimaList->sum(fn ($p) => $this->parseNominal($p->beritaAcara->nominal ?? null));
+
+        // Catatan: bar Setuju/Tidak Setuju/Pending di kartu "Total Proposal" tetap memakai
+        // kolom status proposal (keputusan approval), bukan berita acara (tahap administrasi).
         $jumlahSetuju = $proposal->where('status', 'setuju')->count();
         $jumlahTolak = $proposal->where('status', 'tolak')->count();
         $jumlahPending = $proposal->where('status', 'pending')->count();
 
-        // Rincian Disetujui per tipologi
-        $rincianDisetujui = DB::table('tipologi')
-            ->leftJoin('proposal', function ($join) use ($selectedNamaPic, $selectedKabupaten, $selectedKecamatan, $selectedKelurahan) {
-                $join->on('proposal.tipologi_id', '=', 'tipologi.id')
-                     ->where('proposal.status', '=', 'setuju');
-
-                if ($selectedNamaPic) {
-                    $join->whereIn('proposal.nama_pic_id', function ($subquery) use ($selectedNamaPic) {
-                        $subquery->select('id')->from('users')->where('nama', $selectedNamaPic);
-                    });
-                }
-                if ($selectedKabupaten) {
-                    $join->whereRaw(
-                        "TRIM(REGEXP_REPLACE(proposal.kabupaten_nama, '^(Kabupaten|Kota)\\\\s+', '')) = ?",
-                        [$selectedKabupaten]
-                    );
-                }
-                if ($selectedKecamatan) {
-                    $join->where('proposal.kecamatan_nama', $selectedKecamatan);
-                }
-                if ($selectedKelurahan) {
-                    $join->where('proposal.kelurahan_nama', $selectedKelurahan);
-                }
-            })
-            ->groupBy('tipologi.id', 'tipologi.kode')
-            ->select('tipologi.kode as kategori', DB::raw('COALESCE(SUM(proposal.nominal_disetujui), 0) as jumlah'))
-            ->get();
-
-        // Tipologi dan user list
+        // Rincian Disetujui per tipologi, dihitung dari data berita acara
         $tipologiList = DB::table('tipologi')->pluck('kode', 'id')->toArray();
+
+        $rincianDisetujui = collect($tipologiList)->map(function ($kode, $tipologiId) use ($diterimaList) {
+            $jumlah = $diterimaList
+                ->where('tipologi_id', $tipologiId)
+                ->sum(fn ($p) => $this->parseNominal($p->beritaAcara->nominal ?? null));
+
+            return (object) ['kategori' => $kode, 'jumlah' => $jumlah];
+        })->values();
+
+        // User list
         $picList = DB::table('users')->pluck('nama', 'id')->toArray();
 
         $totalPerTipologi = Proposal::when($selectedNamaPic, function ($query) use ($selectedNamaPic) {
@@ -185,22 +240,23 @@ class DashboardController extends Controller
             $picTable[] = $row;
         }
 
-        // ---------- Data disetujui: instansi, lokasi dinamis, nominal & barang disetujui ----------
-        $approvedList = $proposal->where('status', 'setuju')->map(function ($item) {
+        // ---------- Data disetujui: instansi, lokasi dinamis, nominal & barang dari berita acara ----------
+        $approvedList = $diterimaList->map(function ($item) {
             $locParts = array_filter([$item->kelurahan_nama, $item->kecamatan_nama, $item->kabupaten_nama]);
             return [
                 'instansi' => $item->instansi_pengajuan,
                 'judul' => $item->judul,
                 'lokasi' => $locParts ? implode(', ', $locParts) : '-',
-                'nominal_disetujui' => $item->nominal_disetujui,
-                'barang_disetujui' => $item->barang_disetujui,
+                'nominal_disetujui' => $item->beritaAcara ? $this->parseNominal($item->beritaAcara->nominal) : null,
+                'barang_disetujui' => $this->formatBarangBeritaAcara($item->beritaAcara),
             ];
         })->values();
 
-        // ---------- Pie chart 4 mode: per instansi (tipologi), per kategori instansi (+ drill-down sub instansi), per lokasi (kab/kota), total persetujuan ----------
-        $approvedOnly = $proposal->where('status', 'setuju');
+        // ---------- Pie chart 4 mode ----------
+        // $approvedOnly sekarang = proposal yang sudah punya berita acara (bukan lagi status='setuju')
+        $approvedOnly = $diterimaList;
 
-        // Mode 1: per tipologi (dari proposal yang disetujui)
+        // Mode 1: per tipologi (dari proposal yang sudah diterima)
         $byTipologi = $approvedOnly->groupBy('tipologi_id')->map->count();
         $pieInstansiLabels = [];
         $pieInstansiData = [];
@@ -209,7 +265,7 @@ class DashboardController extends Controller
             $pieInstansiData[] = $byTipologi[$tid] ?? 0;
         }
 
-        // Mode 2: per kategori instansi (dari proposal yang disetujui), dengan drill-down ke sub instansi
+        // Mode 2: per kategori instansi (dari proposal yang sudah diterima), dengan drill-down ke sub instansi
         $kategoriInstansiList = DB::table('kategori_instansi')->pluck('nama', 'id');
         $subInstansiByKategori = DB::table('sub_instansi')->get()->groupBy('kategori_instansi_id');
         $byKategoriInstansi = $approvedOnly->groupBy('kategori_instansi_id');
@@ -222,7 +278,7 @@ class DashboardController extends Controller
         foreach ($kategoriInstansiList as $kid => $knama) {
             $items = $byKategoriInstansi->get($kid) ?? collect();
             if ($items->isEmpty()) {
-                continue; // sembunyikan kategori tanpa proposal disetujui, biar pie tidak penuh irisan 0
+                continue; // sembunyikan kategori tanpa proposal diterima, biar pie tidak penuh irisan 0
             }
 
             $pieKategoriIds[] = $kid;
@@ -262,24 +318,75 @@ class DashboardController extends Controller
             $pieKategoriData[] = $tanpaKategori->count();
         }
 
-        // Mode 3: per lokasi kabupaten/kota (dari proposal yang disetujui)
+        // Mode 3: per lokasi kabupaten/kota (dari proposal yang sudah diterima)
         $byKabupaten = $approvedOnly->groupBy(function ($p) {
             return $this->normalizeKabupaten($p->kabupaten_nama) ?? 'Tidak diketahui';
         })->map->count();
         $pieLokasiLabels = $byKabupaten->keys()->values()->all();
         $pieLokasiData = $byKabupaten->values()->all();
 
-        // Mode 4: total persetujuan - nominal disetujui vs (belum disetujui: pending + tolak)
-        $nominalDisetujui = (float) $approvedOnly->sum('nominal_disetujui');
-        $nominalPending = (float) $proposal->where('status', 'pending')->sum('nominal_pengajuan');
-        $nominalTolak = (float) $proposal->where('status', 'tolak')->sum('nominal_pengajuan');
+        // Mode 5: Barang - total jumlah barang yang sudah diterima (ada berita acara) vs yang belum
+        // Pakai parseFirstNumber (bukan parseNominal) karena jumlah_barang/barang_pengajuan
+        // adalah kolom teks bebas, bukan kolom angka murni seperti nominal.
+        $jumlahBarangDiterima = $diterimaList->sum(fn ($p) => $this->parseFirstNumber($p->beritaAcara->jumlah_barang ?? null));
+        $jumlahBarangBelumDiterima = $belumDiterimaList->sum(fn ($p) => $this->parseFirstNumber($p->barang_pengajuan ?? null));
 
-        $pieStatusLabels = ['Disetujui', 'Belum Disetujui'];
-        $pieStatusData = [$nominalDisetujui, $nominalPending + $nominalTolak];
+        // "Jumlah proposal" untuk rincian barang HARUS dihitung dari proposal yang
+        // benar-benar punya nilai jumlah_barang/barang_pengajuan (>0), bukan sekadar
+        // proposal yang sudah/belum punya berita acara — supaya tidak sama persis
+        // dengan angka jumlah proposal di rincian nominal.
+        $jumlahProposalBarangDiterima = $diterimaList
+            ->filter(fn ($p) => $this->parseFirstNumber($p->beritaAcara->jumlah_barang ?? null) > 0)
+            ->count();
+        $jumlahProposalBarangBelumDiterima = $belumDiterimaList
+            ->filter(fn ($p) => $this->parseFirstNumber($p->barang_pengajuan ?? null) > 0)
+            ->count();
+
+        $pieBarangLabels = ['Sudah Diterima', 'Belum Diterima'];
+        $pieBarangData = [$jumlahBarangDiterima, $jumlahBarangBelumDiterima];
+
+        // Rincian detail untuk mode "Barang", ditampilkan sebagai tabel di bawah pie chart —
+        // formatnya disamakan dengan rincian mode "Total Persetujuan" (Status / Jumlah / Nilai),
+        // tapi "Jumlah" di sini dihitung dari proposal yang punya jumlah barang, bukan berita acara.
+        $pieBarangDetail = [
+            [
+                'label' => 'Sudah Diterima (Ada Berita Acara)',
+                'jumlah' => $jumlahProposalBarangDiterima,
+                'barang' => $jumlahBarangDiterima,
+            ],
+            [
+                'label' => 'Belum Diterima (Belum Ada Berita Acara)',
+                'jumlah' => $jumlahProposalBarangBelumDiterima,
+                'barang' => $jumlahBarangBelumDiterima,
+            ],
+        ];
+
+        // Mode 6: total persetujuan - nominal diterima (ada berita acara) vs belum diterima (belum ada berita acara)
+        $nominalDiterima = (float) $approvedOnly->sum(fn ($p) => $this->parseNominal($p->beritaAcara->nominal ?? null));
+        $nominalBelumDiterima = (float) $belumDiterimaList->sum('nominal_pengajuan');
+
+        // "Jumlah proposal" untuk rincian nominal dihitung dari proposal yang benar-benar
+        // punya nilai nominal (>0), bukan sekadar proposal yang sudah/belum punya berita acara.
+        $jumlahProposalNominalDiterima = $diterimaList
+            ->filter(fn ($p) => $this->parseNominal($p->beritaAcara->nominal ?? null) > 0)
+            ->count();
+        $jumlahProposalNominalBelumDiterima = $belumDiterimaList
+            ->filter(fn ($p) => (float) ($p->nominal_pengajuan ?? 0) > 0)
+            ->count();
+
+        $pieStatusLabels = ['Sudah Diterima (Ada Berita Acara)', 'Belum Diterima'];
+        $pieStatusData = [$nominalDiterima, $nominalBelumDiterima];
         $pieStatusDetail = [
-            ['label' => 'Disetujui', 'jumlah' => $jumlahSetuju, 'nominal' => $nominalDisetujui],
-            ['label' => 'Pending', 'jumlah' => $jumlahPending, 'nominal' => $nominalPending],
-            ['label' => 'Ditolak', 'jumlah' => $jumlahTolak, 'nominal' => $nominalTolak],
+            [
+                'label' => 'Sudah Diterima (Ada Berita Acara)',
+                'jumlah' => $jumlahProposalNominalDiterima,
+                'nominal' => $nominalDiterima,
+            ],
+            [
+                'label' => 'Belum Diterima (Belum Ada Berita Acara)',
+                'jumlah' => $jumlahProposalNominalBelumDiterima,
+                'nominal' => $nominalBelumDiterima,
+            ],
         ];
 
         // ---------- Reminder proposal (checklist berikutnya jatuh tempo H-2/H-1/hari ini) ----------
@@ -340,7 +447,7 @@ class DashboardController extends Controller
             'selectedKecamatan' => $selectedKecamatan,
             'selectedKelurahan' => $selectedKelurahan,
 
-            // data disetujui
+            // data disetujui (berbasis berita acara)
             'approvedList' => $approvedList,
 
             // pie chart 4 mode
@@ -352,6 +459,9 @@ class DashboardController extends Controller
             'subInstansiDrilldown' => $subInstansiDrilldown,
             'pieLokasiLabels' => $pieLokasiLabels,
             'pieLokasiData' => $pieLokasiData,
+            'pieBarangLabels' => $pieBarangLabels,
+            'pieBarangData' => $pieBarangData,
+            'pieBarangDetail' => $pieBarangDetail,
             'pieStatusLabels' => $pieStatusLabels,
             'pieStatusData' => $pieStatusData,
             'pieStatusDetail' => $pieStatusDetail,
