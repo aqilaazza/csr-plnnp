@@ -65,8 +65,8 @@
   .dm-pie-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
   .dm-pie-head h5{margin:0;font-size:15px;font-weight:700;}
   #pieModeSelect.form-select{border-radius:20px;font-size:12.5px;font-weight:600;padding:6px 30px 6px 14px;border:1px solid var(--line);width:auto;}
-  #pieStatusDetailTable table{font-size:12.5px;}
-  #pieStatusDetailTable thead th{color:var(--ink-400);font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.3px;}
+  #pieStatusDetailTable table, #pieBarangDetailTable table{font-size:12.5px;}
+  #pieStatusDetailTable thead th, #pieBarangDetailTable thead th{color:var(--ink-400);font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.3px;}
   .dm-pie-hint{font-size:11px;color:var(--ink-400);margin:2px 0 0;}
   .dm-pie-back{display:none;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--pln-green-dark);background:var(--green-bg);border:none;border-radius:20px;padding:5px 12px;margin-bottom:8px;cursor:pointer;}
   .dm-pie-back.show{display:inline-flex;}
@@ -249,9 +249,10 @@
                     <div class="dm-pie-head">
                         <h5 id="pieChartTitle">Disetujui per Instansi</h5>
                         <select id="pieModeSelect" class="form-select">
-                            <option value="instansi">Per Instansi</option>
+                            <option value="instansi">Per Tipologi</option>
                             <option value="kategori">Per Kategori Instansi</option>
                             <option value="lokasi">Per Lokasi (Kab/Kota)</option>
+                            <option value="barang">Per Jenis Barang</option>
                             <option value="status">Total Persetujuan</option>
                         </select>
                     </div>
@@ -278,6 +279,26 @@
                                         <td>{{ $d['label'] }}</td>
                                         <td class="text-end">{{ $d['jumlah'] }}</td>
                                         <td class="text-end dm-nominal" style="font-size:12.5px;">Rp{{ number_format($d['nominal'], 0, ',', '.') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="pieBarangDetailTable" class="mt-3" style="display:none;">
+                        <table class="table table-sm table-borderless mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th class="text-end">Jumlah Proposal</th>
+                                    <th class="text-end">Jumlah Barang</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($pieBarangDetail as $d)
+                                    <tr>
+                                        <td>{{ $d['label'] }}</td>
+                                        <td class="text-end">{{ $d['jumlah'] }}</td>
+                                        <td class="text-end dm-nominal" style="font-size:12.5px;">{{ number_format($d['barang'], 0, ',', '.') }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -456,6 +477,7 @@
                 data: {!! json_encode($pieInstansiData) !!},
                 colors: ['#78C841', '#ffcb3d', '#2196f3', '#e0463c', '#9c27b0', '#00bcd4', '#f4a300'],
                 isNominal: false,
+                centerLabel: 'proposal',
             },
             kategori: {
                 title: 'Disetujui per Kategori Instansi',
@@ -464,6 +486,7 @@
                 ids: {!! json_encode($pieKategoriIds) !!},
                 colors: ['#78C841', '#ffcb3d', '#2196f3', '#e0463c', '#9c27b0', '#00bcd4', '#f4a300'],
                 isNominal: false,
+                centerLabel: 'proposal',
                 drillable: true,
             },
             lokasi: {
@@ -472,6 +495,16 @@
                 data: {!! json_encode($pieLokasiData) !!},
                 colors: ['#78C841', '#2196f3', '#ffcb3d', '#e0463c', '#9c27b0', '#00bcd4', '#f4a300'],
                 isNominal: false,
+                centerLabel: 'proposal',
+            },
+            barang: {
+                title: 'Jumlah Barang Disetujui',
+                labels: {!! json_encode($pieBarangLabels) !!},
+                data: {!! json_encode($pieBarangData) !!},
+                colors: ['#78C841', '#e0463c'],
+                isNominal: false,
+                centerLabel: 'barang',
+                hasDetail: 'barang',
             },
             status: {
                 title: 'Total Persetujuan (Nominal)',
@@ -479,6 +512,8 @@
                 data: {!! json_encode($pieStatusData) !!},
                 colors: ['#78C841', '#e0463c'],
                 isNominal: true,
+                centerLabel: 'nominal',
+                hasDetail: 'status',
             },
         };
 
@@ -534,7 +569,15 @@
             const labels = buildLabels(rawLabels, rawData, isNominal);
             const total = rawData.reduce((a, b) => a + b, 0);
 
+            // Pastikan tidak ada Chart.js instance lain yang masih menempel di canvas ini.
+            // Kalau hanya mengandalkan variabel `pieChart`, kadang ada instance "nyangkut"
+            // (mis. akibat error sebelumnya) yang bikin Chart.js menolak/menampilkan data lama
+            // saat pindah mode langsung dari "instansi" ke "barang"/"status".
+            const stuckChart = Chart.getChart(ctx.canvas);
+            if (stuckChart) stuckChart.destroy();
             if (pieChart) pieChart.destroy();
+            pieChart = null;
+
             pieChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -590,10 +633,11 @@
                 };
             }
 
-            drawChart(ds.labels, ds.data, ds.colors, ds.isNominal, ds.isNominal ? 'nominal' : 'proposal', onSliceClick);
+            drawChart(ds.labels, ds.data, ds.colors, ds.isNominal, ds.centerLabel || (ds.isNominal ? 'nominal' : 'proposal'), onSliceClick);
 
             document.getElementById('pieChartTitle').textContent = ds.title;
-            document.getElementById('pieStatusDetailTable').style.display = mode === 'status' ? 'block' : 'none';
+            document.getElementById('pieStatusDetailTable').style.display = ds.hasDetail === 'status' ? 'block' : 'none';
+            document.getElementById('pieBarangDetailTable').style.display = ds.hasDetail === 'barang' ? 'block' : 'none';
             document.getElementById('pieBackBtn').classList.remove('show');
             document.getElementById('pieChartHint').style.display = ds.drillable ? 'block' : 'none';
         }
@@ -607,6 +651,7 @@
 
             document.getElementById('pieChartTitle').textContent = drill.title;
             document.getElementById('pieStatusDetailTable').style.display = 'none';
+            document.getElementById('pieBarangDetailTable').style.display = 'none';
             document.getElementById('pieBackBtn').classList.add('show');
             document.getElementById('pieChartHint').style.display = 'none';
         }
