@@ -16,8 +16,8 @@ use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Style\Color;
-// use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
+//use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 
 class ProposalExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithEvents, WithColumnWidths
@@ -58,24 +58,36 @@ class ProposalExport implements FromCollection, WithHeadings, WithMapping, WithS
             return $subproses->nama_sub . ' ' . ($checked ? '✓' : '✗');
         })->implode("  "); // Spasi ganda antar item
 
+         // Lokasi seperti di Monitoring
+        $lokasi = $item->lokasi
+            ?: collect([
+                $item->kabupaten_nama,
+                $item->kecamatan_nama,
+                $item->kelurahan_nama,
+            ])->filter()->implode(', ');
+
         return [
             $this->rowNumber,
             $item->judul,
             $item->instansi_pengajuan,
-            $item->lokasi,
-            $item->tanggal_disposisi ? Carbon::parse($item->tanggal_disposisi)->format('d-M-y') : '',
-            $item->nominal_pengajuan,
+            $lokasi,
+            $item->tanggal_disposisi
+                ? Carbon::parse($item->tanggal_disposisi)->format('d-M-y')
+                : '',
+            (int) $item->nominal_pengajuan,
             $item->barang_pengajuan,
             $item->tipologi->kode ?? '-',
             $item->status,
-            $item->nominal_disetujui,
+            (int) $item->nominal_disetujui,
             $item->barang_disetujui,
             $item->namaPic->nama ?? '-',
             $item->tipeProses->nama ?? '-',
-            $berkasOutput,  // kolom ke-17: Berkas
+            $berkasOutput,
             $item->keterangan,
-            $item->overdue ? Carbon::parse($item->overdue)->format('d-M-y') : '',
-            $item->progress !== null ? $item->progress . '%' : '0%',
+            $item->overdue
+                ? Carbon::parse($item->overdue)->format('d-M-y')
+                : '',
+            ($item->progress ?? 0) . '%',
         ];
     }
 
@@ -152,40 +164,122 @@ class ProposalExport implements FromCollection, WithHeadings, WithMapping, WithS
                 // =======================
                 // Tambahkan TOTAL di bawah tabel
                 // =======================
-                $totalRowIndex = $totalRows + 1;
+                $totalRowIndex = $this->totalRows + 2;
+
+                $totalBarangPengajuan = 0;
+                $totalBarangDisetujui = 0;
+
+                foreach ($this->data as $proposal) {
+
+                    if (preg_match('/\d+/', $proposal->barang_pengajuan, $match)) {
+                        $totalBarangPengajuan += (int) $match[0];
+                    }
+
+                    if (preg_match('/\d+/', $proposal->barang_disetujui, $match)) {
+                        $totalBarangDisetujui += (int) $match[0];
+                    }
+                }
 
                 // Label TOTAL di kolom Judul (B)
                 $sheet->setCellValue("B{$totalRowIndex}", "TOTAL");
 
                 // Rumus total kolom F (Nominal Pengajuan)
-                $sheet->setCellValue("F{$totalRowIndex}", "=SUM(F2:F{$totalRows})");
+                $sheet->setCellValue(
+                    "F{$totalRowIndex}",
+                    "=SUM(F2:F" . ($totalRowIndex - 1) . ")"
+                );
 
                 // Rumus total kolom J (Nominal Disetujui)
-                $sheet->setCellValue("J{$totalRowIndex}", "=SUM(J2:J{$totalRows})");
+                $sheet->setCellValue(
+                    "J{$totalRowIndex}",
+                    "=SUM(J2:J" . ($totalRowIndex - 1) . ")"
+                );
+
+                $sheet->setCellValue("G{$totalRowIndex}", $totalBarangPengajuan);
+
+                $sheet->setCellValue("K{$totalRowIndex}", $totalBarangDisetujui);       
 
                 // Style baris TOTAL (hijau + teks putih)
-                $sheet->getStyle("B{$totalRowIndex}:J{$totalRowIndex}")->applyFromArray([
-                    'font' => [
-                        'bold' => true,
-                        'color' => ['rgb' => 'FFFFFF'], // teks putih
-                    ],
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => '78C841'], // hijau
-                    ],
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => Border::BORDER_THIN,
-                            'color' => ['rgb' => '000000'],
+                $sheet->getStyle("A{$totalRowIndex}:Q{$totalRowIndex}")->applyFromArray([
+                        'font' => [
+                            'bold' => true,
+                            'color' => ['rgb' => 'FFFFFF'],
                         ],
-                    ],
-                ]);
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => '78C841'],
+                        ],
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color' => ['rgb' => '000000'],
+                            ],
+                        ],
+                    ]);
 
                 // Format rupiah untuk total
                 $sheet->getStyle("F{$totalRowIndex}")
-                    ->getNumberFormat()->setFormatCode('"Rp" #,##0');
+                    ->getNumberFormat()
+                    ->setFormatCode('"Rp" #,##0');
+
                 $sheet->getStyle("J{$totalRowIndex}")
-                    ->getNumberFormat()->setFormatCode('"Rp" #,##0');
+                    ->getNumberFormat()
+                    ->setFormatCode('"Rp" #,##0');
+
+                // =======================
+                // Rekap Status
+                // =======================
+
+                $rekapStart = $totalRowIndex + 2;
+
+                // Hitung jumlah status
+                $totalDisetujui = $this->data->where('status', 'setuju')->count();
+                $totalPending   = $this->data->where('status', 'pending')->count();
+                $totalTolak   = $this->data->where('status', 'tolak')->count();
+
+                $sheet->setCellValue("B{$rekapStart}", "REKAP STATUS");
+                $sheet->setCellValue("C{$rekapStart}", "JUMLAH");
+
+                // isi data
+                $sheet->setCellValue("B".($rekapStart+1), "Disetujui");
+                $sheet->setCellValue("C".($rekapStart+1), $totalDisetujui);
+
+                $sheet->setCellValue("B".($rekapStart+2), "Pending");
+                $sheet->setCellValue("C".($rekapStart+2), $totalPending);
+
+                $sheet->setCellValue("B".($rekapStart+3), "Tolak");
+                $sheet->setCellValue("C".($rekapStart+3), $totalTolak);
+
+                $sheet->setCellValue("B".($rekapStart+4), "Total Proposal");
+                $sheet->setCellValue("C".($rekapStart+4), $this->totalRows);
+
+                // Header rekap
+                $sheet->getStyle("B{$rekapStart}:C{$rekapStart}")
+                    ->applyFromArray([
+                        'font' => [
+                            'bold' => true,
+                            'color' => ['rgb' => 'FFFFFF'],
+                        ],
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => '78C841'],
+                        ],
+                    ]);
+
+                // Border
+                $sheet->getStyle("B{$rekapStart}:C".($rekapStart+4))
+                    ->applyFromArray([
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color' => ['rgb' => '000000'],
+                            ],
+                        ],
+                    ]);
+
+                // Bold baris total proposal
+                $sheet->getStyle("B".($rekapStart+4).":C".($rekapStart+4))
+                    ->getFont()->setBold(true);
             }
         ];
     }
@@ -196,13 +290,16 @@ class ProposalExport implements FromCollection, WithHeadings, WithMapping, WithS
             'A' => 5,    // No
             'B' => 35,   // Judul
             'C' => 30,   // Instansi
-            // 'C' => 25,   // Instansi
-            'F' => 15,   // Instansi
-            'G' => 15,   // Instansi
-            'J' => 15,   // Instansi
-            'K' => 15,   // Instansi
-            'L' => 7,   // Instansi
-            'D' => 20,   // Instansi
+            'D' => 30,   // Lokasi
+            'E' => 15,   // Tanggal
+            'F' => 20,   // Nominal Pengajuan
+            'G' => 20,   // Barang Pengajuan
+            'H' => 10,   // Tipologi
+            'I' => 15,   // Status
+            'J' => 20,   // Nominal Disetujui
+            'K' => 20,   // Barang Disetujui
+            'L' => 12,   // PIC
+            'M' => 15,   // Proses
             'N' => 15,   // Kolom Berkas (misalnya)
             'Q' => 5,   // Kolom Berkas (misalnya)
             // tambahkan sesuai kebutuhan

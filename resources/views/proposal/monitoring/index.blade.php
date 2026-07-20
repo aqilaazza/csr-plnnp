@@ -223,6 +223,16 @@
                                 @endforeach
                             </select>
 
+                            <select id="filter-lokasi" class="form-select" style="min-width: 200px;">
+                                <option value="">-- Semua Lokasi --</option>
+
+                                @foreach ($proposals->pluck('kabupaten_nama')->unique()->sort() as $kabupaten)
+                                    <option value="{{ $kabupaten }}">
+                                        {{ $kabupaten }}
+                                    </option>
+                                @endforeach
+                            </select>
+
                             <select id="filter-tipologi" class="form-select" style="min-width: 200px;">
                                 <option value="">-- Semua Tipologi --</option>
                                 @foreach ($proposals->pluck('tipologi.kode')->unique() as $tipologi)
@@ -463,14 +473,22 @@
             let table;
 
             $('#exportExcel').on('click', function() {
+                const search = table.search(); // ambil dari DataTable search
+                const lokasi = $('#filter-lokasi').val(); // ambil dari filtermu
                 const tipologi = $('#filter-tipologi').val(); // ambil dari filtermu
                 const pic = $('#filter-pic').val(); // ambil dari filtermu
-                const status = $('#filter-status').val(); // ambil dari filtermu
+                //const status = $('#filter-status').val(); // ambil dari filtermu
+                const progress  = $('#filter-progress').val();
+                const tahun = $('#filter-year').val();
 
                 let query = $.param({
-                    status: status,
+                    search: search,
+                    lokasi: lokasi,
+                    //status: status,
                     tipologi: tipologi,
                     pic: pic,
+                    progress: progress,
+                    tahun: tahun,
                 });
                 window.location.href = `/export-proposals?${query}`;
             });
@@ -662,12 +680,16 @@
             // Filter logic
             function applyFilters() {
                 const pic = $('#filter-pic').val().toLowerCase();
+                const lokasi = $('#filter-lokasi').val();
                 const tipologi = $('#filter-tipologi').val().toLowerCase();
                 const progressFilter = $('#filter-progress').val();
                 const year = $('#filter-year').val();
 
                 // Filter PIC (kolom 11)
                 table.columns(11).search(pic);
+
+                // Filter Lokasi (kolom 3)
+                table.column(3).search(lokasi);
 
                 // Filter Tipologi (kolom 7)
                 table.columns(7).search(tipologi);
@@ -694,7 +716,7 @@
             }
 
             // Trigger semua filter
-            $('#filter-pic, #filter-tipologi, #filter-progress, #filter-year').on('change', applyFilters);
+            $('#filter-pic, #filter-lokasi, #filter-tipologi, #filter-progress, #filter-year').on('change', applyFilters);
         </script>
         <script>
             function showToast(message) {
