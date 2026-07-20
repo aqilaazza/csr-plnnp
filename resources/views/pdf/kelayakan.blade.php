@@ -200,6 +200,11 @@
             display:table-cell;
             text-align:justify;
             vertical-align:top;
+            width:100%;
+            white-space:normal;
+            word-wrap:break-word;
+            overflow-wrap:break-word;
+            word-break:break-word;
         }
 
         .data-row {
