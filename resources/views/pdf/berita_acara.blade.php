@@ -190,7 +190,7 @@
                 class="value">{{ $namaBisnisSupport }}</span></p>
         <p class="indent"><span class="label">Jabatan</span><span class="separator">:</span><span class="value">{{ $jabatanBisnisSupport }}</span></p>
 
-        <p>Dalam hal ini bertindak sebagai {{ $jabatanBisnisSupport }}
+        <p>Dalam hal ini bertindak sebagai {{ $jabatanBisnisSupport }}&nbsp;
             <strong>PT PLN Nusantara Power UP Paiton</strong>,
             yang selanjutnya disebut <strong>PIHAK PERTAMA</strong>.
         </p>
