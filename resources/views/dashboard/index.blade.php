@@ -252,8 +252,8 @@
                             <option value="instansi">Per Tipologi</option>
                             <option value="kategori">Per Kategori Instansi</option>
                             <option value="lokasi">Per Lokasi (Kab/Kota)</option>
-                            <option value="barang">Per Jenis Barang</option>
-                            <option value="status">Total Persetujuan</option>
+                            <option value="barang">Status Barang Pengajuan</option>
+                            <option value="status">Status Nominal Pengajuan</option>
                         </select>
                     </div>
                     <button type="button" id="pieBackBtn" class="dm-pie-back">
@@ -498,19 +498,19 @@
                 centerLabel: 'proposal',
             },
             barang: {
-                title: 'Jumlah Barang Disetujui',
+                title: 'Rincian Status Barang Pengajuan',
                 labels: {!! json_encode($pieBarangLabels) !!},
                 data: {!! json_encode($pieBarangData) !!},
-                colors: ['#78C841', '#e0463c'],
+                colors: ['#78C841', '#e0463c', '#e69a1f', '#2196f3'],
                 isNominal: false,
                 centerLabel: 'barang',
                 hasDetail: 'barang',
             },
             status: {
-                title: 'Total Persetujuan (Nominal)',
+                title: 'Rincian Status Nominal Pengajuan',
                 labels: {!! json_encode($pieStatusLabels) !!},
                 data: {!! json_encode($pieStatusData) !!},
-                colors: ['#78C841', '#e0463c'],
+                colors: ['#78C841', '#e0463c', '#e69a1f', '#2196f3'],
                 isNominal: true,
                 centerLabel: 'nominal',
                 hasDetail: 'status',
