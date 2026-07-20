@@ -40,4 +40,9 @@ class KelayakanPdfService
         // Update path file PDF di database
         $kelayakan->update(['file_pdf' => 'kelayakan/' . $pdfName]);
     }
+
+    private function wrapLongWord($text, $length = 25)
+    {
+        return preg_replace('/(.{'.$length.'})/u', "$1&#8203;", $text);
+    }
 }
