@@ -223,7 +223,7 @@
                                 @endforeach
                             </select>
 
-                            <select id="filter-lokasi" class="form-select" style="min-width: 200px;">
+                            {{-- <select id="filter-lokasi" class="form-select" style="min-width: 200px;">
                                 <option value="">-- Semua Lokasi --</option>
 
                                 @foreach ($proposals->pluck('kabupaten_nama')->unique()->sort() as $kabupaten)
@@ -231,7 +231,7 @@
                                         {{ $kabupaten }}
                                     </option>
                                 @endforeach
-                            </select>
+                            </select> --}}
 
                             <select id="filter-tipologi" class="form-select" style="min-width: 200px;">
                                 <option value="">-- Semua Tipologi --</option>

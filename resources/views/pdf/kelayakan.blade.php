@@ -447,15 +447,15 @@
         </div>
 
         <div class="data-row">
-            <div class="label">Asal Instansi</div>
-            <div class="separator">:</div>
-            <div class="value">{{ $data->proposal->instansi_pengajuan }}</div>
-        </div>
-
-        <div class="data-row">
             <div class="label">Kategori Stakeholder</div>
             <div class="separator">:</div>
             <div class="value">{{ $data->proposal->kategoriInstansi->nama ?? '-' }}</div>
+        </div>
+        
+        <div class="data-row">
+            <div class="label">Asal Instansi</div>
+            <div class="separator">:</div>
+            <div class="value">{{ $data->proposal->instansi_pengajuan }}</div>
         </div>
 
         <div class="data-row">
