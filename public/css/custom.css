@@ -1,5 +1,8 @@
-/* Notification icon */
-#notificationDropdown{
+/* =========================================================
+   NOTIFICATION ICON
+========================================================= */
+
+#notificationDropdown {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -7,15 +10,18 @@
     padding: 10px;
 }
 
-/* Badge */
-.notification-badge{
+
+/* =========================================================
+   NOTIFICATION BADGE
+========================================================= */
+
+.notification-badge {
     position: absolute;
     top: 2px;
     right: 0;
 
     min-width: 18px;
     height: 18px;
-
     padding: 0 5px;
 
     display: flex;
@@ -35,22 +41,216 @@
     z-index: 999;
 }
 
-/* Header harus berada di atas konten */
-.app-header{
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.app-header {
     position: relative;
     z-index: 1055;
 }
 
-/* Dropdown notification */
-#notificationDropdown + .dropdown-menu{
+
+/* =========================================================
+   DROPDOWN NOTIFICATION
+========================================================= */
+
+#notificationDropdown + .dropdown-menu {
     z-index: 1060 !important;
 }
 
-.table-responsive,
-.dataTables_wrapper{
-    z-index: 1 !important;
-    position: relative;
+.notification-menu {
+    width: 560px;
+    max-height: 700px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 8px;
 }
+
+
+/* =========================================================
+   FILTER BUTTON
+========================================================= */
+
+/* Tombol aktif sedikit lebih besar */
+.notification-menu .reminder-filter.active {
+    padding: 5px 12px !important;
+
+    opacity: 1 !important;
+
+    outline: none !important;
+    box-shadow: none !important;
+
+    transform: none !important;
+
+    z-index: 2;
+}
+
+
+/* Saat hover tidak berubah ukuran */
+.notification-menu .reminder-filter:hover {
+
+    opacity: 1 !important;
+
+    outline: none !important;
+    box-shadow: none !important;
+
+    transform: none !important;
+}
+
+
+/* Saat focus / diklik tidak ada efek blur */
+.notification-menu .reminder-filter:focus,
+.notification-menu .reminder-filter:active {
+
+    opacity: 1 !important;
+
+    outline: none !important;
+    box-shadow: none !important;
+
+    transform: none !important;
+}
+
+
+/* Tombol aktif tetap besar saat diklik */
+.notification-menu .reminder-filter.active:focus,
+.notification-menu .reminder-filter.active:active {
+    padding: 5px 12px !important;
+
+    opacity: 1 !important;
+
+    outline: none !important;
+    box-shadow: none !important;
+
+    transform: none !important;
+}
+
+
+/* =========================================================
+   WARNA FILTER - SEMUA
+========================================================= */
+
+.notification-menu .reminder-filter[data-filter="all"] {
+    background-color: #60cd9e !important;
+    border-color: #60cd9e !important;
+    color: #000 !important;
+}
+
+.notification-menu .reminder-filter[data-filter="all"]:hover,
+.notification-menu .reminder-filter[data-filter="all"]:focus,
+.notification-menu .reminder-filter[data-filter="all"]:active {
+    background-color: #60cd9e !important;
+    border-color: #60cd9e !important;
+    color: #000 !important;
+}
+
+
+/* =========================================================
+   WARNA FILTER - HARI INI
+========================================================= */
+
+.notification-menu .reminder-filter[data-filter="today"] {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #000 !important;
+}
+
+.notification-menu .reminder-filter[data-filter="today"]:hover,
+.notification-menu .reminder-filter[data-filter="today"]:focus,
+.notification-menu .reminder-filter[data-filter="today"]:active {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #000 !important;
+}
+
+
+/* =========================================================
+   WARNA FILTER - H-1
+========================================================= */
+
+.notification-menu .reminder-filter[data-filter="h1"] {
+    background-color: #fd7e14 !important;
+    border-color: #fd7e14 !important;
+    color: #000 !important;
+}
+
+.notification-menu .reminder-filter[data-filter="h1"]:hover,
+.notification-menu .reminder-filter[data-filter="h1"]:focus,
+.notification-menu .reminder-filter[data-filter="h1"]:active {
+    background-color: #fd7e14 !important;
+    border-color: #fd7e14 !important;
+    color: #000 !important;
+}
+
+
+/* =========================================================
+   WARNA FILTER - H-2
+========================================================= */
+
+.notification-menu .reminder-filter[data-filter="h2"] {
+    background-color: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+.notification-menu .reminder-filter[data-filter="h2"]:hover,
+.notification-menu .reminder-filter[data-filter="h2"]:focus,
+.notification-menu .reminder-filter[data-filter="h2"]:active {
+    background-color: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+
+/* =========================================================
+   WARNA FILTER - TERLAMBAT
+========================================================= */
+
+.notification-menu .reminder-filter[data-filter="overdue"] {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #000 !important;
+}
+
+.notification-menu .reminder-filter[data-filter="overdue"]:hover,
+.notification-menu .reminder-filter[data-filter="overdue"]:focus,
+.notification-menu .reminder-filter[data-filter="overdue"]:active {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #000 !important;
+}
+
+
+/* =========================================================
+   REMINDER ITEM
+========================================================= */
+
+.reminder-item {
+    display: block;
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 12px 16px;
+    margin: 8px 0;
+
+    border-radius: 10px;
+}
+
+
+/* Hover reminder */
+.reminder-item:hover {
+    transform: translateY(-1px);
+    transition: 0.2s;
+}
+
+
+/* =========================================================
+   WARNA REMINDER
+========================================================= */
 
 .reminder-h2 {
     border-left: 5px solid #f5cd57;
@@ -72,67 +272,22 @@
     background-color: #f8f9fa;
 }
 
-.reminder-item {
-    display:block;
-    width:100%;
-    box-sizing:border-box;
-    padding:12px 16px;
-    margin:8px 0;
-    border-radius:10px;
-}
 
-.reminder-item:hover {
-    transform: translateY(-1px);
-    transition: .2s;
-}
-
-.reminder-filter.active{
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0,0,0,.15);
-}
-
-/* Button Hari Ini */
-.btn-orange {
-    background-color: #fd7e14;
-    border-color: #fd7e14;
-    color: #fff;
-}
-
-.btn-orange:hover {
-    background-color: #e96b00;
-    border-color: #e96b00;
-    color: #fff;
-}
-
-.btn-orange:focus,
-.btn-orange:active {
-    background-color: #d65f00 !important;
-    border-color: #d65f00 !important;
-    color: #fff !important;
-    box-shadow: none;
-}
-
-.notification-menu{
-    width:560px;
-    max-height:700px;
-    overflow-y:auto;
-    overflow-x:hidden;
-    padding:8px;
-}
+/* =========================================================
+   ISI REMINDER
+========================================================= */
 
 .reminder-item,
-.reminder-item *{
+.reminder-item * {
     white-space: normal !important;
     word-break: break-word;
     overflow-wrap: anywhere;
 }
 
-.body-wrapper > .container-fluid {
-    max-width: 100% !important;
-    width: 100% !important;
-    padding-left: 24px;
-    padding-right: 24px;
-}
+
+/* =========================================================
+   FONT NOTIFICATION
+========================================================= */
 
 .notification-menu .reminder-item {
     font-size: 14px !important;
@@ -148,25 +303,72 @@
     font-size: 12px !important;
 }
 
-.proposal-highlight td{
-    background:#cdcdca !important;
-    transition:background .3s;
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-responsive,
+.dataTables_wrapper {
+    z-index: 1 !important;
+    position: relative;
 }
 
-@keyframes blinkProposal{
 
-    0%{background:#cdcdca;}
-    50%{background:#ffe082;}
-    100%{background:#cdcdca;}
+/* =========================================================
+   BODY CONTAINER
+========================================================= */
+
+.body-wrapper > .container-fluid {
+    max-width: 100% !important;
+    width: 100% !important;
+
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+
+/* =========================================================
+   PROPOSAL HIGHLIGHT
+========================================================= */
+
+.proposal-highlight td {
+    background: #cdcdca !important;
+    transition: background 0.3s;
+}
+
+
+/* =========================================================
+   PROPOSAL BLINK
+========================================================= */
+
+@keyframes blinkProposal {
+
+    0% {
+        background: #cdcdca;
+    }
+
+    50% {
+        background: #ffe082;
+    }
+
+    100% {
+        background: #cdcdca;
+    }
 
 }
 
-.dashboard-reminder{
-    transition: all .2s ease;
+
+/* =========================================================
+   DASHBOARD REMINDER
+========================================================= */
+
+.dashboard-reminder {
+    transition: all 0.2s ease;
     cursor: pointer;
 }
 
-.dashboard-reminder:hover{
+.dashboard-reminder:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
