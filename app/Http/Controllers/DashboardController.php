@@ -65,8 +65,29 @@ class DashboardController extends Controller
     }
 
     /**
+     * Pecah string list yang dipisah koma (mis. "1, 1, 2, 2") jadi array per-item,
+     * dengan tiap elemen di-trim. Dipakai untuk memasangkan jumlah_barang/satuan/
+     * jenis_bantuan yang di database sama-sama berupa list dipisah koma.
+     */
+    private function splitCommaList(?string $value): array
+    {
+        if ($value === null || trim($value) === '') {
+            return [];
+        }
+
+        return array_map('trim', explode(',', $value));
+    }
+
+    /**
      * Gabungan teks barang disetujui dari data berita acara
      * (jumlah_barang + satuan + jenis_bantuan).
+     *
+     * Ketiga kolom ini masing-masing berupa list dipisah koma (mis. jumlah_barang =
+     * "1, 1, 2, 2", satuan = "unit, unit, unit, unit", jenis_bantuan = "Mesin Las
+     * Listrik Esab, Mesin Las Listrik Daiden, ..."). Item ke-N di tiap kolom saling
+     * berpasangan, jadi harus di-zip per-index, bukan sekadar digabung mentah-mentah
+     * (yang sebelumnya menghasilkan teks berantakan seperti
+     * "1, 1, 2, 2 unit, unit, unit, unit Mesin Las Listrik Esab, ...").
      */
     private function formatBarangBeritaAcara($beritaAcara): ?string
     {
@@ -74,13 +95,29 @@ class DashboardController extends Controller
             return null;
         }
 
-        $parts = array_filter([
-            $beritaAcara->jumlah_barang,
-            $beritaAcara->satuan,
-            $beritaAcara->jenis_bantuan,
-        ], fn ($v) => $v !== null && $v !== '');
+        $jumlahParts = $this->splitCommaList($beritaAcara->jumlah_barang);
+        $satuanParts = $this->splitCommaList($beritaAcara->satuan);
+        $jenisParts = $this->splitCommaList($beritaAcara->jenis_bantuan);
 
-        return $parts ? implode(' ', $parts) : null;
+        $count = max(count($jumlahParts), count($satuanParts), count($jenisParts));
+        if ($count === 0) {
+            return null;
+        }
+
+        $lines = [];
+        for ($i = 0; $i < $count; $i++) {
+            $line = array_filter([
+                $jumlahParts[$i] ?? null,
+                $satuanParts[$i] ?? null,
+                $jenisParts[$i] ?? null,
+            ], fn ($v) => $v !== null && $v !== '');
+
+            if ($line) {
+                $lines[] = implode(' ', $line);
+            }
+        }
+
+        return $lines ? implode(', ', $lines) : null;
     }
 
     public function index(Request $request)
@@ -319,8 +356,19 @@ class DashboardController extends Controller
         }
 
         // Mode 3: per lokasi kabupaten/kota (dari proposal yang sudah diterima)
+        // Kota Probolinggo, Kabupaten Probolinggo, dan Kabupaten Situbondo ditampilkan
+        // sebagai slice terpisah (TIDAK digabung, beda dengan filter dropdown di atas),
+        // sisanya digabung jadi "Lainnya". Dicocokkan case-insensitive langsung dari nama
+        // asli (bukan hasil normalizeKabupaten) supaya Kota vs Kabupaten tetap terbedakan.
         $byKabupaten = $approvedOnly->groupBy(function ($p) {
-            return $this->normalizeKabupaten($p->kabupaten_nama) ?? 'Tidak diketahui';
+            $raw = $p->kabupaten_nama ? strtoupper(trim($p->kabupaten_nama)) : null;
+
+            return match ($raw) {
+                'KABUPATEN PROBOLINGGO' => 'Kabupaten Probolinggo',
+                'KOTA PROBOLINGGO' => 'Kota Probolinggo',
+                'KABUPATEN SITUBONDO' => 'Kabupaten Situbondo',
+                default => 'Lainnya',
+            };
         })->map->count();
         $pieLokasiLabels = $byKabupaten->keys()->values()->all();
         $pieLokasiData = $byKabupaten->values()->all();
@@ -353,7 +401,7 @@ class DashboardController extends Controller
             ->filter(fn ($p) => $this->parseFirstNumber($p->barang_pengajuan ?? null) > 0)
             ->count();
 
-        $pieBarangLabels = ['Sudah Diterima', 'Ditolak', 'Pending', 'Disetujui, Belum Ada Berita Acara'];
+        $pieBarangLabels = ['Sudah Diterima', 'Ditolak', 'Pending', 'Disetujui (On Going)'];
         $pieBarangData = [$jumlahBarangDiterima, $jumlahBarangTolak, $jumlahBarangPending, $jumlahBarangDisetujuiBelumBA];
 
         // Rincian detail untuk mode "Barang", ditampilkan sebagai tabel di bawah pie chart.
@@ -374,7 +422,7 @@ class DashboardController extends Controller
                 'barang' => $jumlahBarangPending,
             ],
             [
-                'label' => 'Disetujui, Belum Ada Berita Acara',
+                'label' => 'Disetujui (On Going)',
                 'jumlah' => $jumlahProposalBarangDisetujuiBelumBA,
                 'barang' => $jumlahBarangDisetujuiBelumBA,
             ],
@@ -401,7 +449,7 @@ class DashboardController extends Controller
             ->filter(fn ($p) => (float) ($p->nominal_pengajuan ?? 0) > 0)
             ->count();
 
-        $pieStatusLabels = ['Sudah Diterima (Ada Berita Acara)', 'Ditolak', 'Pending', 'Disetujui, Belum Ada Berita Acara'];
+        $pieStatusLabels = ['Sudah Diterima (Ada Berita Acara)', 'Ditolak', 'Pending', 'Disetujui (On Going)'];
         $pieStatusData = [$nominalDiterima, $nominalTolak, $nominalPending, $nominalDisetujuiBelumBA];
         $pieStatusDetail = [
             [
@@ -420,7 +468,7 @@ class DashboardController extends Controller
                 'nominal' => $nominalPending,
             ],
             [
-                'label' => 'Disetujui, Belum Ada Berita Acara',
+                'label' => 'Disetujui (On Going)',
                 'jumlah' => $jumlahProposalNominalDisetujuiBelumBA,
                 'nominal' => $nominalDisetujuiBelumBA,
             ],

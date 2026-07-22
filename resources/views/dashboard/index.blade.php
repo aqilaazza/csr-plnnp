@@ -82,6 +82,16 @@
   .dm-loc-chip{display:inline-block;background:#eef2f8;color:#3d4c63;font-size:11.5px;padding:3px 10px;border-radius:7px;}
   .dm-nominal{font-weight:800;color:var(--pln-green-dark);white-space:nowrap;}
 
+  /* ---- search box (menonjol, border lebih jelas biar gampang keliatan) ---- */
+  .dm-search-box{position:relative;max-width:280px;flex:1 1 240px;margin-bottom:16px;}
+  .dm-search-box svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--pln-green-dark);width:17px;height:17px;pointer-events:none;}
+  .dm-search-box input{width:100%;border-radius:10px;border:1.5px solid var(--pln-green);font-size:13.5px;padding:9px 14px 9px 38px;background:var(--green-bg);transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;}
+  .dm-search-box input::placeholder{color:#5a8a3f;}
+  .dm-search-box input:focus{outline:none;border-color:var(--pln-green-dark);box-shadow:0 0 0 3px rgba(120,200,65,0.2);background:#fff;}
+  @media (max-width:767px){
+    .dm-search-box{max-width:100%;}
+  }
+
   .dm-section-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-400);margin:30px 0 12px;}
 
   /* ---- PIC table wrapper ---- */
@@ -375,9 +385,13 @@
     <!-- Data Disetujui -->
     <div class="card mb-4">
         <div class="card-body">
-            <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
                 <h5 class="card-title fw-semibold mb-0" style="font-size:15px;">Data Disetujui</h5>
                 <span class="badge rounded-pill" style="background-color:var(--pln-green);">{{ $approvedList->count() }}</span>
+                <div class="dm-search-box mb-0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" id="approvedSearchInput" placeholder="Cari instansi, lokasi, atau barang...">
+                </div>
             </div>
             <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
                 <table class="table table-bordered align-middle mb-0">
@@ -389,9 +403,9 @@
                             <th>Barang Disetujui</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="approvedTableBody">
                         @forelse ($approvedList as $item)
-                            <tr>
+                            <tr class="approved-row">
                                 <td>
                                     <div class="fw-semibold">{{ $item['instansi'] }}</div>
                                     <div class="text-muted" style="font-size:11.5px;">{{ $item['judul'] }}</div>
@@ -407,6 +421,9 @@
                                 <td colspan="4" class="text-center text-muted py-4">Tidak ada proposal disetujui yang cocok dengan filter ini.</td>
                             </tr>
                         @endforelse
+                        <tr id="approvedNoMatchRow" style="display:none;">
+                            <td colspan="4" class="text-center text-muted py-4">Tidak ada hasil yang cocok dengan pencarian.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -665,5 +682,26 @@
         });
 
         renderPie('instansi');
+
+        // ---- Search filter untuk tabel "Data Disetujui" ----
+        const approvedSearchInput = document.getElementById('approvedSearchInput');
+        if (approvedSearchInput) {
+            approvedSearchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim().toLowerCase();
+                const rows = document.querySelectorAll('#approvedTableBody tr.approved-row');
+                let visibleCount = 0;
+
+                rows.forEach((row) => {
+                    const matches = row.textContent.toLowerCase().includes(query);
+                    row.style.display = matches ? '' : 'none';
+                    if (matches) visibleCount++;
+                });
+
+                const noMatchRow = document.getElementById('approvedNoMatchRow');
+                if (noMatchRow) {
+                    noMatchRow.style.display = (query && visibleCount === 0) ? '' : 'none';
+                }
+            });
+        }
     </script>
 @endpush
