@@ -582,43 +582,63 @@
         {{-- UTILITY FUNCTION --}}
         <script>
 
-            function formatRupiah(input){
+            // FORMAT RUPIAH
+            function formatRupiah(input) {
 
-                let angka = input.value.replace(/\D/g,'');
+                let angka = input.value.replace(/\D/g, '');
 
-                if(angka === ''){
+                if (angka === '') {
                     input.value = '';
                     return;
                 }
 
-                input.value = new Intl.NumberFormat('id-ID',{
-                    style:'currency',
-                    currency:'IDR',
-                    minimumFractionDigits:0
+                input.value = new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0
                 }).format(angka);
             }
 
-            function toggleJenis(item){
+            // TOGGLE JENIS BANTUAN
+            function toggleJenis(item) {
 
                 let jenis = item.find('input[name="jenis_bantuan[]"]')
                                 .val()
-                                .toLowerCase();
+                                .toLowerCase()
+                                .trim();
 
-                if(jenis.includes('dana')){
+                // JENIS BANTUAN UANG / DANA
+                if (jenis.includes('dana') || jenis.includes('uang')) {
 
+                    // Nominal bisa diisi
+                    item.find('.nominal-input')
+                        .prop('disabled', false);
+
+                    // Jumlah dikunci dan dikosongkan
                     item.find('.jumlah-input')
                         .val('')
                         .prop('disabled', true);
 
+                    // Satuan dikunci dan dikosongkan
                     item.find('.satuan-input')
                         .val('')
                         .prop('disabled', true);
 
-                }else{
+                }
 
+                // JENIS BANTUAN BARANG
+                else {
+
+                    // Nominal dikunci dan dikosongkan
+                    item.find('.nominal-input')
+                        .val('')
+                        .prop('disabled', true);
+
+                    // Jumlah bisa diisi
                     item.find('.jumlah-input')
                         .prop('disabled', false);
 
+                    // Satuan bisa diisi
                     item.find('.satuan-input')
                         .prop('disabled', false);
 
@@ -626,11 +646,26 @@
 
             }
 
+            // JUMLAH HANYA BOLEH ANGKA
+            $(document).on('input', '.jumlah-input', function () {
+
+                this.value = this.value.replace(/\D/g, '');
+
+            });
+
+            // FORMAT NOMINAL
+            $(document).on('input', '.nominal-input', function () {
+
+                formatRupiah(this);
+
+            });
+
         </script>
 
-        {{--  CREATE MODAL --}}
+        {{-- CREATE MODAL --}}
         <script>
 
+            // TAMBAH ITEM BANTUAN
             document.getElementById('add-bantuan')
                 .addEventListener('click', function () {
 
@@ -692,58 +727,152 @@
                         .find('.bantuan-item')
                         .last();
 
-                    toggleJenis(lastItem);
-                    toggleInput(lastItem);
+                    // Item baru: semua input dibuka dulu
+                    lastItem.find('.jumlah-input').prop('disabled', false);
+                    lastItem.find('.satuan-input').prop('disabled', false);
+                    lastItem.find('.nominal-input').prop('disabled', false);
 
-            });
+                });
 
-            $(document).on('input','.nominal-input',function(){
+            // CEK JENIS BANTUAN
+            function toggleJenis(item) {
 
-                formatRupiah(this);
+                let jenis = item.find('input[name="jenis_bantuan[]"]')
+                    .val()
+                    .trim()
+                    .toLowerCase();
 
-                toggleInput($(this).closest('.bantuan-item'));
+                let jumlahInput = item.find('.jumlah-input');
+                let satuanInput = item.find('.satuan-input');
+                let nominalInput = item.find('.nominal-input');
 
-            });
+                // JIKA JENIS = UANG / DANA
+                if (jenis.includes('uang') || jenis.includes('dana')) {
 
-            function toggleInput(item){
+                    // Nominal bisa diisi
+                    nominalInput
+                        .prop('disabled', false);
 
-                const nominal = item.find('.nominal-input').val().trim();
+                    // Jumlah dikunci
+                    jumlahInput
+                        .val('')
+                        .prop('disabled', true);
 
-                if(nominal !== ""){
-
-                    item.find('.jumlah-input').prop('disabled', true);
-                    item.find('.satuan-input').prop('disabled', true);
-
-                }else{
-
-                    item.find('.jumlah-input').prop('disabled', false);
-                    item.find('.satuan-input').prop('disabled', false);
+                    // Satuan dikunci
+                    satuanInput
+                        .val('')
+                        .prop('disabled', true);
 
                 }
 
-                // Nominal selalu bisa diisi
-                item.find('.nominal-input').prop('disabled', false);
+                // JIKA JENIS BELUM DIISI ATAU BUKAN UANG / DANA
+                else {
+
+                    // Jumlah bisa diisi
+                    jumlahInput
+                        .prop('disabled', false);
+
+                    // Satuan bisa diisi
+                    satuanInput
+                        .prop('disabled', false);
+
+                    // Nominal bisa diisi
+                    nominalInput
+                        .val('')
+                        .prop('disabled', false);
+
+                }
 
             }
 
-            $(document).on('input','input[name="jenis_bantuan[]"]',function(){
+            // JIKA JENIS BANTUAN DIUBAH
+            $(document).on(
+                'input',
+                'input[name="jenis_bantuan[]"]',
+                function () {
 
-                toggleJenis(
-                    $(this).closest('.bantuan-item')
-                );
+                    toggleJenis(
+                        $(this).closest('.bantuan-item')
+                    );
 
-            });
+                }
+            );
 
-            $(document).on('input', '.jumlah-input, .satuan-input', function(){
+            // JUMLAH / SATUAN DIISI
+            // =========================
+            $(document).on(
+                'input',
+                '.jumlah-input, .satuan-input',
+                function () {
 
-                toggleInput($(this).closest('.bantuan-item'));
+                    let item = $(this).closest('.bantuan-item');
 
-            });
+                    let jenis = item
+                        .find('input[name="jenis_bantuan[]"]')
+                        .val()
+                        .trim()
+                        .toLowerCase();
 
+                    // Hanya berlaku untuk jenis BARANG
+                    if (
+                        !jenis.includes('uang') &&
+                        !jenis.includes('dana')
+                    ) {
+
+                        let jumlah = item
+                            .find('.jumlah-input')
+                            .val()
+                            .trim();
+
+                        let satuan = item
+                            .find('.satuan-input')
+                            .val()
+                            .trim();
+
+                        // Jika Jumlah atau Satuan diisi
+                        if (jumlah !== '' || satuan !== '') {
+
+                            // Nominal dikunci
+                            item.find('.nominal-input')
+                                .val('')
+                                .prop('disabled', true);
+
+                        } else {
+
+                            // Jika Jumlah dan Satuan kosong
+                            // Nominal tetap dikunci karena ini Barang
+                            item.find('.nominal-input')
+                                .prop('disabled', true);
+
+                        }
+
+                    }
+
+                }
+            );
+
+
+            // =========================
+            // NOMINAL DIISI
+            // =========================
+            $(document).on(
+                'input',
+                '.nominal-input',
+                function () {
+
+                    formatRupiah(this);
+
+                }
+            );
+
+
+            // =========================
+            // HAPUS ITEM BANTUAN
+            // =========================
             document.getElementById('bantuan-wrapper')
-                .addEventListener('click', function(e){
+                .addEventListener('click', function (e) {
 
-                    if(e.target.classList.contains('btn-remove')){
+                    if (e.target.classList.contains('btn-remove')) {
 
                         e.target
                             .closest('.bantuan-item')
@@ -751,7 +880,7 @@
 
                     }
 
-            });
+                });
 
         </script>
 
@@ -826,9 +955,9 @@
         {{-- EDIT MODAL --}}
         <script>
 
-            // ==========================
+            // =====================================================
             // BUKA MODAL EDIT
-            // ==========================
+            // =====================================================
 
             $(document).on('click', '.btn-edit', function () {
 
@@ -838,17 +967,27 @@
                 const proposal = $(this).data('proposal');
 
                 const businessSupportId = $(this).data('business-support-id');
-                const bisnisLainnya    = $(this).data('bisnis-lainnya');
+                const bisnisLainnya = $(this).data('bisnis-lainnya');
 
-                // isi field utama
+                // =================================================
+                // ISI DATA UTAMA
+                // =================================================
+
                 $('#edit-nama').val(nama);
                 $('#edit-jabatan').val(jabatan);
                 $('#edit-proposal').val(proposal);
 
-                // action form
-                $('#editForm').attr('action', '/berita-acara/' + id);
+                // Action Form
+                $('#editForm').attr(
+                    'action',
+                    '/berita-acara/' + id
+                );
 
-                // Business Support
+
+                // =================================================
+                // BUSINESS SUPPORT
+                // =================================================
+
                 if (bisnisLainnya) {
 
                     $('#edit-business_support_choice')
@@ -872,255 +1011,431 @@
 
                 }
 
-                // kosongkan bantuan
+
+                // =================================================
+                // KOSONGKAN BANTUAN LAMA
+                // =================================================
+
                 $('#edit-bantuan-wrapper').html('');
 
-                // ambil bantuan
-                $.get(`/berita-acara/${id}/bantuan`, function (data) {
 
-                    $('#edit-bantuan-wrapper').html('');
+                // =================================================
+                // AMBIL DATA BANTUAN DARI DATABASE
+                // =================================================
 
-                    data.forEach(function(item){
+                $.get(
+                    `/berita-acara/${id}/bantuan`,
+                    function (data) {
 
-                        let row = `
-                        <div class="bantuan-item mb-4 border border-2 rounded p-3 position-relative">
+                        $('#edit-bantuan-wrapper').html('');
 
-                            <button
-                                type="button"
-                                class="btn btn-danger btn-sm btn-remove position-absolute top-0 end-0 m-2">
-                                &times;
-                            </button>
 
-                            <div class="mb-3">
-                                <label class="form-label">Jenis Bantuan</label>
-                                <input
-                                    type="text"
-                                    name="jenis_bantuan[]"
-                                    value="${item.jenis}"
-                                    class="form-control"
-                                    required>
-                            </div>
+                        // Loop semua bantuan
+                        data.forEach(function (item) {
 
-                            <div class="row">
+                            let row = `
 
-                                <div class="col-md-6">
-                                    <label class="form-label">Jumlah</label>
-                                    <input
-                                        type="number"
-                                        name="jumlah_barang[]"
-                                        value="${item.jumlah ?? ''}"
-                                        class="form-control jumlah-input">
-                                </div>
+                            <div class="bantuan-item mb-4 border border-2 rounded p-3 position-relative">
 
-                                <div class="col-md-6">
-                                    <label class="form-label">Satuan</label>
+                                <button
+                                    type="button"
+                                    class="btn btn-danger btn-sm btn-remove position-absolute top-0 end-0 m-2">
+                                    &times;
+                                </button>
+
+
+                                <!-- JENIS BANTUAN -->
+                                <div class="mb-3">
+
+                                    <label class="form-label">
+                                        Jenis Bantuan
+                                    </label>
+
                                     <input
                                         type="text"
-                                        name="satuan_barang[]"
-                                        value="${item.satuan ?? ''}"
-                                        class="form-control satuan-input">
+                                        name="jenis_bantuan[]"
+                                        value="${item.jenis ?? ''}"
+                                        class="form-control"
+                                        required>
+
+                                </div>
+
+
+                                <!-- JUMLAH & SATUAN -->
+                                <div class="row">
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Jumlah
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            name="jumlah_barang[]"
+                                            value="${item.jumlah ?? ''}"
+                                            class="form-control jumlah-input"
+                                            placeholder="Contoh: 100">
+
+                                    </div>
+
+
+                                    <div class="col-md-6">
+
+                                        <label class="form-label">
+                                            Satuan
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="satuan_barang[]"
+                                            value="${item.satuan ?? ''}"
+                                            class="form-control satuan-input"
+                                            placeholder="Unit/Paket/Bibit">
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- NOMINAL -->
+                                <div class="mt-3">
+
+                                    <label class="form-label">
+                                        Nominal
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="nominal[]"
+                                        value="${item.nominal ?? ''}"
+                                        class="form-control nominal-input"
+                                        placeholder="Masukkan Nominal">
+
                                 </div>
 
                             </div>
 
-                            <div class="mt-3">
-                                <label class="form-label">Nominal</label>
+                            `;
+
+
+                            // Masukkan ke modal
+                            $('#edit-bantuan-wrapper')
+                                .append(row);
+
+
+                            // Ambil item terakhir
+                            let lastItem = $('#edit-bantuan-wrapper .bantuan-item')
+                                .last();
+
+
+                            // Format Rupiah jika ada nominal
+                            let nominalInput = lastItem
+                                .find('.nominal-input')[0];
+
+                            if (
+                                nominalInput &&
+                                nominalInput.value !== ''
+                            ) {
+
+                                formatRupiah(nominalInput);
+
+                            }
+
+
+                            // Terapkan aturan input
+                            toggleJenisEdit(lastItem);
+
+                        });
+
+                    }
+                );
+
+            });
+
+
+
+            // =====================================================
+            // FORMAT RUPIAH
+            // =====================================================
+
+            function formatRupiah(input) {
+
+                let angka = input.value.replace(/\D/g, '');
+
+                if (angka === '') {
+
+                    input.value = '';
+
+                    return;
+
+                }
+
+                input.value = new Intl.NumberFormat(
+                    'id-ID',
+                    {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0
+                    }
+                ).format(angka);
+
+            }
+
+
+
+            // =====================================================
+            // ATUR INPUT SESUAI JENIS BANTUAN
+            // =====================================================
+
+            function toggleJenisEdit(item) {
+
+                let jenis = item
+                    .find('input[name="jenis_bantuan[]"]')
+                    .val()
+                    .trim()
+                    .toLowerCase();
+
+
+                let jumlahInput = item.find('.jumlah-input');
+                let satuanInput = item.find('.satuan-input');
+                let nominalInput = item.find('.nominal-input');
+
+
+                // =================================================
+                // JIKA JENIS BANTUAN = UANG / DANA
+                // =================================================
+
+                if (
+                    jenis.includes('uang') ||
+                    jenis.includes('dana')
+                ) {
+
+                    // NOMINAL BISA DIEDIT
+                    nominalInput
+                        .prop('readonly', false)
+                        .removeClass('bg-light');
+
+
+                    // JUMLAH DIKUNCI
+                    jumlahInput
+                        .prop('readonly', true)
+                        .addClass('bg-light');
+
+
+                    // SATUAN DIKUNCI
+                    satuanInput
+                        .prop('readonly', true)
+                        .addClass('bg-light');
+
+                }
+
+
+                // =================================================
+                // JIKA JENIS BANTUAN = BARANG
+                // =================================================
+
+                else {
+
+                    // JUMLAH BISA DIEDIT
+                    jumlahInput
+                        .prop('readonly', false)
+                        .removeClass('bg-light');
+
+
+                    // SATUAN BISA DIEDIT
+                    satuanInput
+                        .prop('readonly', false)
+                        .removeClass('bg-light');
+
+
+                    // NOMINAL DIKUNCI
+                    nominalInput
+                        .prop('readonly', true)
+                        .addClass('bg-light');
+
+                }
+
+            }
+
+
+
+            // =====================================================
+            // JIKA JENIS BANTUAN DIUBAH
+            // =====================================================
+
+            $(document).on(
+                'input',
+                '#editModal input[name="jenis_bantuan[]"]',
+                function () {
+
+                    toggleJenisEdit(
+                        $(this).closest('.bantuan-item')
+                    );
+
+                }
+            );
+
+
+
+            // =====================================================
+            // NOMINAL
+            // =====================================================
+
+            $(document).on(
+                'input',
+                '#editModal .nominal-input',
+                function () {
+
+                    // Hanya format jika tidak dikunci
+                    if (!$(this).prop('readonly')) {
+
+                        formatRupiah(this);
+
+                    }
+
+                }
+            );
+
+
+
+            // =====================================================
+            // JUMLAH HANYA BOLEH ANGKA
+            // =====================================================
+
+            $(document).on(
+                'input',
+                '#editModal .jumlah-input',
+                function () {
+
+                    this.value = this.value.replace(/\D/g, '');
+
+                }
+            );
+
+
+
+            // =====================================================
+            // TAMBAH BANTUAN BARU
+            // =====================================================
+
+            $('#edit-add-bantuan').on(
+                'click',
+                function () {
+
+                    let row = `
+
+                    <div class="bantuan-item mb-4 border border-2 rounded p-3 position-relative">
+
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-sm btn-remove position-absolute top-0 end-0 m-2">
+                            &times;
+                        </button>
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Jenis Bantuan
+                            </label>
+
+                            <input
+                                type="text"
+                                name="jenis_bantuan[]"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+
+                        <div class="row">
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Jumlah
+                                </label>
+
+                                <input
+                                    type="number"
+                                    name="jumlah_barang[]"
+                                    class="form-control jumlah-input"
+                                    placeholder="Contoh: 100">
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Satuan
+                                </label>
+
                                 <input
                                     type="text"
-                                    name="nominal[]"
-                                    value="${item.nominal ?? ''}"
-                                    class="form-control nominal-input">
+                                    name="satuan_barang[]"
+                                    class="form-control satuan-input"
+                                    placeholder="Unit/Paket/Bibit">
+
                             </div>
 
                         </div>
-                        `;
-
-                        $('#edit-bantuan-wrapper').append(row);
-
-                        let lastItem = $('#edit-bantuan-wrapper .bantuan-item').last();
-
-                        // format rupiah
-                        let nominalInput = lastItem.find('.nominal-input')[0];
-                        formatRupiah(nominalInput);
-
-                        toggleJenis(lastItem);
-                        toggleInput(lastItem);
-
-                    });
-
-                });
-
-            });
 
 
-            // ==========================
-            // TAMBAH BANTUAN
-            // ==========================
+                        <div class="mt-3">
 
-            $('#edit-add-bantuan').on('click', function(){
+                            <label class="form-label">
+                                Nominal
+                            </label>
 
-                let row = `
-                <div class="bantuan-item mb-4 border border-2 rounded p-3 position-relative">
-
-                    <button
-                        type="button"
-                        class="btn btn-danger btn-sm btn-remove position-absolute top-0 end-0 m-2">
-                        &times;
-                    </button>
-
-                    <div class="mb-3">
-                        <label class="form-label">Jenis Bantuan</label>
-                        <input
-                            type="text"
-                            name="jenis_bantuan[]"
-                            class="form-control"
-                            required>
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-6">
-                            <label class="form-label">Jumlah</label>
-                            <input
-                                type="number"
-                                name="jumlah_barang[]"
-                                class="form-control jumlah-input">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Satuan</label>
                             <input
                                 type="text"
-                                name="satuan_barang[]"
-                                class="form-control satuan-input">
+                                name="nominal[]"
+                                class="form-control nominal-input"
+                                placeholder="Masukkan Nominal">
+
                         </div>
 
                     </div>
 
-                    <div class="mt-3">
-                        <label class="form-label">Nominal</label>
-                        <input
-                            type="text"
-                            name="nominal[]"
-                            class="form-control nominal-input">
-                    </div>
-
-                </div>
-                `;
-
-                $('#edit-bantuan-wrapper').append(row);
-
-                let lastItem = $('#edit-bantuan-wrapper .bantuan-item').last();
-
-                toggleJenis(lastItem);
-                toggleInput(lastItem);
-
-            });
+                    `;
 
 
-            // ==========================
-            // HAPUS
-            // ==========================
-
-            $(document).on('click','.btn-remove',function(){
-
-                $(this).closest('.bantuan-item').remove();
-
-            });
+                    $('#edit-bantuan-wrapper')
+                        .append(row);
 
 
-            // ==========================
-            // CEK JENIS BANTUAN
-            // ==========================
+                    // Ambil item baru
+                    let lastItem = $('#edit-bantuan-wrapper .bantuan-item')
+                        .last();
 
-            function toggleJenis(item){
 
-                let jenis = item.find('input[name="jenis_bantuan[]"]')
-                                .val()
-                                .toLowerCase();
-
-                if(jenis.includes('dana')){
-
-                    item.find('.jumlah-input')
-                        .val('')
-                        .prop('disabled',true);
-
-                    item.find('.satuan-input')
-                        .val('')
-                        .prop('disabled',true);
-
-                    item.find('.nominal-input')
-                        .prop('disabled',false);
-
-                }else{
-
-                    item.find('.jumlah-input').prop('disabled',false);
-                    item.find('.satuan-input').prop('disabled',false);
+                    // Default = Barang
+                    // Jumlah & Satuan bisa diisi
+                    // Nominal terkunci
+                    toggleJenisEdit(lastItem);
 
                 }
+            );
 
-            }
 
 
-            // ==========================
-            // CEK NOMINAL / JUMLAH
-            // ==========================
+            // =====================================================
+            // HAPUS BANTUAN
+            // =====================================================
 
-            function toggleInput(item){
+            $(document).on(
+                'click',
+                '#editModal .btn-remove',
+                function () {
 
-                const nominal = item.find('.nominal-input').val().trim();
-
-                if(nominal !== ""){
-
-                    item.find('.jumlah-input').prop('disabled',true);
-                    item.find('.satuan-input').prop('disabled',true);
-
-                }else{
-
-                    item.find('.jumlah-input').prop('disabled',false);
-                    item.find('.satuan-input').prop('disabled',false);
+                    $(this)
+                        .closest('.bantuan-item')
+                        .remove();
 
                 }
-
-                // Nominal selalu bisa diisi
-                item.find('.nominal-input').prop('disabled', false);
-
-            }
-
-
-            // ==========================
-            // EVENT JENIS
-            // ==========================
-
-            $(document).on('input','input[name="jenis_bantuan[]"]',function(){
-
-                toggleJenis($(this).closest('.bantuan-item'));
-
-            });
-
-
-            // ==========================
-            // EVENT NOMINAL
-            // ==========================
-
-            $(document).on('input','.nominal-input',function(){
-
-                formatRupiah(this);
-
-                toggleInput($(this).closest('.bantuan-item'));
-
-            });
-
-
-            // ==========================
-            // EVENT JUMLAH / SATUAN
-            // ==========================
-
-            $(document).on('input','.jumlah-input, .satuan-input',function(){
-
-                toggleInput($(this).closest('.bantuan-item'));
-
-            });
+            );
 
         </script>
 
