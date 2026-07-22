@@ -199,11 +199,11 @@ class ProposalExport implements FromCollection, WithHeadings, WithMapping, WithS
 
                 $sheet->setCellValue("K{$totalRowIndex}", $totalBarangDisetujui);       
 
-                // Style baris TOTAL (hijau + teks putih)
+                // Style baris TOTAL (hijau + teks hitam bold)
                 $sheet->getStyle("A{$totalRowIndex}:Q{$totalRowIndex}")->applyFromArray([
                         'font' => [
                             'bold' => true,
-                            'color' => ['rgb' => 'FFFFFF'],
+                            'color' => ['rgb' => '000000'],
                         ],
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
@@ -258,7 +258,7 @@ class ProposalExport implements FromCollection, WithHeadings, WithMapping, WithS
                     ->applyFromArray([
                         'font' => [
                             'bold' => true,
-                            'color' => ['rgb' => 'FFFFFF'],
+                            'color' => ['rgb' => '000000'],
                         ],
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
@@ -316,7 +316,7 @@ class ProposalExport implements FromCollection, WithHeadings, WithMapping, WithS
         $sheet->getStyle('A1:Q1')->applyFromArray([
             'font' => [
                 'bold' => true,
-                'color' => ['rgb' => 'FFFFFF'], // teks putih
+                'color' => ['rgb' => '000000'], // teks hitam
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
