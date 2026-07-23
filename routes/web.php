@@ -45,6 +45,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/dashboard/export-approved', [DashboardController::class, 'exportApproved'])->name('dashboard.export-approved');
     Route::get('/kabupaten', [WilayahController::class, 'getKabupaten']);
     Route::get('/kecamatan/{kabupatenId}', [WilayahController::class, 'getKecamatan']);
     Route::get('/kelurahan/{kecamatanId}', [WilayahController::class, 'getKelurahan']);
