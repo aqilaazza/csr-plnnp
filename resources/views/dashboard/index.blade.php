@@ -94,6 +94,18 @@
 
   .dm-section-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-400);margin:30px 0 12px;}
 
+  /* ---- export button ---- */
+  .dm-export-btn{display:inline-flex;align-items:center;gap:6px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid var(--pln-green);color:var(--pln-green-dark);background:var(--green-bg);padding:8px 14px;white-space:nowrap;text-decoration:none;transition:background .12s ease,color .12s ease;flex-shrink:0;}
+  .dm-export-btn:hover{background:var(--pln-green);color:#fff;}
+  .dm-export-btn svg{width:15px;height:15px;}
+
+  .dm-approved-left{flex-wrap:nowrap;min-width:0;}
+  .dm-approved-left .card-title,
+  .dm-approved-left .badge{flex-shrink:0;}
+  @media (max-width:767px){
+    .dm-approved-left{flex-wrap:wrap;}
+  }
+
   /* ---- PIC table wrapper ---- */
   .dm-pic-wrap{border-radius:var(--radius);overflow:hidden;box-shadow:0 3px 14px rgba(22,32,46,0.06);}
   .dm-pic-wrap .card{box-shadow:none;border-radius:0;}
@@ -385,13 +397,19 @@
     <!-- Data Disetujui -->
     <div class="card mb-4">
         <div class="card-body">
-            <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
-                <h5 class="card-title fw-semibold mb-0" style="font-size:15px;">Data Disetujui</h5>
-                <span class="badge rounded-pill" style="background-color:var(--pln-green);">{{ $approvedList->count() }}</span>
-                <div class="dm-search-box mb-0">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    <input type="text" id="approvedSearchInput" placeholder="Cari instansi, lokasi, atau barang...">
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3 dm-approved-left">
+                    <h5 class="card-title fw-semibold mb-0" style="font-size:15px;">Data Disetujui</h5>
+                    <span class="badge rounded-pill" style="background-color:var(--pln-green);">{{ $approvedList->count() }}</span>
+                    <div class="dm-search-box mb-0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        <input type="text" id="approvedSearchInput" placeholder="Cari instansi, lokasi, atau barang...">
+                    </div>
                 </div>
+                <a href="#" id="exportApprovedBtn" class="dm-export-btn mb-0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                    Export Excel
+                </a>
             </div>
             <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
                 <table class="table table-bordered align-middle mb-0">
@@ -701,6 +719,22 @@
                 if (noMatchRow) {
                     noMatchRow.style.display = (query && visibleCount === 0) ? '' : 'none';
                 }
+            });
+        }
+
+        // ---- Export Excel "Data Disetujui" ----
+        // Export ini SENGAJA tidak ikut filter PIC/kabupaten/kecamatan/kelurahan
+        // di dashboard — hanya mengikuti kata kunci pencarian di search box ini.
+        // Kalau kosong, export semua data disetujui (tanpa terkecuali).
+        const exportApprovedBtn = document.getElementById('exportApprovedBtn');
+        if (exportApprovedBtn) {
+            exportApprovedBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const q = approvedSearchInput ? approvedSearchInput.value.trim() : '';
+                const url = q
+                    ? `{{ route('dashboard.export-approved') }}?q=${encodeURIComponent(q)}`
+                    : `{{ route('dashboard.export-approved') }}`;
+                window.location.href = url;
             });
         }
     </script>

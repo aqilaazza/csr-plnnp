@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Proposal;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class DashboardController extends Controller
 {
@@ -79,15 +81,32 @@ class DashboardController extends Controller
     }
 
     /**
+     * Anggap "-", "–", "—", atau string kosong sebagai "tidak ada nilai".
+     * Beberapa baris di jumlah_barang/satuan diisi placeholder strip untuk
+     * proposal bantuan dana (bukan barang fisik), jadi harus dianggap kosong,
+     * bukan ikut digabung ke teks barang.
+     */
+    private function isBlankValue(?string $value): bool
+    {
+        if ($value === null) {
+            return true;
+        }
+        $trimmed = trim($value);
+        return $trimmed === '' || in_array($trimmed, ['-', '–', '—'], true);
+    }
+
+    /**
      * Gabungan teks barang disetujui dari data berita acara
      * (jumlah_barang + satuan + jenis_bantuan).
      *
      * Ketiga kolom ini masing-masing berupa list dipisah koma (mis. jumlah_barang =
      * "1, 1, 2, 2", satuan = "unit, unit, unit, unit", jenis_bantuan = "Mesin Las
      * Listrik Esab, Mesin Las Listrik Daiden, ..."). Item ke-N di tiap kolom saling
-     * berpasangan, jadi harus di-zip per-index, bukan sekadar digabung mentah-mentah
-     * (yang sebelumnya menghasilkan teks berantakan seperti
-     * "1, 1, 2, 2 unit, unit, unit, unit Mesin Las Listrik Esab, ...").
+     * berpasangan, jadi harus di-zip per-index, bukan sekadar digabung mentah-mentah.
+     *
+     * FIX: jumlah_barang/satuan yang cuma berisi strip ("-") sekarang di-skip
+     * (dianggap kosong), supaya proposal bantuan dana (yang jumlah/satuannya "-")
+     * tidak menampilkan "- - <judul proposal>" di kolom Barang Disetujui.
      */
     private function formatBarangBeritaAcara($beritaAcara): ?string
     {
@@ -106,11 +125,22 @@ class DashboardController extends Controller
 
         $lines = [];
         for ($i = 0; $i < $count; $i++) {
-            $line = array_filter([
-                $jumlahParts[$i] ?? null,
-                $satuanParts[$i] ?? null,
-                $jenisParts[$i] ?? null,
-            ], fn ($v) => $v !== null && $v !== '');
+            $jumlah = $jumlahParts[$i] ?? null;
+            $satuan = $satuanParts[$i] ?? null;
+            $jenis = $jenisParts[$i] ?? null;
+
+            // Kalau jumlah DAN satuan sama-sama kosong ("-"), baris ini bukan barang
+            // fisik — biasanya ini proposal bantuan dana dan jenis_bantuan-nya cuma
+            // berisi judul/deskripsi permohonan, bukan nama barang. Skip seluruh baris
+            // (termasuk jenis_bantuan-nya), jangan cuma buang jumlah/satuannya saja.
+            if ($this->isBlankValue($jumlah) && $this->isBlankValue($satuan)) {
+                continue;
+            }
+
+            $line = array_filter(
+                [$jumlah, $satuan, $jenis],
+                fn ($v) => !$this->isBlankValue($v)
+            );
 
             if ($line) {
                 $lines[] = implode(' ', $line);
@@ -118,6 +148,111 @@ class DashboardController extends Controller
         }
 
         return $lines ? implode(', ', $lines) : null;
+    }
+
+    /**
+     * Jumlahkan semua angka yang muncul di sebuah teks. Dipakai untuk menghitung
+     * "Total Barang" di export excel dari kolom Barang Disetujui yang formatnya
+     * teks bebas (mis. "500 bibit Bibit Pohon Nangka, 5.000 ton Pupuk Organik"),
+     * dengan menjumlahkan semua angka kuantitas yang ketemu di teks tersebut.
+     */
+    private function sumNumbersInText(?string $text): float
+    {
+        if (!$text) {
+            return 0.0;
+        }
+
+        preg_match_all('/\d+(?:[.,]\d+)?/', $text, $matches);
+
+        $sum = 0.0;
+        foreach ($matches[0] as $num) {
+            $sum += (float) str_replace(',', '.', $num);
+        }
+
+        return $sum;
+    }
+
+    /**
+     * Bangun query Proposal dengan filter nama_pic + lokasi (kabupaten/kecamatan/kelurahan)
+     * dari request. Dipakai bersama oleh index() dan exportApproved() supaya filter yang
+     * sedang aktif di dashboard ikut terbawa saat export.
+     */
+    private function filteredProposalQuery(Request $request)
+    {
+        $selectedNamaPic = $request->get('nama_pic');
+        $selectedKabupaten = $request->get('kabupaten');
+        $selectedKecamatan = $request->get('kecamatan');
+        $selectedKelurahan = $request->get('kelurahan');
+
+        $query = Proposal::with(['namaPic', 'checklist.subProses', 'beritaAcara']);
+
+        if ($selectedNamaPic) {
+            $query->whereHas('namaPic', function ($q) use ($selectedNamaPic) {
+                $q->where('nama', $selectedNamaPic);
+            });
+        }
+
+        if ($selectedKabupaten) {
+            $query->whereRaw(
+                "TRIM(REGEXP_REPLACE(kabupaten_nama, '^(Kabupaten|Kota)\\\\s+', '')) = ?",
+                [$selectedKabupaten]
+            );
+        }
+        if ($selectedKecamatan) {
+            $query->where('kecamatan_nama', $selectedKecamatan);
+        }
+        if ($selectedKelurahan) {
+            $query->where('kelurahan_nama', $selectedKelurahan);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Ubah koleksi Proposal (yang sudah punya berita acara) jadi array approvedList
+     * siap pakai (instansi, lokasi, nominal, barang). Dipisah dari buildApprovedList()
+     * supaya bisa dipanggil baik untuk data yang di-filter (dashboard) maupun data
+     * mentah tanpa filter (export excel).
+     */
+    private function mapToApprovedList($diterimaList)
+    {
+        return $diterimaList->map(function ($item) {
+            $locParts = array_filter([$item->kelurahan_nama, $item->kecamatan_nama, $item->kabupaten_nama]);
+            return [
+                'instansi' => $item->instansi_pengajuan,
+                'judul' => $item->judul,
+                'lokasi' => $locParts ? implode(', ', $locParts) : '-',
+                'nominal_disetujui' => $item->beritaAcara ? $this->parseNominal($item->beritaAcara->nominal) : null,
+                'barang_disetujui' => $this->formatBarangBeritaAcara($item->beritaAcara),
+            ];
+        })->values();
+    }
+
+    /**
+     * Bangun list "Data Disetujui" (proposal yang sudah punya berita acara),
+     * mengikuti filter nama_pic/lokasi yang aktif di request. Dipakai untuk
+     * tampilan dashboard (index()).
+     */
+    private function buildApprovedList(Request $request)
+    {
+        $proposal = $this->filteredProposalQuery($request)->get();
+        $diterimaList = $proposal->filter(fn ($p) => $p->beritaAcara !== null)->values();
+
+        return $this->mapToApprovedList($diterimaList);
+    }
+
+    /**
+     * Bangun list "Data Disetujui" dari SELURUH data (tanpa filter PIC/lokasi
+     * dashboard sama sekali). Dipakai khusus untuk export excel, karena export
+     * sengaja dibuat TIDAK mengikuti filter dashboard — hanya mengikuti kata
+     * kunci pencarian di tabel "Data Disetujui".
+     */
+    private function buildAllApprovedList()
+    {
+        $proposal = Proposal::with(['namaPic', 'beritaAcara'])->get();
+        $diterimaList = $proposal->filter(fn ($p) => $p->beritaAcara !== null)->values();
+
+        return $this->mapToApprovedList($diterimaList);
     }
 
     public function index(Request $request)
@@ -130,31 +265,7 @@ class DashboardController extends Controller
 
         // Query Proposal dengan eager loading namaPic + beritaAcara
         // (beritaAcara dipakai sebagai acuan "data diterima/disetujui")
-        $proposalQuery = Proposal::with([
-            'namaPic',
-            'checklist.subProses',
-            'beritaAcara',
-        ]);
-
-        if ($selectedNamaPic) {
-            $proposalQuery->whereHas('namaPic', function ($q) use ($selectedNamaPic) {
-                $q->where('nama', $selectedNamaPic);
-            });
-        }
-
-        // Filter lokasi: Kabupaten/Kota (dirapikan dulu namanya), Kecamatan, Kelurahan/Desa
-        if ($selectedKabupaten) {
-            $proposalQuery->whereRaw(
-                "TRIM(REGEXP_REPLACE(kabupaten_nama, '^(Kabupaten|Kota)\\\\s+', '')) = ?",
-                [$selectedKabupaten]
-            );
-        }
-        if ($selectedKecamatan) {
-            $proposalQuery->where('kecamatan_nama', $selectedKecamatan);
-        }
-        if ($selectedKelurahan) {
-            $proposalQuery->where('kelurahan_nama', $selectedKelurahan);
-        }
+        $proposalQuery = $this->filteredProposalQuery($request);
 
         // Ambil data proposal yang difilter
         $proposal = $proposalQuery->get();
@@ -278,16 +389,7 @@ class DashboardController extends Controller
         }
 
         // ---------- Data disetujui: instansi, lokasi dinamis, nominal & barang dari berita acara ----------
-        $approvedList = $diterimaList->map(function ($item) {
-            $locParts = array_filter([$item->kelurahan_nama, $item->kecamatan_nama, $item->kabupaten_nama]);
-            return [
-                'instansi' => $item->instansi_pengajuan,
-                'judul' => $item->judul,
-                'lokasi' => $locParts ? implode(', ', $locParts) : '-',
-                'nominal_disetujui' => $item->beritaAcara ? $this->parseNominal($item->beritaAcara->nominal) : null,
-                'barang_disetujui' => $this->formatBarangBeritaAcara($item->beritaAcara),
-            ];
-        })->values();
+        $approvedList = $this->buildApprovedList($request);
 
         // ---------- Pie chart 4 mode ----------
         // $approvedOnly sekarang = proposal yang sudah punya berita acara (bukan lagi status='setuju')
@@ -550,6 +652,92 @@ class DashboardController extends Controller
             'pieStatusLabels' => $pieStatusLabels,
             'pieStatusData' => $pieStatusData,
             'pieStatusDetail' => $pieStatusDetail,
+        ]);
+    }
+
+    /**
+     * Export "Data Disetujui" ke Excel (.xlsx).
+     * CATATAN: export ini SENGAJA tidak mengikuti filter nama_pic/kabupaten/
+     * kecamatan/kelurahan yang aktif di dashboard — selalu mulai dari SEMUA
+     * data disetujui. Satu-satunya filter yang berlaku adalah kata kunci
+     * pencarian (?q=...) dari search box "Data Disetujui" (cocok dengan
+     * instansi, judul, lokasi, barang, atau nominal). Kalau ?q= kosong/tidak
+     * ada, export semua data disetujui tanpa terkecuali.
+     */
+    public function exportApproved(Request $request)
+    {
+        $approvedList = $this->buildAllApprovedList();
+
+        $keyword = trim((string) $request->get('q', ''));
+        if ($keyword !== '') {
+            $needle = mb_strtolower($keyword);
+            $approvedList = $approvedList->filter(function ($item) use ($needle) {
+                $haystack = mb_strtolower(implode(' ', [
+                    $item['instansi'] ?? '',
+                    $item['judul'] ?? '',
+                    $item['lokasi'] ?? '',
+                    $item['barang_disetujui'] ?? '',
+                    $item['nominal_disetujui'] ?? '',
+                ]));
+                return str_contains($haystack, $needle);
+            })->values();
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Data Disetujui');
+
+        $headers = ['Instansi', 'Judul Proposal', 'Lokasi', 'Nominal Disetujui', 'Barang Disetujui'];
+        $sheet->fromArray($headers, null, 'A1');
+        $sheet->getStyle('A1:E1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:E1')->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('EEF8E6');
+
+        $row = 2;
+        foreach ($approvedList as $item) {
+            $sheet->setCellValue("A{$row}", $item['instansi']);
+            $sheet->setCellValue("B{$row}", $item['judul']);
+            $sheet->setCellValue("C{$row}", $item['lokasi']);
+            $sheet->setCellValue("D{$row}", $item['nominal_disetujui'] ?? 0);
+            $sheet->setCellValue("E{$row}", $item['barang_disetujui'] ?? '-');
+            $row++;
+        }
+
+        // Format kolom nominal jadi angka ribuan (untuk baris data)
+        if ($row > 2) {
+            $sheet->getStyle("D2:D" . ($row - 1))
+                ->getNumberFormat()
+                ->setFormatCode('#,##0');
+        }
+
+        // ---- Baris TOTAL di paling bawah: total nominal & total barang ----
+        $totalNominal = $approvedList->sum(fn ($item) => $item['nominal_disetujui'] ?? 0);
+        $totalBarang = $approvedList->sum(fn ($item) => $this->sumNumbersInText($item['barang_disetujui'] ?? null));
+
+        $totalRow = $row;
+        $sheet->setCellValue("A{$totalRow}", 'TOTAL');
+        $sheet->mergeCells("A{$totalRow}:C{$totalRow}");
+        $sheet->setCellValue("D{$totalRow}", $totalNominal);
+        $sheet->setCellValue("E{$totalRow}", number_format($totalBarang, 0, ',', '.') . ' item');
+
+        $sheet->getStyle("A{$totalRow}:E{$totalRow}")->getFont()->setBold(true);
+        $sheet->getStyle("A{$totalRow}:E{$totalRow}")->getFill()
+            ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+            ->getStartColor()->setRGB('D9EFC7');
+        $sheet->getStyle("D{$totalRow}")->getNumberFormat()->setFormatCode('#,##0');
+
+        foreach (range('A', 'E') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $filename = 'data-disetujui-' . now()->format('Ymd_His') . '.xlsx';
+        $writer = new Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
 }
