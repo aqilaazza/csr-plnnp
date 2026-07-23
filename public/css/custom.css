@@ -155,7 +155,7 @@
 .notification-menu .reminder-filter[data-filter="today"] {
     background-color: #dc3545 !important;
     border-color: #dc3545 !important;
-    color: #000 !important;
+    color: #fff !important;
 }
 
 .notification-menu .reminder-filter[data-filter="today"]:hover,
@@ -163,7 +163,7 @@
 .notification-menu .reminder-filter[data-filter="today"]:active {
     background-color: #dc3545 !important;
     border-color: #dc3545 !important;
-    color: #000 !important;
+    color: #fff !important;
 }
 
 
@@ -174,7 +174,7 @@
 .notification-menu .reminder-filter[data-filter="h1"] {
     background-color: #fd7e14 !important;
     border-color: #fd7e14 !important;
-    color: #000 !important;
+    color: #fff !important;
 }
 
 .notification-menu .reminder-filter[data-filter="h1"]:hover,
@@ -182,7 +182,7 @@
 .notification-menu .reminder-filter[data-filter="h1"]:active {
     background-color: #fd7e14 !important;
     border-color: #fd7e14 !important;
-    color: #000 !important;
+    color: #fff !important;
 }
 
 
@@ -212,7 +212,7 @@
 .notification-menu .reminder-filter[data-filter="overdue"] {
     background-color: #6c757d !important;
     border-color: #6c757d !important;
-    color: #000 !important;
+    color: #fff !important;
 }
 
 .notification-menu .reminder-filter[data-filter="overdue"]:hover,
@@ -220,7 +220,7 @@
 .notification-menu .reminder-filter[data-filter="overdue"]:active {
     background-color: #6c757d !important;
     border-color: #6c757d !important;
-    color: #000 !important;
+    color: #fff !important;
 }
 
 
