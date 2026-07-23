@@ -83,7 +83,7 @@
                                 <h4 class="mt-5 text-white font-weight-bolder position-relative">"CSR PLN Nusantara
                                     Power<br>Unit Pembangkitan Paiton"</h4>
                                 <p class="text-white position-relative">Kelola program tanggung jawab sosial perusahaan
-                                    dengan lebih efisien dari satu platform terpusat.</p>
+                                    dengan lebih efisien<br>dari satu platform terpusat.</p>
                             </div>
                         </div>
                     </div>
