@@ -25,9 +25,9 @@ class KelayakanPdfService
             $x2 = 426; // posisi "2 dari 3"
             $y = 130;
 
-            $canvas->text($x1, $y, "Halaman : ", $fontBold, $size);
-            $canvas->text($x1 + 0.3, $y, "Halaman : ", $fontNormal, $size);
-            $canvas->text($x2, $y, "  $pageNumber dari $pageCount ", $fontBold, $size);
+            $canvas->text($x1, $y, "  Halaman :    ", $fontBold, $size);
+            $canvas->text($x1 + 0.3, $y, "  Halaman :    ", $fontNormal, $size);
+            $canvas->text($x2, $y, "     $pageNumber dari $pageCount ", $fontBold, $size);
 
             $canvas->line(50, 770, 550, 770, [0, 0, 0], 0.5);
         });
