@@ -23,7 +23,7 @@
 
         body {
             font-family: Cambria;
-            font-size: 12px;
+            font-size: 13px;
             margin: 20px;
             line-height: 1.5;
             padding-top: 100px;
@@ -43,7 +43,7 @@
         .header,
         .footer {
             text-align: left;
-            font-size: 12px;
+            font-size: 13px;
             margin-bottom: 10px;
         }
 
@@ -59,7 +59,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            font-size: 12px;
+            font-size: 13px;
             page-break-inside: avoid;
         }
 
@@ -167,7 +167,7 @@
 
         .section {
             margin-top: 25px;
-            font-size: 12px;
+            font-size: 13px;
             font-family: Cambria,
         }
 
@@ -184,14 +184,14 @@
 
         .label{
             display:table-cell;
-            width:160px;
+            width:180px;
             font-weight:bold;
             vertical-align:top;
         }
 
         .separator{
             display:table-cell;
-            width:12px;
+            width:14px;
             text-align:center;
             vertical-align:top;
         }
@@ -212,6 +212,7 @@
             width: 100%;
             margin-bottom: 8px;
             line-height: 20pt;
+            font-size: 13px;
         }
 
         .kategori-table {
@@ -219,7 +220,7 @@
             max-width: 70%;
             border-collapse: collapse;
             margin-top: 5px;
-            font-size: 11px;
+            font-size: 13px;
             page-break-inside: avoid;
         }
 
@@ -234,7 +235,7 @@
             margin-top: 40px;
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-size: 13px;
             page-break-inside: avoid;
         }
 
@@ -243,7 +244,7 @@
             /* agar terlihat jelas */
             padding: 10px;
             text-align: center;
-            vertical-align: top;
+            vertical-align: middle;
         }
 
         .page-break {
@@ -283,7 +284,7 @@
             <tr>
                 <td rowspan="4" class="logo-cell">
                     <img src="{{ public_path('images/logos/logo-pln2.png') }}"
-                        style="height: 0.64cm; width: 3.12cm; margin-top: 25px;">
+                        style="height: auto; width: 3.2cm; margin-top: 25px;">
                 </td>
                 <td class="judul-cell"><strong>PT PLN NUSANTARA POWER</strong></td>
                 <td class="info-cell"><span style="font-size: 10px"><strong>Nomor Dokumen</strong> :
@@ -601,7 +602,7 @@
 
                 <!-- Baris Asman SDM -->
                 <tr>
-                    <td rowspan="3" style="width: 25%; text-align: center; font-weight: bold;">
+                    <td rowspan="3" style="width: 25%; text-align: center; font-weight: bold; ">
                         Asman SDM,<br>Umum dan CSR
                     </td>
                     <td colspan="2" style="text-align: center; font-weight: bold; width: 20%;">Diterima</td>
@@ -620,7 +621,7 @@
                 <!-- Baris Manager -->
                 <tr>
                     <td rowspan="3" style="width: 25%; text-align: center; font-weight: bold;">
-                        Manager Business Support
+                        Manager,<br>Business Support
                     </td>
                     <td colspan="2" style="text-align: center; font-weight: bold;">Diterima</td>
                     <td colspan="2" style="text-align: center; font-weight: bold;">Arahan</td>

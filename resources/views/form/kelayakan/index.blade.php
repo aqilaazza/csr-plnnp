@@ -6,38 +6,28 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
 
     <style>
+        #kelayakanTable {
+            table-layout: fixed !important;
+            width: 100% !important;
+        }
+
         #kelayakanTable thead th {
             position: sticky;
             top: 0;
             background: #fff;
             z-index: 20;
-        }
-
-        table.dataTable tbody td:first-child,
-        table.dataTable thead th:first-child {
-            position: sticky;
-            left: 0;
-            background-color: white !important;
-            z-index: 11;
-        }
-
-        table.dataTable tbody td:nth-child(2),
-        table.dataTable thead th:nth-child(2) {
-            position: sticky;
-            left: 60px;
-            background-color: white !important;
-            z-index: 11;
+            text-align: center;
+            vertical-align: middle;
         }
 
         .dataTables_wrapper .dataTables_paginate .pagination .page-item.active .page-link {
             background-color: #78C841 !important;
             border-color: #78C841 !important;
-            color: white !important;
+            color: #fff !important;
         }
 
         .dataTables_wrapper .dataTables_paginate .pagination .page-item.active .page-link:hover {
             background-color: #66b638 !important;
-            color: white !important;
         }
 
         div.dataTables_wrapper {
@@ -45,70 +35,53 @@
             margin: 0 auto;
         }
 
-        table.dataTable,
-        table.dataTable th,
-        table.dataTable td,
-        table.dataTable td>*,
-        table.dataTable th>* {
-            white-space: normal !important;
-        }
+        /* ===========================
+            FORMAT KOLOM
+        ============================ */
 
-        .text-wrap,
-        .text-break {
-            white-space: normal !important;
-        }
-
-        #kelayakanTable * {
-            white-space: normal !important;
-            word-break: keep-all !important;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
+        #kelayakanTable th,
         #kelayakanTable td {
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal !important;
+            word-break: break-word !important;
+            padding: 10px 8px;
+        }
+
+        #kelayakanTable td p,
+        #kelayakanTable td h6 {
+            margin: 0;
+            white-space: normal !important;
+            word-break: break-word !important;
+            overflow-wrap: anywhere !important;
+            line-height: 1.5;
         }
 
         .table-responsive {
             overflow-x: auto;
         }
 
+        /* ===========================
+            FIXED COLUMN
+        ============================ */
+
         .DTFC_LeftWrapper table.dataTable thead th {
-            background-color: #f8f9fa !important;
+            background: #f8f9fa !important;
             position: relative;
             z-index: 10 !important;
             border-right: 1px solid #dee2e6 !important;
         }
 
         .DTFC_LeftWrapper table.dataTable tbody td {
-            background-color: #ffffff !important;
+            background: #fff !important;
             position: relative;
             z-index: 10 !important;
             border-right: 1px solid #dee2e6 !important;
         }
 
         .DTFC_LeftWrapper {
-            background-color: #ffffff !important;
+            background: #fff !important;
             z-index: 5 !important;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15) !important;
             border-right: 2px solid #dee2e6 !important;
-        }
-
-        .DTFC_LeftWrapper table.dataTable tbody tr:hover td {
-            background-color: #f1f3f4 !important;
-        }
-
-        table.dataTable tbody tr:hover {
-            background-color: transparent !important;
-        }
-
-        table.dataTable tbody tr:hover td:not(.DTFC_LeftWrapper td) {
-            background-color: #f8f9fa !important;
-        }
-
-        .DTFC_ScrollWrapper table.dataTable {
-            margin-left: 0 !important;
+            box-shadow: 2px 0 8px rgba(0,0,0,.15) !important;
         }
 
         .DTFC_LeftWrapper table.dataTable {
@@ -121,41 +94,24 @@
             border-left: 1px solid #dee2e6 !important;
         }
 
-        .DTFC_LeftWrapper table.dataTable td:first-child,
-        .DTFC_LeftWrapper table.dataTable th:first-child {
-            border-left: 1px solid #dee2e6 !important;
-        }
-
         .DTFC_ScrollWrapper table.dataTable td:first-child,
         .DTFC_ScrollWrapper table.dataTable th:first-child {
             border-left: none !important;
         }
 
-        .DTFC_LeftWrapper .table td,
-        .DTFC_LeftWrapper .table th {
-            background-color: #fff !important;
-            background: #fff !important;
+        /* ===========================
+            HOVER
+        ============================ */
+
+        table.dataTable tbody tr:hover {
+            background: transparent !important;
         }
 
-        .DTFC_LeftWrapper .table tbody tr td {
-            background-color: #ffffff !important;
-            background: #ffffff !important;
-        }
-
-        .DTFC_LeftWrapper .table thead tr th {
-            background-color: #f8f9fa !important;
+        table.dataTable tbody tr:hover td:not(.DTFC_LeftWrapper td) {
             background: #f8f9fa !important;
         }
 
-        .DTFC_LeftWrapper .table-striped tbody tr:nth-of-type(odd) td,
-        .DTFC_LeftWrapper .table tbody tr:hover td,
-        .DTFC_LeftWrapper .table tbody tr.selected td {
-            background-color: #ffffff !important;
-            background: #ffffff !important;
-        }
-
-        .DTFC_LeftWrapper .table tbody tr:hover td {
-            background-color: #f1f3f4 !important;
+        .DTFC_LeftWrapper table.dataTable tbody tr:hover td {
             background: #f1f3f4 !important;
         }
     </style>
@@ -466,6 +422,76 @@
         <script>
             $(document).ready(function() {
                 $('#kelayakanTable').DataTable({
+                    autoWidth:false,
+
+                    columnDefs: [
+
+                        // No
+                        {
+                            targets:0,
+                            width:"55px",
+                            className:"text-center"
+                        },
+
+                        // Proposal
+                        {
+                            targets:1,
+                            width:"240px"
+                        },
+
+                        // Kolom isi/deskripsi
+                        {
+                            targets:[2,3,4,5,6,9,10,15],
+                            width:"250px"
+                        },
+
+                        // Jumlah penerima
+                        {
+                            targets:7,
+                            width:"120px"
+                        },
+
+                        // Jenis stakeholder
+                        {
+                            targets:8,
+                            width:"170px"
+                        },
+
+                        // Prioritas & Dampak
+                        {
+                            targets:[11,12],
+                            width:"120px",
+                            className:"text-center"
+                        },
+
+                        // Contact Person & Nama CP
+                        {
+                            targets:[13,14],
+                            width:"180px"
+                        },
+
+                        // Revisi
+                        {
+                            targets:16,
+                            width:"70px",
+                            className:"text-center"
+                        },
+
+                        // Upload & File
+                        {
+                            targets:[17,18],
+                            width:"100px",
+                            className:"text-center"
+                        },
+
+                        // Aksi
+                        {
+                            targets:19,
+                            width:"90px",
+                            className:"text-center"
+                        }
+                    ],
+
                     scrollX: true,
                     scrollY: "500px",
                     scrollCollapse: true,
