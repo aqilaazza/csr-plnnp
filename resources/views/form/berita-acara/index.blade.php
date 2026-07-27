@@ -1674,18 +1674,6 @@
         </script>
 
         {{-- REINDEX BANTUAN SEBELUM SUBMIT (FIX BUG: NOMINAL/JUMLAH KETUKER ANTAR BARIS) --}}
-        {{--
-            Root cause: input yang di-`disabled` (bukan readonly) TIDAK ikut ter-submit
-            ke server. Karena jenis_bantuan[], jumlah_barang[], satuan_barang[], nominal[]
-            adalah 4 array TERPISAH yang direkonstruksi ulang di controller berdasarkan
-            index yang sama ($jumlah[$i], $satuan[$i], $nominal[$i]), begitu salah satu
-            baris kehilangan 1 elemen karena disabled, index baris-baris berikutnya jadi
-            geser dan datanya ketuker.
-
-            Fix: sebelum form di-submit, ubah name tiap input jadi array bersarang
-            per-baris (bantuan[0][jenis], bantuan[0][jumlah], dst) dan enable dulu semua
-            input, supaya setiap baris selalu terkirim utuh dan sinkron sesuai posisinya.
-        --}}
         <script>
             function reindexBantuan(wrapperSelector) {
                 $(wrapperSelector).find('.bantuan-item').each(function (index) {
