@@ -34,26 +34,24 @@ class BeritaAcaraController extends Controller
             'proposal_id' => 'required|exists:proposal,id',
             'nama_penerima' => 'required|string|max:255',
             'jabatan_penerima' => 'required|string|max:255',
-            'jenis_bantuan' => 'required|array|min:1',
-            'jenis_bantuan.*' => 'required|string|max:255',
-            'jumlah_barang' => 'nullable|array',
-            'jumlah_barang.*' => 'nullable|string|max:255',
-            'satuan_barang' => 'nullable|array',
-            'satuan_barang.*' => 'nullable|string|max:255',
-            'nominal' => 'nullable|array',
-            'nominal.*' => 'nullable|string',
+            'bantuan' => 'required|array|min:1',
+            'bantuan.*.jenis' => 'required|string|max:255',
+            'bantuan.*.jumlah' => 'nullable|string|max:255',
+            'bantuan.*.satuan' => 'nullable|string|max:255',
+            'bantuan.*.nominal' => 'nullable|string',
             'business_support_choice' => 'required|string',
             'bisnis_support_lainnya' => 'nullable|required_if:business_support_choice,lainnya|string|max:255',
         ]);
 
-        $jenis   = $request->jenis_bantuan ?? [];
-        $jumlah  = $request->jumlah_barang ?? [];
-        $satuan  = $request->satuan_barang ?? [];
-        $nominal = $request->nominal ?? [];
+        // Ambil data bantuan per-baris (nested array), supaya jenis/jumlah/satuan/nominal
+        // dijamin sinkron per index dan tidak geser walau ada field yang kosong/disabled.
+        $bantuanInput = $request->input('bantuan', []);
+        ksort($bantuanInput);
 
-        $nominal = array_map(function ($item) {
-            return preg_replace('/[^0-9]/', '', $item ?? '');
-        }, $request->nominal ?? []);   
+        $jenis   = array_map(fn($b) => trim($b['jenis'] ?? ''), $bantuanInput);
+        $jumlah  = array_map(fn($b) => trim($b['jumlah'] ?? ''), $bantuanInput);
+        $satuan  = array_map(fn($b) => trim($b['satuan'] ?? ''), $bantuanInput);
+        $nominal = array_map(fn($b) => preg_replace('/[^0-9]/', '', $b['nominal'] ?? ''), $bantuanInput);
 
         // ======== GENERATE NOMOR SURAT PERMANEN =========
 
@@ -162,14 +160,11 @@ class BeritaAcaraController extends Controller
         $request->validate([
             'nama_penerima' => 'required|string|max:255',
             'jabatan_penerima' => 'required|string|max:255',
-            'jenis_bantuan' => 'required|array|min:1',
-            'jenis_bantuan.*' => 'required|string|max:255',
-            'jumlah_barang' => 'nullable|array',
-            'jumlah_barang.*' => 'nullable|string|max:255',
-            'satuan_barang' => 'nullable|array',
-            'satuan_barang.*' => 'nullable|string|max:255',
-            'nominal' => 'nullable|array',
-            'nominal.*' => 'nullable|string',
+            'bantuan' => 'required|array|min:1',
+            'bantuan.*.jenis' => 'required|string|max:255',
+            'bantuan.*.jumlah' => 'nullable|string|max:255',
+            'bantuan.*.satuan' => 'nullable|string|max:255',
+            'bantuan.*.nominal' => 'nullable|string',
             'business_support_choice' => 'required|string',
             'bisnis_support_lainnya' => 'nullable|required_if:business_support_choice,lainnya|string|max:255',
         ]);
@@ -184,13 +179,15 @@ class BeritaAcaraController extends Controller
             Storage::delete('public/' . $beritaAcara->file_pdf);
         }
 
-        $jenis = $request->jenis_bantuan ?? [];
-        $jumlah = $request->jumlah_barang ?? [];
-        $satuan = $request->satuan_barang ?? [];
+        // Ambil data bantuan per-baris (nested array), supaya jenis/jumlah/satuan/nominal
+        // dijamin sinkron per index dan tidak geser walau ada field yang kosong/disabled.
+        $bantuanInput = $request->input('bantuan', []);
+        ksort($bantuanInput);
 
-        $nominal = array_map(function ($item) {
-            return preg_replace('/[^0-9]/', '', $item ?? '');
-        }, $request->nominal ?? []);
+        $jenis   = array_map(fn($b) => trim($b['jenis'] ?? ''), $bantuanInput);
+        $jumlah  = array_map(fn($b) => trim($b['jumlah'] ?? ''), $bantuanInput);
+        $satuan  = array_map(fn($b) => trim($b['satuan'] ?? ''), $bantuanInput);
+        $nominal = array_map(fn($b) => preg_replace('/[^0-9]/', '', $b['nominal'] ?? ''), $bantuanInput);
 
         $bsData = $this->resolveBusinessSupport($request);
 
@@ -226,7 +223,7 @@ class BeritaAcaraController extends Controller
                 'nominal' => trim($nominal[$i] ?? ''),
             ];
         }
-        
+
         // Generate ulang PDF (nomor tidak berubah)
         $pdf = Pdf::loadView('pdf.berita_acara', [
             'data' => $beritaAcara,
