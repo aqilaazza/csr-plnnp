@@ -6,16 +6,13 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
 
     <style>
-        #kelayakanTable {
+        .kelayakan-dt {
             table-layout: fixed !important;
             width: 100% !important;
         }
 
-        #kelayakanTable thead th {
-            position: sticky;
-            top: 0;
+        .kelayakan-dt thead th {
             background: #fff;
-            z-index: 20;
             text-align: center;
             vertical-align: middle;
         }
@@ -39,15 +36,15 @@
             FORMAT KOLOM
         ============================ */
 
-        #kelayakanTable th,
-        #kelayakanTable td {
+        .kelayakan-dt th,
+        .kelayakan-dt td {
             white-space: normal !important;
             word-break: break-word !important;
             padding: 10px 8px;
         }
 
-        #kelayakanTable td p,
-        #kelayakanTable td h6 {
+        .kelayakan-dt td p,
+        .kelayakan-dt td h6 {
             margin: 0;
             white-space: normal !important;
             word-break: break-word !important;
@@ -150,67 +147,67 @@
                     </div>
 
                     <div class="table-responsive">
-                        <table id="kelayakanTable" class="table table-bordered nowrap" style="width:100%">
+                        <table id="kelayakanTable" class="table table-bordered nowrap kelayakan-dt" style="width:100%">
                             <thead class="text-dark fs-4">
                                 <tr>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">No</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Proposal</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Dasar Pelaksanaan</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Latar Belakang</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Tujuan</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Indikator Lingkungan</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Indikator Sosial</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Jumlah Penerima Manfaat</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Jenis Stakeholder</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Pejabat Instansi</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Data Terdahulu</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Prioritas</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Dampak</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Contact Person/Instansi</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Nama CP</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Catatan Khusus</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Revisi</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Upload</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">File</span>
                                     </th>
-                                    <th style="white-space: nowrap;" class="nowrap">
+                                    <th>
                                         <span class="fw-semibold mb-0">Aksi</span>
                                     </th>
                                 </tr>
@@ -421,7 +418,7 @@
 
         <script>
             $(document).ready(function() {
-                $('#kelayakanTable').DataTable({
+                $('.kelayakan-dt').DataTable({
                     autoWidth:false,
 
                     columnDefs: [
@@ -496,7 +493,6 @@
                     scrollY: "500px",
                     scrollCollapse: true,
                     paging: true,
-                    fixedHeader: true,
                     fixedColumns: {
                         leftColumns: 2
                     },
@@ -533,7 +529,7 @@
                 const prioritas = $('#filter-prioritas').val();
                 const dampak = $('#filter-dampak').val();
 
-                const table = $('#kelayakanTable').DataTable();
+                const table = $('.kelayakan-dt').DataTable();
 
                 // Kolom Prioritas index 11, Dampak index 12 (mulai dari 0)
                 table.column(11).search(prioritas ? '^' + prioritas + '$' : '', true, false);
