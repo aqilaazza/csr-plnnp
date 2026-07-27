@@ -11,7 +11,7 @@
            PAGE / MARGIN
         ===================================================== */
         @page {
-            margin-top: 3.5cm;
+            margin-top: 4cm;
             margin-bottom: 2cm;
             margin-left: 2.2cm;
             margin-right: 2.2cm;
@@ -185,6 +185,8 @@
             position: relative;
             padding-left: 2em;
             line-height: 1.25;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         .csr-list-custom li::before {
