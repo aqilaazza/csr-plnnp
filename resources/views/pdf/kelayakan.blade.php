@@ -22,7 +22,7 @@
         }
 
         body {
-            font-family: Cambria;
+            font-family: Arial, sans-serif;
             font-size: 13px;
             margin: 20px;
             line-height: 1.5;
@@ -94,7 +94,7 @@
         }
 
         .kop-surat {
-            font-size: 11px;
+            font-size: 9px;
             margin-bottom: 10px;
         }
 
@@ -104,7 +104,7 @@
 
         .kop-surat {
             border-collapse: collapse;
-            font-size: 11px;
+            font-size: 9px;
             margin-bottom: 10px;
         }
 
@@ -130,7 +130,7 @@
         .kop-table {
             border: 1px solid black;
             border-collapse: collapse;
-            font-size: 11px;
+            font-size: 9px;
             margin-bottom: 10px;
         }
 
@@ -155,20 +155,20 @@
             text-align: center;
             vertical-align: middle;
             font-weight: bold;
-            font-size: 10px;
+            font-size: 9px;
             line-height: 1.3;
         }
 
         .info-cell {
             width: 35%;
-            font-size: 10px;
+            font-size: 9px;
             vertical-align: middle;
         }
 
         .section {
             margin-top: 25px;
             font-size: 13px;
-            font-family: Cambria,
+            font-family: Arial, sans-serif;
         }
 
         .section p {
@@ -184,7 +184,7 @@
 
         .label{
             display:table-cell;
-            width:180px;
+            width:188px;
             font-weight:bold;
             vertical-align:top;
         }
@@ -287,18 +287,18 @@
                         style="height: auto; width: 3.2cm; margin-top: 25px;">
                 </td>
                 <td class="judul-cell"><strong>PT PLN NUSANTARA POWER</strong></td>
-                <td class="info-cell"><span style="font-size: 10px"><strong>Nomor Dokumen</strong> :
+                <td class="info-cell"><span style="font-size: 9px"><strong>Nomor Dokumen</strong> :
                         FMPT-328-12.5.1.a.b.e-001</span></td>
             </tr>
             <tr>
                 <td class="judul-cell">PLN NP INTEGRATED MANAGEMENT SYSTEM</td>
-                <td class="info-cell"><span style="font-size: 10px"><strong>Revisi</strong> : {{ str_pad($data->revisi, 2, '0', STR_PAD_LEFT) }}</span></td>
+                <td class="info-cell"><span style="font-size: 9px"><strong>Revisi</strong> : {{ str_pad($data->revisi, 2, '0', STR_PAD_LEFT) }}</span></td>
             </tr>
             <tr>
                 <td rowspan="2" class="judul-cell" style="padding-top:16px; padding-bottom:1px;">
                     FORMULIR ANALISIS PERMINTAAN BANTUAN PROGRAM CSR
                 </td>
-                <td class="info-cell"><span style="font-size: 10px"><strong>Tanggal Terbit</strong> : {{ \Carbon\Carbon::now()->format('d - m - Y') }}</span></td>
+                <td class="info-cell"><span style="font-size: 9px"><strong>Tanggal Terbit</strong> : {{ \Carbon\Carbon::now()->format('d - m - Y') }}</span></td>
             </tr>
             <tr>
                 <td class="info-cell">&nbsp;</td>
