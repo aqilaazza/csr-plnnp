@@ -17,9 +17,9 @@ class KelayakanPdfService
         $pdf->getDomPDF()->render();
         
         $pdf->getDomPDF()->getCanvas()->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
-            $fontBold = $fontMetrics->getFont('Cambria', 'bold');
-            $fontNormal = $fontMetrics->getFont('Cambria', 'normal');
-            $size = 8;
+            $fontBold = $fontMetrics->getFont('Arial, sans-serif', 'bold');
+            $fontNormal = $fontMetrics->getFont('Arial, sans-serif', 'normal');
+            $size = 7;
 
             $x1 = 396; // posisi awal "Halaman:"
             $x2 = 426; // posisi "2 dari 3"
