@@ -4,12 +4,30 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Proposal;
 
 class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login2');
+        // Total pengajuan yang masuk
+        $totalPengajuan = Proposal::count();
+
+        // Jumlah desa/kelurahan unik yang sudah pernah diajukan (tidak dihitung dobel)
+        $totalCakupanDesa = Proposal::whereNotNull('kelurahan_nama')
+            ->distinct('kelurahan_nama')
+            ->count('kelurahan_nama');
+
+        // Jumlah instansi/stakeholder unik yang pernah mengajukan
+        $totalStakeholder = Proposal::whereNotNull('instansi_pengajuan')
+            ->distinct('instansi_pengajuan')
+            ->count('instansi_pengajuan');
+
+        return view('auth.login2', compact(
+            'totalPengajuan',
+            'totalCakupanDesa',
+            'totalStakeholder'
+        ));
     }
 
     public function login(Request $request)
