@@ -24,9 +24,6 @@ class DashboardController extends Controller
 
     /**
      * Ambil angka PERTAMA yang muncul dalam sebuah teks (bukan gabungan semua digit).
-     * Dipakai untuk kolom teks bebas seperti jumlah_barang / barang_pengajuan yang
-     * kadang berisi kalimat atau kode, supaya tidak ikut "tergabung" jadi angka raksasa
-     * seperti yang terjadi kalau memakai parseNominal() (yang menggabung semua digit).
      */
     private function parseFirstNumber($value): float
     {
@@ -47,8 +44,6 @@ class DashboardController extends Controller
 
     /**
      * Bersihkan nilai nominal dari berita_acara supaya aman dijumlahkan.
-     * Kolom ini kadang diisi dengan format teks (mis. "Rp 5.000.000"),
-     * jadi tidak bisa langsung dijumlahkan sebagai angka.
      */
     private function parseNominal($value): float
     {
@@ -67,9 +62,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Pecah string list yang dipisah koma (mis. "1, 1, 2, 2") jadi array per-item,
-     * dengan tiap elemen di-trim. Dipakai untuk memasangkan jumlah_barang/satuan/
-     * jenis_bantuan yang di database sama-sama berupa list dipisah koma.
+     * Pecah string list yang dipisah koma (mis. "1, 1, 2, 2") jadi array per-item
      */
     private function splitCommaList(?string $value): array
     {
@@ -82,9 +75,6 @@ class DashboardController extends Controller
 
     /**
      * Anggap "-", "–", "—", atau string kosong sebagai "tidak ada nilai".
-     * Beberapa baris di jumlah_barang/satuan diisi placeholder strip untuk
-     * proposal bantuan dana (bukan barang fisik), jadi harus dianggap kosong,
-     * bukan ikut digabung ke teks barang.
      */
     private function isBlankValue(?string $value): bool
     {
@@ -97,16 +87,6 @@ class DashboardController extends Controller
 
     /**
      * Gabungan teks barang disetujui dari data berita acara
-     * (jumlah_barang + satuan + jenis_bantuan).
-     *
-     * Ketiga kolom ini masing-masing berupa list dipisah koma (mis. jumlah_barang =
-     * "1, 1, 2, 2", satuan = "unit, unit, unit, unit", jenis_bantuan = "Mesin Las
-     * Listrik Esab, Mesin Las Listrik Daiden, ..."). Item ke-N di tiap kolom saling
-     * berpasangan, jadi harus di-zip per-index, bukan sekadar digabung mentah-mentah.
-     *
-     * FIX: jumlah_barang/satuan yang cuma berisi strip ("-") sekarang di-skip
-     * (dianggap kosong), supaya proposal bantuan dana (yang jumlah/satuannya "-")
-     * tidak menampilkan "- - <judul proposal>" di kolom Barang Disetujui.
      */
     private function formatBarangBeritaAcara($beritaAcara): ?string
     {
@@ -129,10 +109,7 @@ class DashboardController extends Controller
             $satuan = $satuanParts[$i] ?? null;
             $jenis = $jenisParts[$i] ?? null;
 
-            // Kalau jumlah DAN satuan sama-sama kosong ("-"), baris ini bukan barang
-            // fisik — biasanya ini proposal bantuan dana dan jenis_bantuan-nya cuma
-            // berisi judul/deskripsi permohonan, bukan nama barang. Skip seluruh baris
-            // (termasuk jenis_bantuan-nya), jangan cuma buang jumlah/satuannya saja.
+            // Kalau jumlah DAN satuan sama-sama kosong ("-")
             if ($this->isBlankValue($jumlah) && $this->isBlankValue($satuan)) {
                 continue;
             }
@@ -151,10 +128,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Jumlahkan semua angka yang muncul di sebuah teks. Dipakai untuk menghitung
-     * "Total Barang" di export excel dari kolom Barang Disetujui yang formatnya
-     * teks bebas (mis. "500 bibit Bibit Pohon Nangka, 5.000 ton Pupuk Organik"),
-     * dengan menjumlahkan semua angka kuantitas yang ketemu di teks tersebut.
+     * Jumlahkan semua angka yang muncul di sebuah teks
      */
     private function sumNumbersInText(?string $text): float
     {
@@ -174,8 +148,6 @@ class DashboardController extends Controller
 
     /**
      * Bangun query Proposal dengan filter nama_pic + lokasi (kabupaten/kecamatan/kelurahan)
-     * dari request. Dipakai bersama oleh index() dan exportApproved() supaya filter yang
-     * sedang aktif di dashboard ikut terbawa saat export.
      */
     private function filteredProposalQuery(Request $request)
     {
@@ -210,9 +182,6 @@ class DashboardController extends Controller
 
     /**
      * Ubah koleksi Proposal (yang sudah punya berita acara) jadi array approvedList
-     * siap pakai (instansi, lokasi, nominal, barang). Dipisah dari buildApprovedList()
-     * supaya bisa dipanggil baik untuk data yang di-filter (dashboard) maupun data
-     * mentah tanpa filter (export excel).
      */
     private function mapToApprovedList($diterimaList)
     {
@@ -224,33 +193,42 @@ class DashboardController extends Controller
                 'lokasi' => $locParts ? implode(', ', $locParts) : '-',
                 'nominal_disetujui' => $item->beritaAcara ? $this->parseNominal($item->beritaAcara->nominal) : null,
                 'barang_disetujui' => $this->formatBarangBeritaAcara($item->beritaAcara),
+                'tanggal' => $item->beritaAcara ? \Carbon\Carbon::parse($item->beritaAcara->created_at)->format('d M Y') : null,
             ];
         })->values();
     }
 
     /**
      * Bangun list "Data Disetujui" (proposal yang sudah punya berita acara),
-     * mengikuti filter nama_pic/lokasi yang aktif di request. Dipakai untuk
-     * tampilan dashboard (index()).
      */
-    private function buildApprovedList(Request $request)
+    private function buildApprovedList(Request $request, $tahun = null)
     {
         $proposal = $this->filteredProposalQuery($request)->get();
         $diterimaList = $proposal->filter(fn ($p) => $p->beritaAcara !== null)->values();
+
+        if ($tahun) {
+            $diterimaList = $diterimaList->filter(fn ($p) =>
+                $p->beritaAcara && \Carbon\Carbon::parse($p->beritaAcara->created_at)->format('Y') == $tahun
+            )->values();
+        }
 
         return $this->mapToApprovedList($diterimaList);
     }
 
     /**
      * Bangun list "Data Disetujui" dari SELURUH data (tanpa filter PIC/lokasi
-     * dashboard sama sekali). Dipakai khusus untuk export excel, karena export
-     * sengaja dibuat TIDAK mengikuti filter dashboard — hanya mengikuti kata
-     * kunci pencarian di tabel "Data Disetujui".
+     * dashboard sama sekali). 
      */
-    private function buildAllApprovedList()
+    private function buildAllApprovedList($tahun = null)
     {
         $proposal = Proposal::with(['namaPic', 'beritaAcara'])->get();
         $diterimaList = $proposal->filter(fn ($p) => $p->beritaAcara !== null)->values();
+
+        if ($tahun) {
+            $diterimaList = $diterimaList->filter(fn ($p) =>
+                $p->beritaAcara && \Carbon\Carbon::parse($p->beritaAcara->created_at)->format('Y') == $tahun
+            )->values();
+        }
 
         return $this->mapToApprovedList($diterimaList);
     }
@@ -262,6 +240,7 @@ class DashboardController extends Controller
         $selectedKabupaten = $request->get('kabupaten');
         $selectedKecamatan = $request->get('kecamatan');
         $selectedKelurahan = $request->get('kelurahan');
+        $selectedTahun = $request->get('tahun');
 
         // Query Proposal dengan eager loading namaPic + beritaAcara
         // (beritaAcara dipakai sebagai acuan "data diterima/disetujui")
@@ -389,7 +368,14 @@ class DashboardController extends Controller
         }
 
         // ---------- Data disetujui: instansi, lokasi dinamis, nominal & barang dari berita acara ----------
-        $approvedList = $this->buildApprovedList($request);
+        $approvedList = $this->buildApprovedList($request, $selectedTahun);
+
+        // Daftar tahun untuk dropdown filter
+        $tahunList = DB::table('berita_acara')
+            ->select(DB::raw('YEAR(created_at) as tahun'))
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
 
         // ---------- Pie chart 4 mode ----------
         // $approvedOnly sekarang = proposal yang sudah punya berita acara (bukan lagi status='setuju')
@@ -598,7 +584,8 @@ class DashboardController extends Controller
             $deadline = \Carbon\Carbon::parse($item->overdue);
             $sisaHari = now()->startOfDay()->diffInDays($deadline, false);
 
-            if ($sisaHari >= 0 && $sisaHari <= 2) {
+            // Hanya tampilkan H-0 dan yang sudah terlambat
+            if ($sisaHari <= 0) {
                 $dashboardReminders->push([
                     'judul' => $item->judul,
                     'berkas' => $nextChecklist->subProses->nama_sub,
@@ -636,6 +623,8 @@ class DashboardController extends Controller
 
             // data disetujui (berbasis berita acara)
             'approvedList' => $approvedList,
+            'tahunList' => $tahunList,
+            'selectedTahun' => $selectedTahun,
 
             // pie chart 4 mode
             'pieInstansiLabels' => $pieInstansiLabels,
@@ -657,16 +646,11 @@ class DashboardController extends Controller
 
     /**
      * Export "Data Disetujui" ke Excel (.xlsx).
-     * CATATAN: export ini SENGAJA tidak mengikuti filter nama_pic/kabupaten/
-     * kecamatan/kelurahan yang aktif di dashboard — selalu mulai dari SEMUA
-     * data disetujui. Satu-satunya filter yang berlaku adalah kata kunci
-     * pencarian (?q=...) dari search box "Data Disetujui" (cocok dengan
-     * instansi, judul, lokasi, barang, atau nominal). Kalau ?q= kosong/tidak
-     * ada, export semua data disetujui tanpa terkecuali.
      */
     public function exportApproved(Request $request)
     {
-        $approvedList = $this->buildAllApprovedList();
+        $selectedTahun = $request->get('tahun');
+        $approvedList = $this->buildAllApprovedList($selectedTahun);
 
         $keyword = trim((string) $request->get('q', ''));
         if ($keyword !== '') {
@@ -687,10 +671,10 @@ class DashboardController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Data Disetujui');
 
-        $headers = ['Instansi', 'Judul Proposal', 'Lokasi', 'Nominal Disetujui', 'Barang Disetujui'];
+        $headers = ['Instansi', 'Judul Proposal', 'Lokasi', 'Tanggal', 'Nominal Disetujui', 'Barang Disetujui'];
         $sheet->fromArray($headers, null, 'A1');
-        $sheet->getStyle('A1:E1')->getFont()->setBold(true);
-        $sheet->getStyle('A1:E1')->getFill()
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:F1')->getFill()
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
             ->getStartColor()->setRGB('EEF8E6');
 
@@ -699,14 +683,15 @@ class DashboardController extends Controller
             $sheet->setCellValue("A{$row}", $item['instansi']);
             $sheet->setCellValue("B{$row}", $item['judul']);
             $sheet->setCellValue("C{$row}", $item['lokasi']);
-            $sheet->setCellValue("D{$row}", $item['nominal_disetujui'] ?? 0);
-            $sheet->setCellValue("E{$row}", $item['barang_disetujui'] ?? '-');
+            $sheet->setCellValue("D{$row}", $item['tanggal'] ?? '-');
+            $sheet->setCellValue("E{$row}", $item['nominal_disetujui'] ?? 0);
+            $sheet->setCellValue("F{$row}", $item['barang_disetujui'] ?? '-');
             $row++;
         }
 
         // Format kolom nominal jadi angka ribuan (untuk baris data)
         if ($row > 2) {
-            $sheet->getStyle("D2:D" . ($row - 1))
+            $sheet->getStyle("E2:E" . ($row - 1))
                 ->getNumberFormat()
                 ->setFormatCode('#,##0');
         }
@@ -717,17 +702,17 @@ class DashboardController extends Controller
 
         $totalRow = $row;
         $sheet->setCellValue("A{$totalRow}", 'TOTAL');
-        $sheet->mergeCells("A{$totalRow}:C{$totalRow}");
-        $sheet->setCellValue("D{$totalRow}", $totalNominal);
-        $sheet->setCellValue("E{$totalRow}", number_format($totalBarang, 0, ',', '.') . ' item');
+        $sheet->mergeCells("A{$totalRow}:D{$totalRow}");
+        $sheet->setCellValue("E{$totalRow}", $totalNominal);
+        $sheet->setCellValue("F{$totalRow}", number_format($totalBarang, 0, ',', '.') . ' item');
 
-        $sheet->getStyle("A{$totalRow}:E{$totalRow}")->getFont()->setBold(true);
-        $sheet->getStyle("A{$totalRow}:E{$totalRow}")->getFill()
+        $sheet->getStyle("A{$totalRow}:F{$totalRow}")->getFont()->setBold(true);
+        $sheet->getStyle("A{$totalRow}:F{$totalRow}")->getFill()
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
             ->getStartColor()->setRGB('D9EFC7');
-        $sheet->getStyle("D{$totalRow}")->getNumberFormat()->setFormatCode('#,##0');
+        $sheet->getStyle("E{$totalRow}")->getNumberFormat()->setFormatCode('#,##0');
 
-        foreach (range('A', 'E') as $col) {
+        foreach (range('A', 'F') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
