@@ -162,8 +162,7 @@
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Kelurahan / Desa</label>
                                             <select id="kelurahan"
-                                                class="form-select @error('kelurahan_id') is-invalid @enderror"
-                                                required>
+                                                class="form-select @error('kelurahan_id') is-invalid @enderror">
                                                 <option value="">-- Pilih Kelurahan / Desa --</option>
                                             </select>
                                             <div class="form-text">Pilih kelurahan atau desa yang berada di dalam

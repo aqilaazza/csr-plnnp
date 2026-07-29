@@ -82,14 +82,14 @@ class ProposalController extends Controller
                 'kabupaten_nama' => 'required|string',
                 'kecamatan_id'   => 'required',
                 'kecamatan_nama' => 'required|string',
-                'kelurahan_id'   => 'required',
-                'kelurahan_nama' => 'required|string',
+                'kelurahan_id'   => 'nullable',
+                'kelurahan_nama' => 'nullable|string',
             ]);
         } else {
             $rules = array_merge($rules, [
                 'kabupaten_manual' => 'required|string|max:50',
                 'kecamatan_manual' => 'required|string|max:50',
-                'kelurahan_manual' => 'required|string|max:50',
+                'kelurahan_manual' => 'nullable|string|max:50',
             ]);
         }
 
@@ -193,14 +193,14 @@ class ProposalController extends Controller
                 'kabupaten_nama' => 'required|string',
                 'kecamatan_id'   => 'required|string',
                 'kecamatan_nama' => 'required|string',
-                'kelurahan_id'   => 'required|string',
-                'kelurahan_nama' => 'required|string',
+                'kelurahan_id'   => 'nullable|string',
+                'kelurahan_nama' => 'nullable|string',
             ]);
         } else {
             $rules = array_merge($rules, [
                 'kabupaten_manual' => 'required|string|max:255',
                 'kecamatan_manual' => 'required|string|max:255',
-                'kelurahan_manual' => 'required|string|max:255',
+                'kelurahan_manual' => 'nullable|string|max:255',
             ]);
         }
 
