@@ -124,15 +124,21 @@
 .dm-ritem:hover{background:#fafcfa;color:inherit;}
 .dm-ritem.today{background:#fff3f3;border-left:5px solid #e0463c;}
 .dm-ritem.today:hover{background:#ffe8e8;}
+.dm-ritem.late{background:#f2f3f5;border-left:5px solid #9aa4b2;}
+.dm-ritem.late:hover{background:#e9ebef;}
 .dm-ritem .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0;}
 .dm-ritem.today .dot{background:#e0463c;width:10px;height:10px;}
+.dm-ritem.late .dot{background:#8b96a6;width:10px;height:10px;}
 .dm-ritem .info{min-width:0;flex:1;}
 .dm-ritem .info .judul{font-size:12.5px;font-weight:700;color:var(--ink-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .dm-ritem.today .info .judul{color:#b42318;font-weight:800;}
+.dm-ritem.late .info .judul{color:#42505f;font-weight:800;}
 .dm-ritem .info .berkas{font-size:11px;color:var(--ink-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .dm-ritem.today .info .berkas{color:#b85c57;}
+.dm-ritem.late .info .berkas{color:#707d8c;}
 .dm-ritem .tag{flex-shrink:0;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--amber-bg);color:#a3720f;white-space:nowrap;}
 .dm-ritem.today .tag{background:#e0463c;color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(224,70,60,.25);}
+.dm-ritem.late .tag{background:#dde1e7;color:#4b5563;font-weight:800;}
 
   @media (max-width:767px){
     .dm-filter-card .row > div{margin-bottom:8px;}
@@ -347,8 +353,9 @@
                         @foreach($dashboardReminders as $reminder)
                         @php
                         $isToday = $reminder['sisaHari'] == 0;
+                        $isLate = !$isToday;
 
-                        if ($reminder['sisaHari'] == 0) {
+                        if ($isToday) {
                             $badgeText = 'Hari Ini';
                             $badgeClass = 'bg-warning text-dark';
                         } else {
@@ -357,13 +364,13 @@
                         }
                     @endphp
                             <a href="{{ route('monitoring.index', ['search' => $reminder['judul']]) }}"
-                               class="dm-ritem {{ $isToday ? 'today' : '' }}">
+                               class="dm-ritem {{ $isToday ? 'today' : ($isLate ? 'late' : '') }}">
                                 <span class="dot"></span>
                                 <div class="info">
                                     <div class="judul">{{ $reminder['judul'] }}</div>
                                     <div class="berkas">{{ $reminder['berkas'] }} &middot; {{ $reminder['deadline']->format('d M Y') }}</div>
                                 </div>
-                                <span class="tag {{ $isToday ? 'today' : '' }}">{{ $badgeText }}</span>
+                                <span class="tag {{ $isToday ? 'today' : ($isLate ? 'late' : '') }}">{{ $badgeText }}</span>
                             </a>
                         @endforeach
                     </div>
