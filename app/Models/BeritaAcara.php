@@ -21,6 +21,7 @@ class BeritaAcara extends Model
         'satuan',
         'business_support_id',
         'bisnis_support_lainnya',
+        'dokumentasi',
     ];
 
     public function proposal()

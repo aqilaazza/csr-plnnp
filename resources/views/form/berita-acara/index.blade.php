@@ -83,6 +83,9 @@
                                          <h6 class="fw-semibold mb-0">Upload</h6>
                                      </th>
                                      <th>
+                                         <h6 class="fw-semibold mb-0">Dokumentasi</h6>
+                                     </th>
+                                     <th>
                                          <h6 class="fw-semibold mb-0">Aksi</h6>
                                      </th>
                                  </tr>
@@ -121,6 +124,18 @@
                                                  <a href="#" class="text-primary fw-normal" data-bs-toggle="modal"
                                                      data-bs-target="#uploadModal" data-id="{{ $data->id }}">
                                                      Upload File
+                                                 </a>
+                                             @endif
+                                         </td>
+
+                                         <td class="text-center">
+                                             @if ($data->dokumentasi)
+                                                 <a href="{{ asset('storage/' . $data->dokumentasi) }}" target="_blank"
+                                                     class="text-primary fw-normal">Lihat Foto</a>
+                                             @else
+                                                 <a href="#" class="text-primary fw-normal" data-bs-toggle="modal"
+                                                     data-bs-target="#dokumentasiModal" data-id="{{ $data->id }}">
+                                                     Upload Foto
                                                  </a>
                                              @endif
                                          </td>
@@ -463,6 +478,68 @@
                         <small class="text-muted">
                             File yang diizinkan: PDF atau Gambar
                         </small>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+                            Batal
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-success">
+                            Upload
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Modal Dokumentasi --}}
+    <div class="modal fade" id="dokumentasiModal" tabindex="-1" aria-labelledby="dokumentasiModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="dokumentasiForm" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <input type="hidden" name="id_context" id="dokumentasiIdContext" value="{{ old('id_context') }}">
+
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="dokumentasiModalLabel">
+                            Upload Dokumentasi
+                        </h5>
+
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        @error('dokumentasi')
+                            <div class="alert alert-danger">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                        <input
+                            type="file"
+                            name="dokumentasi"
+                            id="dokumentasiInput"
+                            class="form-control {{ $errors->has('dokumentasi') ? 'is-invalid' : '' }}"
+                            accept=".jpg,.jpeg,.png"
+                            required>
+
+                        <small class="text-muted d-block mt-2">
+                            Format JPG/JPEG/PNG (otomatis dikompres saat diupload).
+                        </small>
+
+                        <img id="dokumentasiPreview" src="" class="img-fluid mt-3 d-none rounded border" alt="Preview foto">
 
                     </div>
 
@@ -1644,6 +1721,66 @@
         });
         </script>
 
+        {{-- DOKUMENTASI MODAL --}}
+        <script>
+        // Set action form sesuai id data yang diklik
+        $(document).on('click', '[data-bs-target="#dokumentasiModal"]', function(){
+
+            const id = $(this).data('id');
+
+            $('#dokumentasiForm').attr(
+                'action',
+                '/berita-acara/' + id + '/dokumentasi'
+            );
+
+            // Simpan id juga di hidden field, supaya kalau upload gagal
+            // (validasi error) dan halaman reload, modal ini tahu lagi
+            // baris mana yang tadi mau diupload
+            $('#dokumentasiIdContext').val(id);
+
+        });
+
+        // Preview foto sebelum diupload + tolak HEIC di sisi browser
+        // (validasi utama tetap di server, ini cuma feedback lebih cepat ke user)
+        document.getElementById('dokumentasiInput').addEventListener('change', function () {
+
+            const file = this.files[0];
+            const preview = document.getElementById('dokumentasiPreview');
+
+            if (!file) {
+                preview.src = '';
+                preview.classList.add('d-none');
+                return;
+            }
+
+            const ext = file.name.split('.').pop().toLowerCase();
+
+            if (ext === 'heic' || ext === 'heif') {
+                alert('Foto HEIC (format default kamera iPhone) tidak didukung. Silakan convert ke JPG/JPEG/PNG dulu, lalu upload ulang.');
+                this.value = '';
+                preview.src = '';
+                preview.classList.add('d-none');
+                return;
+            }
+
+            preview.src = URL.createObjectURL(file);
+            preview.classList.remove('d-none');
+
+        });
+
+        // Reset input & preview saat modal ditutup
+        document.getElementById('dokumentasiModal').addEventListener('hidden.bs.modal', function () {
+
+            const input = document.getElementById('dokumentasiInput');
+            const preview = document.getElementById('dokumentasiPreview');
+
+            input.value = '';
+            preview.src = '';
+            preview.classList.add('d-none');
+
+        });
+        </script>
+
          {{-- TOAST --}}
         <script>
             document.addEventListener("DOMContentLoaded", function () {
@@ -1663,9 +1800,9 @@
             });
         </script>
 
-        {{-- AUTO-OPEN MODAL CREATE JIKA ADA VALIDATION ERROR --}}
+        {{-- AUTO-OPEN MODAL CREATE JIKA ADA VALIDATION ERROR (KECUALI ERROR DOKUMENTASI) --}}
         <script>
-            @if ($errors->any())
+            @if ($errors->any() && !$errors->has('dokumentasi'))
                 document.addEventListener('DOMContentLoaded', function () {
                     var modal = new bootstrap.Modal(document.getElementById('createModal'));
                     modal.show();
@@ -1673,7 +1810,38 @@
             @endif
         </script>
 
+        {{-- AUTO-OPEN MODAL DOKUMENTASI JIKA UPLOAD FOTO GAGAL --}}
+        <script>
+            @if ($errors->has('dokumentasi'))
+                document.addEventListener('DOMContentLoaded', function () {
+
+                    const id = document.getElementById('dokumentasiIdContext').value;
+
+                    if (id) {
+                        document.getElementById('dokumentasiForm').action =
+                            '/berita-acara/' + id + '/dokumentasi';
+                    }
+
+                    var modal = new bootstrap.Modal(document.getElementById('dokumentasiModal'));
+                    modal.show();
+
+                });
+            @endif
+        </script>
+
         {{-- REINDEX BANTUAN SEBELUM SUBMIT (FIX BUG: NOMINAL/JUMLAH KETUKER ANTAR BARIS) --}}
+        {{--
+            Root cause: input yang di-`disabled` (bukan readonly) TIDAK ikut ter-submit
+            ke server. Karena jenis_bantuan[], jumlah_barang[], satuan_barang[], nominal[]
+            adalah 4 array TERPISAH yang direkonstruksi ulang di controller berdasarkan
+            index yang sama ($jumlah[$i], $satuan[$i], $nominal[$i]), begitu salah satu
+            baris kehilangan 1 elemen karena disabled, index baris-baris berikutnya jadi
+            geser dan datanya ketuker.
+
+            Fix: sebelum form di-submit, ubah name tiap input jadi array bersarang
+            per-baris (bantuan[0][jenis], bantuan[0][jumlah], dst) dan enable dulu semua
+            input, supaya setiap baris selalu terkirim utuh dan sinkron sesuai posisinya.
+        --}}
         <script>
             function reindexBantuan(wrapperSelector) {
                 $(wrapperSelector).find('.bantuan-item').each(function (index) {
