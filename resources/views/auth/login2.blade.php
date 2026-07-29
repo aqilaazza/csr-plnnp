@@ -18,79 +18,271 @@
     <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <!-- CSS Files -->
     <link id="pagestyle" href="{{ asset('argon/css/argon-dashboard.css?v=2.1.0') }}" rel="stylesheet" />
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .login-bg {
+            position: relative;
+            min-height: 100vh;
+            width: 100%;
+            background-image: linear-gradient(120deg, rgba(20, 60, 20, 0.82), rgba(20, 70, 25, 0.55)), url('{{ asset('argon/img/login3.png') }}');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-family: 'Open Sans', sans-serif;
+            color: #fff;
+        }
+
+        .login-topbar {
+            font-size: .8rem;
+            color: rgba(255,255,255,.65);
+            padding: 10px 32px 0;
+        }
+
+        .login-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 60px;
+        }
+
+        .login-left {
+            max-width: 560px;
+        }
+
+        .brand-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .brand-row img {
+            height: 56px;
+            width: auto;
+        }
+
+        .login-left h1 {
+            font-weight: 800;
+            font-size: 2.6rem;
+            line-height: 1.15;
+            margin-bottom: 22px;
+            color: #ffffff !important;
+        }
+
+        .login-left .desc {
+            border-left: 3px solid #78C841;
+            padding-left: 16px;
+            color: rgba(255,255,255,.85);
+            font-size: .95rem;
+            margin-bottom: 40px;
+            max-width: 460px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 48px;
+        }
+
+        .stat-item .num {
+            color: #78C841;
+            font-weight: 800;
+            font-size: 1.5rem;
+        }
+
+        .stat-item .label {
+            font-size: .7rem;
+            letter-spacing: .5px;
+            color: rgba(255,255,255,.75);
+            text-transform: uppercase;
+        }
+
+        .login-card {
+            background: #f4f5f2;
+            border-radius: 18px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 380px;
+            margin-left: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,.25);
+            color: #1a1a1a;
+        }
+
+        .login-card h4 {
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .login-card p.subtitle {
+            color: #6b6b6b;
+            font-size: .9rem;
+            margin-bottom: 24px;
+        }
+
+        .login-card label {
+            font-weight: 700;
+            font-size: .85rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .login-card .form-control {
+            background: #fff;
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+        .input-icon-group {
+            position: relative;
+        }
+
+        .input-icon-group i {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9a9a9a;
+        }
+
+        .input-icon-group .icon-left {
+            left: 14px;
+        }
+
+        .input-icon-group .icon-right {
+            right: 14px;
+            cursor: pointer;
+        }
+
+        .input-icon-group .form-control {
+            padding-left: 38px;
+            padding-right: 38px;
+        }
+
+        .btn-signin {
+            background-color: #4c9b1f;
+            border-color: #4c9b1f;
+            color: #fff;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .btn-signin:hover {
+            background-color: #3f8118;
+            color: #fff;
+        }
+
+        .login-footer {
+            font-size: .75rem;
+            color: rgba(255,255,255,.7);
+            padding: 14px 32px;
+        }
+
+        @media (max-width: 992px) {
+            .login-content {
+                flex-direction: column;
+                padding: 40px 24px;
+                gap: 40px;
+            }
+            .login-card {
+                margin: 0 auto;
+            }
+        }
+    </style>
 </head>
 
-<body class="">
-    <main class="main-content  mt-0">
-        <section>
-            <div class="page-header min-vh-100">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
-                            <div class="card card-plain">
-                                <div class="card-header pb-0 text-start">
-                                    <h4 class="font-weight-bolder">Sign In</h4>
-                                    <p class="mb-0">Masukkan Username dan Password</p>
-                                </div>
-                                <div class="card-body">
-                                    <form method="POST" action="{{ route('login') }}">
-                                        @csrf
+<body>
+    <main class="main-content mt-0">
+        <div class="login-bg">
 
-                                        <div class="mb-3">
-                                            <input type="text" name="username"
-                                                class="form-control form-control-lg @error('username') is-invalid @enderror"
-                                                placeholder="Username" value="{{ old('username') }}" required autofocus
-                                                autocomplete="off">
-                                            @error('username')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
+            <div class="login-content">
+                <div class="row w-100 align-items-center">
+                    <div class="col-lg-7 login-left">
+                        <div class="brand-row">
+                            <img src="{{ asset('images/logos/logo-pln2.png') }}" alt="PLN Nusantara Power">
+                        </div>
 
-                                        <div class="mb-3">
-                                            <input type="password" name="password"
-                                                class="form-control form-control-lg @error('password') is-invalid @enderror"
-                                                placeholder="Password" required>
-                                            @error('password')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
+                        <h1>TJSL PLN<br>Nusantara Power</h1>
 
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="remember"
-                                                name="remember" {{ old('remember') ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="remember">Simpan Login</label>
-                                        </div>
+                        <div class="desc">
+                            Membangun Masa Depan Hijau melalui Tanggung Jawab Sosial dan Lingkungan yang Terintegrasi dan Transparan.
+                        </div>
 
-                                        <div class="text-center">
-                                            <button type="submit" class="btn btn-lg w-100 mt-4 mb-0"
-                                                style="background-color: #78C841; color: white; border-color: #78C841;">
-                                                Sign in
-                                            </button>
-                                        </div>
-
-                                    </form>
-                                </div>
+                        <div class="stats-row">
+                            <div class="stat-item">
+                                <div class="num">100+</div>
+                                <div class="label">Pengajuan</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="num">100+</div>
+                                <div class="label">Cakupan Desa</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="num">100+</div>
+                                <div class="label">Stakeholder</div>
                             </div>
                         </div>
-                        <div
-                            class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 end-0 text-center justify-content-center flex-column">
-                            <div class="position-relative h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center overflow-hidden"
-                                style="background-color: #78C841; background-image: url('{{ asset('argon/img/login3.png') }}'); background-size: cover;">
+                    </div>
 
+                    <div class="col-lg-5">
+                        <div class="login-card">
+                            <h4>Sign In</h4>
+                            <p class="subtitle">Masukkan Username dan Password</p>
 
-                                <span class="mask opacity-6" style="background-color: #78C841;"></span>
+                            <form method="POST" action="{{ route('login') }}">
+                                @csrf
 
-                                <h4 class="mt-5 text-white font-weight-bolder position-relative">"CSR PLN Nusantara
-                                    Power<br>Unit Pembangkitan Paiton"</h4>
-                                <p class="text-white position-relative">Kelola program tanggung jawab sosial perusahaan
-                                    dengan lebih efisien<br>dari satu platform terpusat.</p>
-                            </div>
+                                <div class="mb-3">
+                                    <label for="username">Username</label>
+                                    <div class="input-icon-group">
+                                        <i class="fas fa-user icon-left"></i>
+                                        <input type="text" name="username" id="username"
+                                            class="form-control @error('username') is-invalid @enderror"
+                                            placeholder="Username" value="{{ old('username') }}" required autofocus
+                                            autocomplete="off">
+                                    </div>
+                                    @error('username')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="password">Password</label>
+                                    <div class="input-icon-group">
+                                        <i class="fas fa-lock icon-left"></i>
+                                        <input type="password" name="password" id="password"
+                                            class="form-control @error('password') is-invalid @enderror"
+                                            placeholder="Password" required>
+                                        <i class="fas fa-eye icon-right" id="togglePassword"></i>
+                                    </div>
+                                    @error('password')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="remember"
+                                        name="remember" {{ old('remember') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="remember">Simpan Login</label>
+                                </div>
+
+                                <button type="submit" class="btn btn-signin w-100">
+                                    Sign in <i class="fas fa-arrow-right ms-1"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+
+            <div class="login-footer">PLN Nusantara Power UP Paiton</div>
+        </div>
     </main>
+
     <!--   Core JS Files   -->
     <script src="{{ asset('argon/js/core/popper.min.js') }}"></script>
     <script src="{{ asset('argon/js/core/bootstrap.min.js') }}"></script>
@@ -103,6 +295,18 @@
                 damping: '0.5'
             }
             Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+        }
+
+        // toggle show/hide password
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordInput = document.querySelector('#password');
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', function () {
+                const isPassword = passwordInput.getAttribute('type') === 'password';
+                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
         }
     </script>
     <!-- Github buttons -->
