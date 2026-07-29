@@ -83,7 +83,7 @@
   .dm-nominal{font-weight:800;color:var(--pln-green-dark);white-space:nowrap;}
 
   /* ---- search box (menonjol, border lebih jelas biar gampang keliatan) ---- */
-  .dm-search-box{position:relative;max-width:280px;flex:1 1 240px;margin-bottom:16px;}
+  .dm-search-box{position:relative;max-width:5000px;flex:1 1 420px;margin-bottom:16px;}
   .dm-search-box svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--pln-green-dark);width:17px;height:17px;pointer-events:none;}
   .dm-search-box input{width:100%;border-radius:10px;border:1.5px solid var(--pln-green);font-size:13.5px;padding:9px 14px 9px 38px;background:var(--green-bg);transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;}
   .dm-search-box input::placeholder{color:#5a8a3f;}
@@ -112,23 +112,27 @@
   .dm-pic-wrap thead tr:first-child th{background:linear-gradient(90deg,var(--pln-green-dark),var(--pln-green));color:#fff;font-size:13px;letter-spacing:.6px;padding:12px;}
 
   /* ---- reminders (compact) ---- */
-  .dm-reminder-card{background:#fff;border-radius:var(--radius);box-shadow:0 3px 14px rgba(22,32,46,0.06);overflow:hidden;margin-bottom:22px;}
-  .dm-reminder-head{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);}
-  .dm-reminder-head span.title{font-size:12.5px;font-weight:800;color:var(--ink-600);text-transform:uppercase;letter-spacing:.4px;}
-  .dm-reminder-head .count{margin-left:auto;font-size:11px;font-weight:700;background:var(--amber-bg);color:#a3720f;padding:2px 9px;border-radius:20px;}
-  .dm-reminder-list{max-height:184px;overflow-y:auto;}
-  .dm-reminder-list::-webkit-scrollbar{width:6px;}
-  .dm-reminder-list::-webkit-scrollbar-thumb{background:#dfe3e9;border-radius:10px;}
-  .dm-ritem{display:flex;align-items:center;gap:12px;padding:9px 16px;text-decoration:none;color:inherit;border-bottom:1px solid var(--line);transition:background .12s ease;}
-  .dm-ritem:last-child{border-bottom:none;}
-  .dm-ritem:hover{background:#fafcfa;color:inherit;}
-  .dm-ritem .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0;}
-  .dm-ritem.today .dot{background:var(--red);}
-  .dm-ritem .info{min-width:0;flex:1;}
-  .dm-ritem .info .judul{font-size:12.5px;font-weight:700;color:var(--ink-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .dm-ritem .info .berkas{font-size:11px;color:var(--ink-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .dm-ritem .tag{flex-shrink:0;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--amber-bg);color:#a3720f;white-space:nowrap;}
-  .dm-ritem.today .tag{background:var(--red-bg);color:#a3241c;}
+.dm-reminder-card{background:#fff;border-radius:var(--radius);box-shadow:0 3px 14px rgba(22,32,46,0.06);overflow:hidden;margin-bottom:22px;}
+.dm-reminder-head{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);}
+.dm-reminder-head span.title{font-size:12.5px;font-weight:800;color:var(--ink-600);text-transform:uppercase;letter-spacing:.4px;}
+.dm-reminder-head .count{margin-left:auto;font-size:11px;font-weight:700;background:var(--amber-bg);color:#a3720f;padding:2px 9px;border-radius:20px;}
+.dm-reminder-list{max-height:184px;overflow-y:auto;}
+.dm-reminder-list::-webkit-scrollbar{width:6px;}
+.dm-reminder-list::-webkit-scrollbar-thumb{background:#dfe3e9;border-radius:10px;}
+.dm-ritem{display:flex;align-items:center;gap:12px;padding:10px 16px;text-decoration:none;color:inherit;border-bottom:1px solid var(--line);transition:all .18s ease;}
+.dm-ritem:last-child{border-bottom:none;}
+.dm-ritem:hover{background:#fafcfa;color:inherit;}
+.dm-ritem.today{background:#fff3f3;border-left:5px solid #e0463c;}
+.dm-ritem.today:hover{background:#ffe8e8;}
+.dm-ritem .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0;}
+.dm-ritem.today .dot{background:#e0463c;width:10px;height:10px;}
+.dm-ritem .info{min-width:0;flex:1;}
+.dm-ritem .info .judul{font-size:12.5px;font-weight:700;color:var(--ink-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dm-ritem.today .info .judul{color:#b42318;font-weight:800;}
+.dm-ritem .info .berkas{font-size:11px;color:var(--ink-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dm-ritem.today .info .berkas{color:#b85c57;}
+.dm-ritem .tag{flex-shrink:0;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--amber-bg);color:#a3720f;white-space:nowrap;}
+.dm-ritem.today .tag{background:#e0463c;color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(224,70,60,.25);}
 
   @media (max-width:767px){
     .dm-filter-card .row > div{margin-bottom:8px;}
@@ -144,7 +148,7 @@
                 <div class="col-auto">
                     <label for="nama_pic" class="form-label">Tampilkan data milik</label>
                     <select name="nama_pic" id="filter-pic" class="form-select" style="min-width: 190px;"
-                        onchange="this.form.submit()">
+                        onchange="dmUpdateFilter('nama_pic', this.value)">
                         <option value="" {{ $selectedNamaPic === null || $selectedNamaPic === '' ? 'selected' : '' }}>
                             Semua PIC
                         </option>
@@ -165,7 +169,7 @@
                 <div class="col-auto">
                     <label for="filter-kabupaten" class="form-label">Kota / Kabupaten</label>
                     <select name="kabupaten" id="filter-kabupaten" class="form-select" style="min-width: 170px;"
-                        onchange="this.form.submit()">
+                        onchange="dmUpdateFilter('kabupaten', this.value)">
                         <option value="">Semua</option>
                         @foreach ($kabupatenList as $kab)
                             <option value="{{ $kab }}" {{ $selectedKabupaten == $kab ? 'selected' : '' }}>{{ $kab }}</option>
@@ -176,7 +180,7 @@
                 <div class="col-auto">
                     <label for="filter-kecamatan" class="form-label">Kecamatan</label>
                     <select name="kecamatan" id="filter-kecamatan" class="form-select" style="min-width: 170px;"
-                        onchange="this.form.submit()">
+                        onchange="dmUpdateFilter('kecamatan', this.value)">
                         <option value="">Semua</option>
                         @foreach ($kecamatanList as $kec)
                             <option value="{{ $kec }}" {{ $selectedKecamatan == $kec ? 'selected' : '' }}>{{ $kec }}</option>
@@ -187,7 +191,7 @@
                 <div class="col-auto">
                     <label for="filter-kelurahan" class="form-label">Kelurahan / Desa</label>
                     <select name="kelurahan" id="filter-kelurahan" class="form-select" style="min-width: 170px;"
-                        onchange="this.form.submit()">
+                        onchange="dmUpdateFilter('kelurahan', this.value)">
                         <option value="">Semua</option>
                         @foreach ($kelurahanList as $kel)
                             <option value="{{ $kel }}" {{ $selectedKelurahan == $kel ? 'selected' : '' }}>{{ $kel }}</option>
@@ -195,7 +199,7 @@
                     </select>
                 </div>
 
-                @if ($selectedKabupaten || $selectedKecamatan || $selectedKelurahan || $selectedNamaPic)
+                @if ($selectedKabupaten || $selectedKecamatan || $selectedKelurahan || $selectedNamaPic || $selectedTahun)
                     <div class="col-auto">
                         <a href="{{ route('dashboard.index') }}" class="dm-reset-btn">Reset filter</a>
                     </div>
@@ -341,10 +345,17 @@
                     </div>
                     <div class="dm-reminder-list">
                         @foreach($dashboardReminders as $reminder)
-                            @php
-                                $isToday = $reminder['sisaHari'] == 0;
-                                $badgeText = $isToday ? 'Hari Ini' : ($reminder['sisaHari'] == 1 ? 'H-1' : 'H-2');
-                            @endphp
+                        @php
+                        $isToday = $reminder['sisaHari'] == 0;
+
+                        if ($reminder['sisaHari'] == 0) {
+                            $badgeText = 'Hari Ini';
+                            $badgeClass = 'bg-warning text-dark';
+                        } else {
+                            $badgeText = 'Terlambat';
+                            $badgeClass = 'bg-danger';
+                        }
+                    @endphp
                             <a href="{{ route('monitoring.index', ['search' => $reminder['judul']]) }}"
                                class="dm-ritem {{ $isToday ? 'today' : '' }}">
                                 <span class="dot"></span>
@@ -405,6 +416,13 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                         <input type="text" id="approvedSearchInput" placeholder="Cari instansi, lokasi, atau barang...">
                     </div>
+                    <select id="filter-tahun" class="form-select" style="width:110px; min-width: 110px; border-radius:10px;border:1.5px solid var(--pln-green);background:var(--green-bg);font-size:13px;padding:9px 10px;"
+                        onchange="dmUpdateFilter('tahun', this.value)">
+                        <option value="">Semua Tahun</option>
+                        @foreach ($tahunList as $tahun)
+                            <option value="{{ $tahun }}" {{ $selectedTahun == $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <a href="#" id="exportApprovedBtn" class="dm-export-btn mb-0">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
@@ -417,6 +435,7 @@
                         <tr>
                             <th>Instansi</th>
                             <th>Lokasi</th>
+                            <th>Tanggal</th>
                             <th class="text-end">Nominal Disetujui</th>
                             <th>Barang Disetujui</th>
                         </tr>
@@ -429,6 +448,7 @@
                                     <div class="text-muted" style="font-size:11.5px;">{{ $item['judul'] }}</div>
                                 </td>
                                 <td><span class="dm-loc-chip">{{ $item['lokasi'] }}</span></td>
+                                <td class="text-muted" style="white-space:nowrap;">{{ $item['tanggal'] ?: '—' }}</td>
                                 <td class="text-end dm-nominal">
                                     {{ $item['nominal_disetujui'] ? 'Rp' . number_format($item['nominal_disetujui'], 0, ',', '.') : '—' }}
                                 </td>
@@ -436,11 +456,11 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">Tidak ada proposal disetujui yang cocok dengan filter ini.</td>
+                                <td colspan="5" class="text-center text-muted py-4">Tidak ada proposal disetujui yang cocok dengan filter ini.</td>
                             </tr>
                         @endforelse
                         <tr id="approvedNoMatchRow" style="display:none;">
-                            <td colspan="4" class="text-center text-muted py-4">Tidak ada hasil yang cocok dengan pencarian.</td>
+                            <td colspan="5" class="text-center text-muted py-4">Tidak ada hasil yang cocok dengan pencarian.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -504,6 +524,21 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // ---- Helper terpusat untuk semua filter dashboard (nama_pic, kabupaten,
+        // kecamatan, kelurahan, tahun). Semua select filter memanggil fungsi ini
+        // supaya query string yang sudah ada di URL tidak saling menimpa/hilang. ----
+        function dmUpdateFilter(name, value) {
+            const u = new URL('{{ route('dashboard.index') }}', window.location.origin);
+            const p = new URLSearchParams(window.location.search);
+            if (value) {
+                p.set(name, value);
+            } else {
+                p.delete(name);
+            }
+            u.search = p.toString();
+            window.location.href = u.toString();
+        }
+
         // Data dasar untuk tiap mode pie chart
         const pieDatasets = {
             instansi: {
@@ -724,15 +759,20 @@
 
         // ---- Export Excel "Data Disetujui" ----
         // Export ini SENGAJA tidak ikut filter PIC/kabupaten/kecamatan/kelurahan
-        // di dashboard — hanya mengikuti kata kunci pencarian di search box ini.
-        // Kalau kosong, export semua data disetujui (tanpa terkecuali).
+        // di dashboard — hanya mengikuti kata kunci pencarian di search box ini
+        // dan filter tahun. Kalau kosong, export semua data disetujui (tanpa terkecuali).
         const exportApprovedBtn = document.getElementById('exportApprovedBtn');
         if (exportApprovedBtn) {
             exportApprovedBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const q = approvedSearchInput ? approvedSearchInput.value.trim() : '';
-                const url = q
-                    ? `{{ route('dashboard.export-approved') }}?q=${encodeURIComponent(q)}`
+                const tahun = document.getElementById('filter-tahun') ? document.getElementById('filter-tahun').value : '';
+                const params = new URLSearchParams();
+                if (q) params.set('q', q);
+                if (tahun) params.set('tahun', tahun);
+                const queryStr = params.toString();
+                const url = queryStr
+                    ? `{{ route('dashboard.export-approved') }}?${queryStr}`
                     : `{{ route('dashboard.export-approved') }}`;
                 window.location.href = url;
             });
