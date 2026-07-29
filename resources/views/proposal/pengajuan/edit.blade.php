@@ -440,10 +440,18 @@
                 if (kabupatenIdValue && fixedIds.includes(kabupatenIdValue)) {
                     $('#kabupaten').val(kabupatenIdValue);
                     $('#wilayah_auto').removeClass('d-none');
-                    fetchKecamatan(kabupatenIdValue, kecamatanIdValue);
-                } else if (kabupatenIdValue) {
+
+                    fetchKecamatan(
+                        kabupatenIdValue,
+                        kecamatanIdValue,
+                        kelurahanIdValue
+                    );
+
+                } else {
+
                     $('#kabupaten').val('lainnya');
                     $('#wilayah_manual').removeClass('d-none');
+
                 }
 
                 $('#kabupaten').on('change', function() {
@@ -499,7 +507,7 @@
                     $('#kelurahan_nama').val(selectedText);
                 });
 
-                function fetchKecamatan(kabupatenId, selectedKecamatanId = null) {
+                function fetchKecamatan(kabupatenId, selectedKecamatanId = null, selectedKelurahanId = null) {
                     fetch(`/kecamatan/${kabupatenId}`)
                         .then(res => res.json())
                         .then(data => {
@@ -522,8 +530,8 @@
                         });
                 }
 
-                function fetchKelurahan(kecamatanId, selectedKelurahanId = null) {
-                    fetch(`/kelurahan/${kecamatanId}`)
+                function fetchKelurahan(selectedKecamatanId, selectedKelurahanId) {
+                    fetch(`/kelurahan/${selectedKecamatanId}`)
                         .then(res => res.json())
                         .then(data => {
                             const kelSelect = $('#kelurahan');
@@ -537,9 +545,20 @@
                             });
 
                             if (selectedKelurahanId) {
-                                $('#kelurahan').val(selectedKelurahanId).trigger('change.select2');
+                                $('#kelurahan')
+                                    .val(selectedKelurahanId)
+                                    .trigger('change.select2');
+
                                 $('#kelurahan_id').val(selectedKelurahanId);
                                 $('#kelurahan_nama').val(kelurahanNamaValue);
+
+                            } else {
+
+                                // tetap kosong
+                                $('#kelurahan').val(null).trigger('change.select2');
+                                $('#kelurahan_id').val('');
+                                $('#kelurahan_nama').val('');
+
                             }
                         });
                 }
