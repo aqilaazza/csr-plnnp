@@ -60,7 +60,7 @@
                                 <button
                                     class="btn btn-sm btn-danger reminder-filter"
                                     data-filter="today">
-                                    Hari Ini ({{ $reminderGroups['today']->count() }})
+                                    Hari Ini ({{ $reminderGroups['today']->count() + $reminderGroups['overdue']->count() }})
                                 </button>
 
                                 <button
@@ -73,12 +73,6 @@
                                     class="btn btn-sm btn-warning text-dark reminder-filter"
                                     data-filter="h2">
                                     H-2 ({{ $reminderGroups['h2']->count() }})
-                                </button>
-
-                                <button
-                                    class="btn btn-sm btn-secondary reminder-filter"
-                                    data-filter="overdue">
-                                    Terlambat ({{ $reminderGroups['overdue']->count() }})
                                 </button>
 
                             </div>
@@ -99,7 +93,9 @@
                                 }elseif($reminder['sisaHari']==2){
                                     $filterClass='h2';
                                 }elseif($reminder['sisaHari']<0){
-                                    $filterClass='overdue';
+                                    // Digabung ke filter "today" (tombol Terlambat dihapus),
+                                    // tapi warna visual tetap beda lewat reminder-overdue di bawah
+                                    $filterClass='today';
                                 }
 
                             @endphp
