@@ -19,8 +19,9 @@ class BeritaAcaraController extends Controller
             ->latest()
             ->get();
 
-        // Ambil hanya proposal yang belum punya berita acara
-        $proposal = Proposal::doesntHave('beritaAcara')->get();
+        // Semua proposal ditampilkan di dropdown, termasuk yang sudah pernah
+        // dipakai di Berita Acara sebelumnya (boleh dipilih ulang / dipakai lagi)
+        $proposal = Proposal::orderBy('judul')->get();
 
         // Data master Business Support untuk dropdown
         $businessSupport = BusinessSupport::all();
