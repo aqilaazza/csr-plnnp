@@ -494,6 +494,16 @@
 
                         <div class="dm-progress-item">
                             <div class="dm-progress-item-top">
+                                <span class="dm-progress-label">Pending</span>
+                                <span class="dm-progress-value">{{ $jumlahPending }}</span>
+                            </div>
+                            <div class="dm-progress-track">
+                                <div class="dm-progress-fill" style="width:{{ $pctPending }}%;background:#e69a1f;"></div>
+                            </div>
+                        </div>
+
+                        <div class="dm-progress-item">
+                            <div class="dm-progress-item-top">
                                 <span class="dm-progress-label">Tidak Setuju</span>
                                 <span class="dm-progress-value">{{ $jumlahTolak }}</span>
                             </div>
@@ -502,15 +512,6 @@
                             </div>
                         </div>
 
-                        <div class="dm-progress-item">
-                            <div class="dm-progress-item-top">
-                                <span class="dm-progress-label">Pending</span>
-                                <span class="dm-progress-value">{{ $jumlahPending }}</span>
-                            </div>
-                            <div class="dm-progress-track">
-                                <div class="dm-progress-fill" style="width:{{ $pctPending }}%;background:#e69a1f;"></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -748,6 +749,21 @@
             return 'Rp' + Number(n).toLocaleString('id-ID');
         }
 
+        function rupiahSingkat(n) {
+            n = Number(n);
+            const sign = n < 0 ? '-' : '';
+            n = Math.abs(n);
+            let val, suffix;
+            if (n >= 1e9)      { val = n / 1e9; suffix = 'M'; }
+            else if (n >= 1e6) { val = n / 1e6; suffix = 'jt'; }
+            else if (n >= 1e3) { val = n / 1e3; suffix = 'rb'; }
+            else return rupiah(n);
+            let str = val.toFixed(1);
+            if (str.endsWith('.0')) str = str.slice(0, -2);
+            str = str.replace('.', ',');
+            return sign + 'Rp' + str + suffix;
+        }
+
         const centerTextPlugin = {
             id: 'centerText',
             afterDraw(chart) {
@@ -804,12 +820,12 @@
                                 label: (context) => {
                                     const v = context.raw;
                                     const pct = total > 0 ? ((v / total) * 100).toFixed(1) : 0;
-                                    const valueText = isNominal ? rupiah(v) : v;
+                                    const valueText = isNominal ? rupiahSingkat(v) : v;
                                     return `${context.label}: ${valueText} (${pct}%)`;
                                 }
                             },
                         },
-                        centerTextValue: isNominal ? rupiah(total) : total,
+                        centerTextValue: isNominal ? rupiahSingkat(total) : total,
                         centerTextLabel: centerLabel,
                     },
                 },
@@ -824,7 +840,7 @@
             el.innerHTML = rawLabels.map((label, i) => {
                 const value = rawData[i];
                 const pct = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                const valueText = isNominal ? rupiah(value) : value;
+                const valueText = isNominal ? rupiahSingkat(value) : value;
                 return `<div class="dm-legend-item">
                     <div class="l-left">
                         <span class="dm-legend-dot" style="background:${colors[i]};"></span>
@@ -841,12 +857,13 @@
         const rincianData = {!! json_encode($rincianDisetujui->pluck('jumlah')) !!};
         const rincianColors = ['#78C841', '#ffcb3d', '#2196f3', '#e0463c', '#9c27b0', '#00bcd4', '#f4a300'];
         if (rincianLabels.length) {
-            buildDonutChart('rincianDonut', rincianLabels, rincianData, rincianColors, true, 'nominal', null, false);
+            buildDonutChart('rincianDonut', rincianLabels, rincianData, rincianColors, true, 'nominal', null, true); // <-- terakhir jadi true
             buildLegend('rincianLegendList', rincianLabels, rincianData, rincianColors, true);
             const rincianLegendEl = document.getElementById('rincianLegendList');
             if (rincianLegendEl) {
+                const totalDisetujuiVal = {!! json_encode($totalDisetujui ?? 0) !!};
                 rincianLegendEl.insertAdjacentHTML('beforeend',
-                    `<div class="dm-legend-total"><span>Total</span><span class="dm-nominal">{{ 'Rp' . number_format($totalDisetujui ?? 0, 0, ',', '.') }}</span></div>`
+                    `<div class="dm-legend-total"><span>Total</span><span class="dm-nominal">${rupiahSingkat(totalDisetujuiVal)}</span></div>`
                 );
             }
         }
