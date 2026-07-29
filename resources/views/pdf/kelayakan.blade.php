@@ -296,7 +296,7 @@
             </tr>
             <tr>
                 <td rowspan="2" class="judul-cell" style="padding-top:16px; padding-bottom:1px;">
-                    FORMULIR ANALISIS PERMINTAAN BANTUAN PROGRAM CSR
+                    FORMULIR ANALISIS KELAYAKAN PERMINTAAN BANTUAN PROGRAM CSR
                 </td>
                 <td class="info-cell"><span style="font-size: 9px"><strong>Tanggal Terbit</strong> : {{ \Carbon\Carbon::now()->format('d - m - Y') }}</span></td>
             </tr>
@@ -621,7 +621,7 @@
                 <!-- Baris Manager -->
                 <tr>
                     <td rowspan="3" style="width: 25%; text-align: center; font-weight: bold;">
-                        Manager,<br>Business Support
+                        Manager<br>Business Support
                     </td>
                     <td colspan="2" style="text-align: center; font-weight: bold;">Diterima</td>
                     <td colspan="2" style="text-align: center; font-weight: bold;">Arahan</td>

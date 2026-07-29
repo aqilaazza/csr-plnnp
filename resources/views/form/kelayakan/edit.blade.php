@@ -24,7 +24,7 @@
         }
 
         .dynamic-item textarea{
-            width:1200px;          /* bisa ubah 750-850 sesuai selera */
+            width:1400px;
             min-height:50px;
             resize:vertical;
         }
