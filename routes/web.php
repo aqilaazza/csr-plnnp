@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('tipologi', TipologiController::class);
     Route::resource('berita-acara', BeritaAcaraController::class);
     Route::post('/berita-acara/{id}/upload', [BeritaAcaraController::class, 'uploadFile'])->name('berita-acara.upload');
+    Route::post('/berita-acara/{id}/dokumentasi', [BeritaAcaraController::class, 'uploadDokumentasi'])->name('berita-acara.dokumentasi');
     Route::get('/berita-acara/{id}/bantuan', [BeritaAcaraController::class, 'getBantuan']);
     Route::get('/berita-acara/{id}/business-support', [BeritaAcaraController::class, 'getBusinessSupportInfo'])->name('berita-acara.business-support');
 

@@ -19,8 +19,9 @@ class BeritaAcaraController extends Controller
             ->latest()
             ->get();
 
-        // Ambil hanya proposal yang belum punya berita acara
-        $proposal = Proposal::doesntHave('beritaAcara')->get();
+        // Semua proposal ditampilkan di dropdown, termasuk yang sudah pernah
+        // dipakai di Berita Acara sebelumnya (boleh dipilih ulang / dipakai lagi)
+        $proposal = Proposal::orderBy('judul')->get();
 
         // Data master Business Support untuk dropdown
         $businessSupport = BusinessSupport::all();
@@ -262,12 +263,132 @@ class BeritaAcaraController extends Controller
         return redirect()->route('berita-acara.index')->with('success', 'File berhasil diupload.');
     }
 
+    /**
+     * Upload foto dokumentasi. Foto otomatis di-resize & dikompres
+     * di server (pakai GD bawaan PHP, tanpa package tambahan) supaya
+     * ukuran filenya kecil tapi kualitasnya tetap layak dilihat.
+     */
+    public function uploadDokumentasi(Request $request, $id)
+    {
+        $request->validate([
+            // max 10MB untuk file ASLI sebelum dikompres
+            // HEIC sengaja TIDAK diizinkan karena tidak bisa dikompres (GD tidak support HEIC)
+            'dokumentasi' => 'required|image|mimes:jpg,jpeg,png|max:10240',
+        ], [
+            'dokumentasi.required' => 'Silakan pilih foto terlebih dahulu.',
+            'dokumentasi.image' => 'File yang diupload harus berupa gambar.',
+            'dokumentasi.mimes' => 'Format foto harus JPG atau PNG. Foto HEIC (format default iPhone) tidak didukung — silakan convert ke JPG/PNG dulu sebelum upload.',
+            'dokumentasi.max' => 'Ukuran foto maksimal 10MB. Silakan compress atau pilih foto lain.',
+        ]);
+
+        $beritaAcara = BeritaAcara::findOrFail($id);
+
+        // Hapus foto dokumentasi lama kalau ada
+        if ($beritaAcara->dokumentasi && Storage::exists('public/' . $beritaAcara->dokumentasi)) {
+            Storage::delete('public/' . $beritaAcara->dokumentasi);
+        }
+
+        $path = $this->compressAndStoreImage(
+            $request->file('dokumentasi'),
+            'berita_acara_dokumentasi'
+        );
+
+        $beritaAcara->update(['dokumentasi' => $path]);
+
+        return redirect()->route('berita-acara.index')
+            ->with('success', 'Dokumentasi berhasil diupload.');
+    }
+
+    /**
+     * Resize (max width 1280px, jaga aspect ratio) dan kompres (kualitas 70%)
+     * gambar yang diupload, lalu simpan ke storage. Return path relatif
+     * (tanpa prefix 'public/') yang bisa dipakai dengan asset('storage/...').
+     *
+     * Catatan: hanya menerima JPG/PNG (divalidasi sebelum method ini dipanggil).
+     * HEIC sengaja ditolak di validasi karena GD bawaan PHP tidak bisa decode HEIC.
+     */
+    // private function compressAndStoreImage($file, string $folder, int $quality = 70, int $maxWidth = 1280): string
+    private function compressAndStoreImage($file, string $folder, int $quality = 60, int $maxWidth = 1280): string
+    {
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        $source = match ($extension) {
+            'jpg', 'jpeg' => @imagecreatefromjpeg($file->getRealPath()),
+            'png' => @imagecreatefrompng($file->getRealPath()),
+            default => null,
+        };
+
+        // Fallback kalau GD gagal decode: simpan file asli tanpa kompresi
+        if (!$source) {
+            $filename = 'dokumentasi_' . uniqid() . '.' . $extension;
+            $path = $folder . '/' . $filename;
+            Storage::put('public/' . $path, file_get_contents($file->getRealPath()));
+            return $path;
+        }
+
+        // Perbaiki orientasi foto dari HP (baca EXIF) supaya tidak kesamping/terbalik
+        if (function_exists('exif_read_data') && in_array($extension, ['jpg', 'jpeg'])) {
+            $exif = @exif_read_data($file->getRealPath());
+            if (!empty($exif['Orientation'])) {
+                $source = match ($exif['Orientation']) {
+                    3 => imagerotate($source, 180, 0),
+                    6 => imagerotate($source, -90, 0),
+                    8 => imagerotate($source, 90, 0),
+                    default => $source,
+                };
+            }
+        }
+
+        $originalWidth = imagesx($source);
+        $originalHeight = imagesy($source);
+
+        // Resize kalau lebih lebar dari $maxWidth, jaga aspect ratio
+        if ($originalWidth > $maxWidth) {
+            $newWidth = $maxWidth;
+            $newHeight = intdiv($originalHeight * $maxWidth, $originalWidth);
+
+            $resized = imagecreatetruecolor($newWidth, $newHeight);
+
+            // Jaga transparansi untuk PNG
+            if ($extension === 'png') {
+                imagealphablending($resized, false);
+                imagesavealpha($resized, true);
+            }
+
+            imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $originalWidth, $originalHeight);
+            imagedestroy($source);
+            $source = $resized;
+        }
+
+        $filename = 'dokumentasi_' . uniqid() . '.jpg';
+        $path = $folder . '/' . $filename;
+        $fullDiskPath = storage_path('app/public/' . $path);
+
+        if (!file_exists(dirname($fullDiskPath))) {
+            mkdir(dirname($fullDiskPath), 0755, true);
+        }
+
+        // Simpan sebagai JPG dengan kompresi kualitas $quality (0-100, makin kecil makin ringan)
+        imagejpeg($source, $fullDiskPath, $quality);
+        imagedestroy($source);
+
+        return $path;
+    }
+
     public function destroy($id)
     {
         $beritaAcara = BeritaAcara::findOrFail($id);
 
         if ($beritaAcara->file_pdf && Storage::exists('public/' . $beritaAcara->file_pdf)) {
             Storage::delete('public/' . $beritaAcara->file_pdf);
+        }
+
+        if ($beritaAcara->file_upload && Storage::exists('public/' . $beritaAcara->file_upload)) {
+            Storage::delete('public/' . $beritaAcara->file_upload);
+        }
+
+        if ($beritaAcara->dokumentasi && Storage::exists('public/' . $beritaAcara->dokumentasi)) {
+            Storage::delete('public/' . $beritaAcara->dokumentasi);
         }
 
         $beritaAcara->delete();

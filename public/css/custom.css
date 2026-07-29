@@ -149,7 +149,7 @@
 
 
 /* =========================================================
-   WARNA FILTER - HARI INI
+   WARNA FILTER - HARI INI (termasuk yang sudah Terlambat)
 ========================================================= */
 
 .notification-menu .reminder-filter[data-filter="today"] {
@@ -206,25 +206,6 @@
 
 
 /* =========================================================
-   WARNA FILTER - TERLAMBAT
-========================================================= */
-
-.notification-menu .reminder-filter[data-filter="overdue"] {
-    background-color: #6c757d !important;
-    border-color: #6c757d !important;
-    color: #fff !important;
-}
-
-.notification-menu .reminder-filter[data-filter="overdue"]:hover,
-.notification-menu .reminder-filter[data-filter="overdue"]:focus,
-.notification-menu .reminder-filter[data-filter="overdue"]:active {
-    background-color: #6c757d !important;
-    border-color: #6c757d !important;
-    color: #fff !important;
-}
-
-
-/* =========================================================
    REMINDER ITEM
 ========================================================= */
 
@@ -249,7 +230,7 @@
 
 
 /* =========================================================
-   WARNA REMINDER
+   WARNA REMINDER (per-item, tetap beda walau filter digabung)
 ========================================================= */
 
 .reminder-h2 {
