@@ -56,6 +56,7 @@
             max-width: 560px;
         }
 
+        /* ==== FIX: brand row alignment (tanpa background putih) ==== */
         .brand-row {
             display: flex;
             align-items: center;
@@ -65,7 +66,10 @@
         .brand-row img {
             height: 56px;
             width: auto;
+            display: block;
+            margin-left: -10px; /* kompensasi whitespace transparan di file PNG logo, sesuaikan angka ini kalau masih kurang/lebih */
         }
+        /* ==== END FIX ==== */
 
         .login-left h1 {
             font-weight: 800;
@@ -141,7 +145,9 @@
             position: relative;
         }
 
-        .input-icon-group i {
+        .input-icon-group i,
+        .input-icon-group .icon-left,
+        .input-icon-group .icon-right {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
@@ -152,14 +158,32 @@
             left: 14px;
         }
 
+        /* ==== FIX: eye icon toggle (SVG, tidak bergantung CDN) ==== */
         .input-icon-group .icon-right {
-            right: 14px;
+            right: 12px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            color: #6b6b6b;
         }
+
+        .input-icon-group .icon-right svg {
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+
+        .input-icon-group .icon-right:hover {
+            color: #4c9b1f;
+        }
+        /* ==== END FIX ==== */
 
         .input-icon-group .form-control {
             padding-left: 38px;
-            padding-right: 38px;
+            padding-right: 40px;
         }
 
         .btn-signin {
@@ -214,15 +238,15 @@
 
                         <div class="stats-row">
                             <div class="stat-item">
-                                <div class="num">100+</div>
+                                <div class="num">{{ number_format($totalPengajuan ?? 0) }}+</div>
                                 <div class="label">Pengajuan</div>
                             </div>
                             <div class="stat-item">
-                                <div class="num">100+</div>
+                                <div class="num">{{ number_format($totalCakupanDesa ?? 0) }}+</div>
                                 <div class="label">Cakupan Desa</div>
                             </div>
                             <div class="stat-item">
-                                <div class="num">100+</div>
+                                <div class="num">{{ number_format($totalStakeholder ?? 0) }}+</div>
                                 <div class="label">Stakeholder</div>
                             </div>
                         </div>
@@ -257,7 +281,19 @@
                                         <input type="password" name="password" id="password"
                                             class="form-control @error('password') is-invalid @enderror"
                                             placeholder="Password" required>
-                                        <i class="fas fa-eye icon-right" id="togglePassword"></i>
+                                        <!-- FIX: eye icon pakai inline SVG, punya 2 state (eye / eye-slash) -->
+                                        <span class="icon-right" id="togglePassword" role="button" aria-label="Tampilkan/sembunyikan password">
+                                            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                            </svg>
+                                            <svg id="eyeSlashIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                                                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.94"></path>
+                                                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.16 3.19"></path>
+                                                <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
+                                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                                            </svg>
+                                        </span>
                                     </div>
                                     @error('password')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -297,15 +333,17 @@
             Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
         }
 
-        // toggle show/hide password
+        // FIX: toggle show/hide password pakai SVG eye / eye-slash
         const togglePassword = document.querySelector('#togglePassword');
         const passwordInput = document.querySelector('#password');
+        const eyeIcon = document.querySelector('#eyeIcon');
+        const eyeSlashIcon = document.querySelector('#eyeSlashIcon');
         if (togglePassword && passwordInput) {
             togglePassword.addEventListener('click', function () {
                 const isPassword = passwordInput.getAttribute('type') === 'password';
                 passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
+                eyeIcon.style.display = isPassword ? 'none' : 'block';
+                eyeSlashIcon.style.display = isPassword ? 'block' : 'none';
             });
         }
     </script>
