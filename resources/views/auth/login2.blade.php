@@ -29,7 +29,9 @@
             position: relative;
             min-height: 100vh;
             width: 100%;
-            background-image: linear-gradient(120deg, rgba(20, 60, 20, 0.82), rgba(20, 70, 25, 0.55)), url('{{ asset('argon/img/login3.png') }}');
+            /* FIX: overlay hijau diterangin - pakai warna brand green dengan opacity lebih rendah
+               (sebelumnya rgba(20,60,20,.82) terlalu gelap sampai foto nyaris tak kelihatan) */
+            background-image: linear-gradient(120deg, rgba(30, 80, 15, 0.72) 0%, rgba(30, 80, 15, 0.5) 100%), url('{{ asset('argon/img/login4.png') }}');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -56,15 +58,15 @@
             max-width: 560px;
         }
 
-        /* ==== FIX: brand row alignment (tanpa background putih) ==== */
+        /* ==== FIX: brand row - logo diperbesar, jarak ke judul diturunin ==== */
         .brand-row {
             display: flex;
             align-items: center;
-            margin-bottom: 28px;
+            margin-bottom: 12px;
         }
 
         .brand-row img {
-            height: 56px;
+            height: 76px;
             width: auto;
             display: block;
             margin-left: -10px; /* kompensasi whitespace transparan di file PNG logo, sesuaikan angka ini kalau masih kurang/lebih */
