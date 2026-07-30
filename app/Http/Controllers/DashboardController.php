@@ -193,7 +193,7 @@ class DashboardController extends Controller
                 'lokasi' => $locParts ? implode(', ', $locParts) : '-',
                 'nominal_disetujui' => $item->beritaAcara ? $this->parseNominal($item->beritaAcara->nominal) : null,
                 'barang_disetujui' => $this->formatBarangBeritaAcara($item->beritaAcara),
-                'tanggal' => $item->beritaAcara ? \Carbon\Carbon::parse($item->beritaAcara->created_at)->format('d M Y') : null,
+                'tanggal' => $item->beritaAcara ? \Carbon\Carbon::parse($item->beritaAcara->created_at)->locale('id')->translatedFormat('d M Y') : null,
             ];
         })->values();
     }
