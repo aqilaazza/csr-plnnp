@@ -23,7 +23,7 @@ class KelayakanPdfService
 
             $x1 = 396; // posisi awal "Halaman:"
             $x2 = 426; // posisi "2 dari 3"
-            $y = 130;
+            $y = 135;
 
             $canvas->text($x1, $y, "  Halaman :    ", $fontBold, $size);
             $canvas->text($x1 + 0.3, $y, "  Halaman :    ", $fontNormal, $size);

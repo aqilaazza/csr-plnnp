@@ -284,7 +284,7 @@
             <tr>
                 <td rowspan="4" class="logo-cell">
                     <img src="{{ public_path('images/logos/logo-pln2.png') }}"
-                        style="height: auto; width: 3.2cm; margin-top: 25px;">
+                        style="height: auto; width: 3.2cm; margin-top: 28px;">
                 </td>
                 <td class="judul-cell"><strong>PT PLN NUSANTARA POWER</strong></td>
                 <td class="info-cell"><span style="font-size: 9px"><strong>Nomor Dokumen</strong> :
@@ -295,8 +295,8 @@
                 <td class="info-cell"><span style="font-size: 9px"><strong>Revisi</strong> : {{ str_pad($data->revisi, 2, '0', STR_PAD_LEFT) }}</span></td>
             </tr>
             <tr>
-                <td rowspan="2" class="judul-cell" style="padding-top:16px; padding-bottom:1px;">
-                    FORMULIR ANALISIS KELAYAKAN PERMINTAAN BANTUAN PROGRAM CSR
+                <td rowspan="2" class="judul-cell" style="padding-top:15px; padding-bottom:0px;">
+                    FORMULIR ANALISIS KELAYAKAN PERMINTAAN <br> BANTUAN PROGRAM CSR
                 </td>
                 <td class="info-cell"><span style="font-size: 9px"><strong>Tanggal Terbit</strong> : {{ \Carbon\Carbon::now()->format('d - m - Y') }}</span></td>
             </tr>

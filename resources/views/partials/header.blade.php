@@ -60,7 +60,7 @@
                                 <button
                                     class="btn btn-sm btn-danger reminder-filter"
                                     data-filter="today">
-                                    Hari Ini ({{ $reminderGroups['today']->count() + $reminderGroups['overdue']->count() }})
+                                    Hari Ini & Terlambat ({{ $reminderGroups['today']->count() + $reminderGroups['overdue']->count() }})
                                 </button>
 
                                 <button

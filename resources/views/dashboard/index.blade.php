@@ -614,7 +614,7 @@
                     <span class="badge rounded-pill" style="background-color:var(--pln-green);">{{ $approvedList->count() }}</span>
                     <div class="dm-search-box mb-0">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                        <input type="text" id="approvedSearchInput" placeholder="Cari instansi, lokasi, atau barang...">
+                        <input type="text" id="approvedSearchInput" placeholder="Cari instansi, lokasi, atau tanggal...">
                     </div>
                     <select id="filter-tahun" class="form-select" style="width:110px; min-width: 110px; border-radius:10px;border:1.5px solid var(--pln-green);background:var(--green-bg);font-size:13px;padding:9px 10px;"
                         onchange="dmUpdateFilter('tahun', this.value)">
