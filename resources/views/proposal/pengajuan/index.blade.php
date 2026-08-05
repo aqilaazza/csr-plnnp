@@ -520,21 +520,24 @@
 
                 const table = $('#proposalTable').DataTable();
 
-                table.column(14).search(pic);
-                table.column(10).search(tipologi);
+                // Kolom PIC = index 15
+                table.column(15).search(pic);
 
-                // Filter progress
+                // Kolom Tipologi = index 11
+                table.column(11).search(tipologi);
+
+                // Filter progress (kolom "Progress (%)" = index 19)
                 if (progressFilter) {
-                    table.column(18).search('^' + progressFilter + '$', true, false);
+                    table.column(19).search('^' + progressFilter + '%$', true, false);
                 } else {
-                    table.column(16).search('', true, false);
+                    table.column(19).search('');
                 }
 
-                // Filter tahun pada kolom tanggal
+                // Filter tahun pada kolom Tanggal (index 8)
                 if (tahun) {
-                    table.column(7).search(tahun);
+                    table.column(8).search(tahun);
                 } else {
-                    table.column(5).search('');
+                    table.column(8).search('');
                 }
 
                 table.draw();
