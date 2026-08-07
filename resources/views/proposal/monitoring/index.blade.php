@@ -52,12 +52,6 @@
             margin: 0 auto;
         }
 
-        /* table.dataTable td p,
-                                                                                                                                table.dataTable td span,
-                                                                                                                                table.dataTable th h6 {
-                                                                                                                                    white-space: nowrap !important;
-                                                                                                                                } */
-
         table.dataTable,
         table.dataTable th,
         table.dataTable td,
@@ -78,15 +72,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
-        /* Paksa semua elemen dalam tabel untuk nowrap
-                                                                                                                                #proposalTable,
-                                                                                                                                #proposalTable th,
-                                                                                                                                #proposalTable td,
-                                                                                                                                #proposalTable th *,
-                                                                                                                                #proposalTable td * {
-                                                                                                                                    white-space: nowrap !important;
-                                                                                                                                } */
 
         /* Hindari teks meluber */
         #proposalTable td {
@@ -589,10 +574,26 @@
                             is_checked: isChecked
                         },
                         success: function(response) {
-                            
+
                             if (response.progress !== undefined) {
                                 const row = $(`input[data-proposal-id="${proposalId}"]`).closest('tr');
+
+                                // Update teks progress di DOM
                                 row.find('.progress-col').text(response.progress + '%');
+
+                                // FIX: tanpa reload halaman.
+                                // Beri tahu DataTables kalau isi baris ini berubah di DOM,
+                                // supaya data internal (dipakai utk search/sort/filter,
+                                // termasuk filter "Progress (%)") ikut sinkron - bukan cuma
+                                // tampilan teksnya doang yang berubah.
+                                const scrollBody = $('.dataTables_scrollBody');
+                                const scrollTop = scrollBody.scrollTop();
+
+                                table.row(row).invalidate().draw(false);
+
+                                // Kembalikan posisi scroll body (draw() DataTables
+                                // kadang reset scroll ke atas)
+                                scrollBody.scrollTop(scrollTop);
                             }
 
                             if (isChecked) {
@@ -601,9 +602,8 @@
                                 showToast("Centang berkas dibatalkan");
                             }
 
-                            setTimeout(function () {
-                                location.reload();
-                            }, 500);
+                            // location.reload() SENGAJA DIHAPUS - progress sudah
+                            // ter-update secara real-time tanpa reload halaman.
                         },
                         error: function() {
                             alert('Gagal memperbarui checklist!');
@@ -738,7 +738,7 @@
 
                 const toastEl = tempContainer.querySelector('.toast');
                 const bsToast = new bootstrap.Toast(toastEl, {
-                    delay: 3000
+                    delay: 800
                 });
                 bsToast.show();
 
