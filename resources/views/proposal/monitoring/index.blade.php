@@ -635,6 +635,7 @@
                     });
                 });
 
+
                 // Buka modal titik tiga
                 $(document).on('click', '.open-keterangan-modal', function() {
                     const id = $(this).data('id');
