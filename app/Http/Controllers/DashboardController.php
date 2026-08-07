@@ -315,30 +315,19 @@ class DashboardController extends Controller
         // User list
         $picList = DB::table('users')->pluck('nama', 'id')->toArray();
 
-        $totalPerTipologi = Proposal::when($selectedNamaPic, function ($query) use ($selectedNamaPic) {
-            $query->whereHas('namaPic', function ($q) use ($selectedNamaPic) {
-                $q->where('nama', $selectedNamaPic);
-            });
-        })
+        // ---------- Tabel PIC: HARUS memakai filter yang sama dengan sisa dashboard ----------
+        $totalPerTipologi = (clone $proposalQuery)
             ->select('tipologi_id', DB::raw('COUNT(*) as total'))
             ->groupBy('tipologi_id')
             ->pluck('total', 'tipologi_id');
 
-        $jumlahPerPicTipologi = Proposal::when($selectedNamaPic, function ($query) use ($selectedNamaPic) {
-            $query->whereHas('namaPic', function ($q) use ($selectedNamaPic) {
-                $q->where('nama', $selectedNamaPic);
-            });
-        })
+        $jumlahPerPicTipologi = (clone $proposalQuery)
             ->select('nama_pic_id', 'tipologi_id', DB::raw('COUNT(*) as jumlah'))
             ->groupBy('nama_pic_id', 'tipologi_id')
             ->get()
             ->groupBy('nama_pic_id');
 
-        $progressPerPicTipologi = Proposal::when($selectedNamaPic, function ($query) use ($selectedNamaPic) {
-            $query->whereHas('namaPic', function ($q) use ($selectedNamaPic) {
-                $q->where('nama', $selectedNamaPic);
-            });
-        })
+        $progressPerPicTipologi = (clone $proposalQuery)
             ->select('nama_pic_id', 'tipologi_id', DB::raw('AVG(progress) as avg_progress'))
             ->groupBy('nama_pic_id', 'tipologi_id')
             ->get()
@@ -357,7 +346,9 @@ class DashboardController extends Controller
                 $foundProgress = isset($progressPerPicTipologi[$picId])
                     ? $progressPerPicTipologi[$picId]->firstWhere('tipologi_id', $tipologiId)
                     : null;
-                $persen = $foundProgress ? round($foundProgress->avg_progress) : 0;
+                // Dibatasi maksimal 100% - AVG(progress) bisa >100 kalau ada data progress
+                // yang kotor/di atas 100 di tabel proposal.
+                $persen = $foundProgress ? min(100, round($foundProgress->avg_progress)) : 0;
 
                 $row['jumlah'][$kode] = $jumlah;
                 $row['persen'][$kode] = $persen;
