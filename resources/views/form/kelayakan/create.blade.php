@@ -108,6 +108,7 @@
                                         data-nama-cp="{{ $item->nama_cp ?? '-' }}"
                                         data-bantuan="{{ $item->barang_pengajuan ?? '-' }}"
                                         data-nominal="{{ $item->nominal_pengajuan ? number_format($item->nominal_pengajuan, 0, ',', '.') : '' }}"
+                                        data-barang-disetujui="{{ $item->barang_disetujui ?? '-' }}"
                                         data-nominal-disetujui="{{ $item->nominal_disetujui ? number_format($item->nominal_disetujui, 0, ',', '.') : '' }}"
                                         {{ old('proposal_id') == $item->id ? 'selected' : '' }}>
                                         {{ $item->judul }}
@@ -253,6 +254,12 @@
                             <input type="text" id="prev-bantuan" class="form-control field-locked" readonly tabindex="-1" value="-">
                         </div>
 
+                        {{-- BARANG DISETUJUI (otomatis dari Proposal->barang_disetujui, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Barang yang Disetujui</label>
+                            <input type="text" id="prev-barang-disetujui" class="form-control field-locked" readonly tabindex="-1" value="-">
+                        </div>
+
                         {{-- NOMINAL DISETUJUI (otomatis dari Proposal->nominal_disetujui, dibekukan) --}}
                         <div class="mb-3">
                             <label class="form-label">Nominal Disetujui</label>
@@ -346,7 +353,7 @@
                 const $selected = $('#select-proposal option:selected');
 
                 if (!$selected.val()) {
-                    $('#prev-judul, #prev-tipologi, #prev-instansi, #prev-kategori, #prev-contact, #prev-nama-cp, #prev-bantuan, #prev-nominal-disetujui').val('-');
+                    $('#prev-judul, #prev-tipologi, #prev-instansi, #prev-kategori, #prev-contact, #prev-nama-cp, #prev-bantuan, #prev-barang-disetujui, #prev-nominal-disetujui').val('-');
                     return;
                 }
 
@@ -361,6 +368,8 @@
                 const nominal = $selected.data('nominal');
                 const bantuanText = nominal ? `${barang} senilai Rp ${nominal}` : barang;
                 $('#prev-bantuan').val(bantuanText);
+
+                $('#prev-barang-disetujui').val($selected.data('barang-disetujui') || '-');
 
                 const nominalDisetujui = $selected.data('nominal-disetujui');
                 $('#prev-nominal-disetujui').val(nominalDisetujui ? `Rp ${nominalDisetujui}` : '-');

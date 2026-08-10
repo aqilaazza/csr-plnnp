@@ -248,6 +248,16 @@
                                 readonly tabindex="-1">
                         </div>
 
+                        {{-- BARANG DISETUJUI (otomatis dari Proposal->barang_disetujui, dibekukan) --}}
+                        <div class="mb-3">
+                            <label class="form-label">Barang yang Disetujui</label>
+                            @php
+                                $barangDisetujui = $kelayakan->proposal->barang_disetujui ?? '-';
+                            @endphp
+                            <input type="text" class="form-control field-locked" value="{{ $barangDisetujui }}"
+                                readonly tabindex="-1">
+                        </div>
+
                         {{-- NOMINAL DISETUJUI (otomatis dari Proposal->nominal_disetujui, dibekukan) --}}
                         <div class="mb-3">
                             <label class="form-label">Nominal Disetujui</label>
