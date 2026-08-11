@@ -573,7 +573,7 @@
         <div class="data-row">
             <div class="label">Barang yang disetujui</div>
             <div class="separator">:</div>
-            <div class="value">{{ $data->proposal->barang_disetujui }}</div>
+            <div class="value">{{ !empty($data->proposal->barang_disetujui) ? $data->proposal->barang_disetujui : '-' }}</div>
         </div>
 
         <div class="data-row">
