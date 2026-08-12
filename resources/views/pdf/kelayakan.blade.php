@@ -556,7 +556,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
     <div class="section keep-together">
         <div class="data-row">
@@ -569,6 +568,12 @@
             <div class="label">Nilai Bantuan yang disetujui</div>
             <div class="separator">:</div>
             <div class="value">Rp {{ number_format($data->proposal->nominal_disetujui, 0, ',', '.') }}</div>
+        </div>
+
+        <div class="data-row">
+            <div class="label">Barang yang disetujui</div>
+            <div class="separator">:</div>
+            <div class="value">{{ !empty($data->proposal->barang_disetujui) ? $data->proposal->barang_disetujui : '-' }}</div>
         </div>
 
         <div class="data-row">
