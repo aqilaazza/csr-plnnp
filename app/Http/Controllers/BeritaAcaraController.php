@@ -73,23 +73,27 @@ class BeritaAcaraController extends Controller
         $bsData = $this->resolveBusinessSupport($request);
 
         // Simpan DB
+        // Catatan: jenis/jumlah/satuan/nominal disimpan sebagai JSON (bukan comma-joined
+        // string). Ini supaya koma yang diketik user di dalam satu baris (mis. "Cangkul,
+        // Sepeda" sebagai SATU jenis bantuan) tidak ikut kepecah jadi baris terpisah saat
+        // dibaca ulang. Lihat decodeBantuanField() untuk kompatibilitas dengan data lama.
         $beritaAcara = BeritaAcara::create([
             'proposal_id' => $request->proposal_id,
             'nama_penerima' => $request->nama_penerima,
             'jabatan_penerima' => $request->jabatan_penerima,
-            'jenis_bantuan' => implode(',', $jenis),
-            'jumlah_barang' => implode(',', $jumlah),
-            'satuan' => implode(',', $satuan),
-            'nominal' => implode(',', $nominal),
+            'jenis_bantuan' => json_encode($jenis),
+            'jumlah_barang' => json_encode($jumlah),
+            'satuan' => json_encode($satuan),
+            'nominal' => json_encode($nominal),
             'nomor_surat' => $nomorSurat,
             'business_support_id' => $bsData['business_support_id'],
             'bisnis_support_lainnya' => $bsData['bisnis_support_lainnya'],
         ]);
 
-        $jenis = explode(',', $beritaAcara->jenis_bantuan ?? '');
-        $jumlah = explode(',', $beritaAcara->jumlah_barang ?? '');
-        $satuan = explode(',', $beritaAcara->satuan ?? '');
-        $nominal = explode(',', $beritaAcara->nominal ?? '');
+        $jenis = $this->decodeBantuanField($beritaAcara->jenis_bantuan);
+        $jumlah = $this->decodeBantuanField($beritaAcara->jumlah_barang);
+        $satuan = $this->decodeBantuanField($beritaAcara->satuan);
+        $nominal = $this->decodeBantuanField($beritaAcara->nominal);
 
         $bantuan = [];
 
@@ -129,10 +133,10 @@ class BeritaAcaraController extends Controller
     {
         $beritaAcara = BeritaAcara::with('proposal')->findOrFail($id);
 
-        $jenis = explode(',', $beritaAcara->jenis_bantuan ?? '');
-        $jumlah = explode(',', $beritaAcara->jumlah_barang ?? '');
-        $satuan = explode(',', $beritaAcara->satuan ?? '');
-        $nominal = explode(',', $beritaAcara->nominal ?? '');
+        $jenis = $this->decodeBantuanField($beritaAcara->jenis_bantuan);
+        $jumlah = $this->decodeBantuanField($beritaAcara->jumlah_barang);
+        $satuan = $this->decodeBantuanField($beritaAcara->satuan);
+        $nominal = $this->decodeBantuanField($beritaAcara->nominal);
 
         $bantuan = [];
 
@@ -193,13 +197,14 @@ class BeritaAcaraController extends Controller
         $bsData = $this->resolveBusinessSupport($request);
 
         // Update data
+        // Catatan: disimpan sebagai JSON, lihat penjelasan di store() di atas.
         $beritaAcara->update([
             'nama_penerima' => $request->nama_penerima,
             'jabatan_penerima' => $request->jabatan_penerima,
-            'jenis_bantuan' => implode(',', $jenis),
-            'jumlah_barang' => implode(',', $jumlah),
-            'satuan' => implode(',', $satuan),
-            'nominal' => implode(',', $nominal),
+            'jenis_bantuan' => json_encode($jenis),
+            'jumlah_barang' => json_encode($jumlah),
+            'satuan' => json_encode($satuan),
+            'nominal' => json_encode($nominal),
             'business_support_id' => $bsData['business_support_id'],
             'bisnis_support_lainnya' => $bsData['bisnis_support_lainnya'],
         ]);
@@ -209,10 +214,10 @@ class BeritaAcaraController extends Controller
 
         $proposal = Proposal::find($beritaAcara->proposal_id);
 
-        $jenis = explode(',', $beritaAcara->jenis_bantuan ?? '');
-        $jumlah = explode(',', $beritaAcara->jumlah_barang ?? '');
-        $satuan = explode(',', $beritaAcara->satuan ?? '');
-        $nominal = explode(',', $beritaAcara->nominal ?? '');
+        $jenis = $this->decodeBantuanField($beritaAcara->jenis_bantuan);
+        $jumlah = $this->decodeBantuanField($beritaAcara->jumlah_barang);
+        $satuan = $this->decodeBantuanField($beritaAcara->satuan);
+        $nominal = $this->decodeBantuanField($beritaAcara->nominal);
 
         $bantuan = [];
 
@@ -400,10 +405,11 @@ class BeritaAcaraController extends Controller
     public function getBantuan($id)
     {
         $beritaAcara = BeritaAcara::findOrFail($id);
-        $jenis = explode(',', $beritaAcara->jenis_bantuan ?? '');
-        $jumlah = explode(',', $beritaAcara->jumlah_barang ?? '');
-        $satuan = explode(',', $beritaAcara->satuan ?? '');
-        $nominal = explode(',', $beritaAcara->nominal ?? '');
+
+        $jenis = $this->decodeBantuanField($beritaAcara->jenis_bantuan);
+        $jumlah = $this->decodeBantuanField($beritaAcara->jumlah_barang);
+        $satuan = $this->decodeBantuanField($beritaAcara->satuan);
+        $nominal = $this->decodeBantuanField($beritaAcara->nominal);
 
         $data = [];
 
@@ -419,6 +425,40 @@ class BeritaAcaraController extends Controller
 
         return response()->json($data);
 
+    }
+
+    /**
+     * Decode satu kolom bantuan (jenis_bantuan / jumlah_barang / satuan / nominal)
+     * yang disimpan sebagai JSON array of string.
+     *
+     * Kenapa JSON, bukan comma-joined string seperti sebelumnya: dulu semua baris
+     * bantuan digabung pakai implode(',', ...) lalu dipisah lagi pakai explode(',', ...).
+     * Ini bikin bug — kalau user sendiri mengetik koma di dalam satu baris (mis. jenis
+     * bantuan "Cangkul, Sepeda" sebagai SATU baris), koma itu ikut kepecah jadi 2 baris
+     * terpisah saat dibaca ulang, padahal user cuma mau 1 baris. JSON tidak punya masalah
+     * ini karena pemisah antar-baris ditangani oleh struktur array, bukan karakter koma
+     * polos di dalam teks.
+     *
+     * Fallback ke explode(',', ...) tetap disediakan supaya data lama (yang disimpan
+     * sebelum fix ini, masih dalam format comma-joined) tetap bisa dibaca tanpa error.
+     * Data lama yang kebetulan mengandung koma di dalam satu baris akan tetap terpisah
+     * seperti sebelumnya (bug lama tidak otomatis "sembuh" untuk data historis) — hanya
+     * data yang dibuat/diedit setelah fix ini yang bebas dari bug tersebut.
+     */
+    private function decodeBantuanField(?string $value): array
+    {
+        if (empty($value)) {
+            return [];
+        }
+
+        $decoded = json_decode($value, true);
+
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        // Bukan JSON valid → asumsikan data lama format comma-joined
+        return explode(',', $value);
     }
 
     /**

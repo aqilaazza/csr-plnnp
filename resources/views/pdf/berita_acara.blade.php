@@ -143,6 +143,7 @@
             margin-top: 12px;
             margin-bottom: 12px;
             font-size: 13px;
+            table-layout: fixed;
         }
 
         .tabel-bantuan th,
@@ -150,6 +151,9 @@
             border: 1px solid #000;
             padding: 7px;
             text-align: center;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-all;
         }
 
         .tabel-bantuan th {
@@ -322,13 +326,13 @@
     <table class="tabel-bantuan">
         <thead>
             <tr>
-                <th style="width: 40px;">
+                <th style="width: 8%;">
                     No
                 </th>
-                <th>
+                <th style="width: 65%;">
                     Jenis Bantuan
                 </th>
-                <th>
+                <th style="width: 27%;">
                     Jumlah
                 </th>
             </tr>
