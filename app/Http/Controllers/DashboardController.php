@@ -233,6 +233,68 @@ class DashboardController extends Controller
         return $this->mapToApprovedList($diterimaList);
     }
 
+    /**
+     * Bangun reminder jatuh tempo yang TIDAK peduli filter lokasi/PIC apa pun
+     * yang sedang aktif di dashboard 
+     * - Admin  : melihat reminder dari SEMUA proposal (semua PIC).
+     * - Non-admin (PIC biasa) : hanya melihat reminder miliknya sendiri
+     *   (berdasarkan nama_pic_id).
+     */
+    private function buildUserReminders()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return collect();
+        }
+
+        // Sesuaikan pengecekan ini dengan struktur tabel users kamu,
+        // misal: $user->is_admin, $user->role === 'admin', $user->hasRole('admin'), dst.
+        $isAdmin = ($user->role ?? null) === 'admin';
+
+        $myProposalsQuery = Proposal::with('checklist.subProses');
+
+        if (!$isAdmin) {
+            $myProposalsQuery->where('nama_pic_id', $user->id);
+        }
+
+        $myProposals = $myProposalsQuery->get();
+
+        $dashboardReminders = collect();
+
+        foreach ($myProposals as $item) {
+            if (($item->progress ?? 0) >= 100) {
+                continue;
+            }
+            if (!$item->overdue) {
+                continue;
+            }
+
+            $nextChecklist = $item->checklist
+                ->sortBy('sub_proses_id')
+                ->firstWhere('is_checked', 0);
+
+            if (!$nextChecklist) {
+                continue;
+            }
+
+            $deadline = \Carbon\Carbon::parse($item->overdue);
+            $sisaHari = now()->startOfDay()->diffInDays($deadline, false);
+
+            // Hanya tampilkan H-0 dan yang sudah terlambat
+            if ($sisaHari <= 0) {
+                $dashboardReminders->push([
+                    'judul' => $item->judul,
+                    'berkas' => $nextChecklist->subProses->nama_sub,
+                    'deadline' => $deadline,
+                    'sisaHari' => $sisaHari,
+                ]);
+            }
+        }
+
+        return $dashboardReminders->sortBy('sisaHari')->values();
+    }
+
     public function index(Request $request)
     {
         $loggedInUser = Auth::user();
@@ -553,40 +615,11 @@ class DashboardController extends Controller
             ],
         ];
 
-        // ---------- Reminder proposal (checklist berikutnya jatuh tempo H-2/H-1/hari ini) ----------
-        $dashboardReminders = collect();
-
-        foreach ($proposal as $item) {
-            if (($item->progress ?? 0) >= 100) {
-                continue;
-            }
-            if (!$item->overdue) {
-                continue;
-            }
-
-            $nextChecklist = $item->checklist
-                ->sortBy('sub_proses_id')
-                ->firstWhere('is_checked', 0);
-
-            if (!$nextChecklist) {
-                continue;
-            }
-
-            $deadline = \Carbon\Carbon::parse($item->overdue);
-            $sisaHari = now()->startOfDay()->diffInDays($deadline, false);
-
-            // Hanya tampilkan H-0 dan yang sudah terlambat
-            if ($sisaHari <= 0) {
-                $dashboardReminders->push([
-                    'judul' => $item->judul,
-                    'berkas' => $nextChecklist->subProses->nama_sub,
-                    'deadline' => $deadline,
-                    'sisaHari' => $sisaHari,
-                ]);
-            }
-        }
-
-        $dashboardReminders = $dashboardReminders->sortBy('sisaHari')->values();
+        // ---------- Reminder proposal: SELALU personal milik user yang login, ----------
+        // TIDAK ikut filter lokasi/PIC dashboard sama sekali. Query terpisah dari
+        // $proposal (yang sudah kena filteredProposalQuery()) supaya konsisten
+        // sejak awal render, apa pun filter yang sedang aktif.
+        $dashboardReminders = $this->buildUserReminders();
 
         return view('dashboard.index', [
             'proposal' => $proposal,
