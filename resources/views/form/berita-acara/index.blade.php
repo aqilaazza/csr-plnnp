@@ -334,11 +334,11 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Jenis Bantuan</label>
-                                <input type="text"
+                                <textarea
                                     name="jenis_bantuan[]"
                                     class="form-control"
                                     placeholder="Contoh: Bantuan Cangkul"
-                                    required>
+                                    required></textarea>
                             </div>
 
                             <div class="row">
@@ -679,7 +679,7 @@
             // TOGGLE JENIS BANTUAN
             function toggleJenis(item) {
 
-                let jenis = item.find('input[name="jenis_bantuan[]"]')
+                let jenis = item.find('[name="jenis_bantuan[]"]')
                                 .val()
                                 .toLowerCase()
                                 .trim();
@@ -761,11 +761,11 @@
 
                         <div class="mb-3">
                             <label class="form-label">Jenis Bantuan</label>
-                            <input type="text"
+                            <textarea
                                 name="jenis_bantuan[]"
                                 class="form-control"
                                 placeholder="Contoh: Bantuan Cangkul"
-                                required>
+                                required></textarea>
                         </div>
 
                         <div class="row">
@@ -814,7 +814,7 @@
             // CEK JENIS BANTUAN
             function toggleJenis(item) {
 
-                let jenis = item.find('input[name="jenis_bantuan[]"]')
+                let jenis = item.find('[name="jenis_bantuan[]"]')
                     .val()
                     .trim()
                     .toLowerCase();
@@ -865,7 +865,7 @@
             // JIKA JENIS BANTUAN DIUBAH
             $(document).on(
                 'input',
-                'input[name="jenis_bantuan[]"]',
+                '[name="jenis_bantuan[]"]',
                 function () {
 
                     toggleJenis(
@@ -885,7 +885,7 @@
                     let item = $(this).closest('.bantuan-item');
 
                     let jenis = item
-                        .find('input[name="jenis_bantuan[]"]')
+                        .find('[name="jenis_bantuan[]"]')
                         .val()
                         .trim()
                         .toLowerCase();
@@ -942,7 +942,7 @@
                     let item = $(this).closest('.bantuan-item');
 
                     let jenis = item
-                        .find('input[name="jenis_bantuan[]"]')
+                        .find('[name="jenis_bantuan[]"]')
                         .val()
                         .trim()
                         .toLowerCase();
@@ -1160,12 +1160,10 @@
                                     Jenis Bantuan
                                 </label>
 
-                                <input
-                                    type="text"
+                                <textarea
                                     name="jenis_bantuan[]"
-                                    value="${item.jenis ?? ''}"
                                     class="form-control"
-                                    required>
+                                    required>${item.jenis ?? ''}</textarea>
 
                             </div>
 
@@ -1298,7 +1296,7 @@
         function updateInputBantuanEdit(item) {
 
             let jenis = item
-                .find('input[name="jenis_bantuan[]"]')
+                .find('[name="jenis_bantuan[]"]')
                 .val()
                 .trim()
                 .toLowerCase();
@@ -1417,7 +1415,7 @@
 
         $(document).on(
             'input',
-            '#editModal input[name="jenis_bantuan[]"]',
+            '#editModal [name="jenis_bantuan[]"]',
             function () {
 
                 let item = $(this)
@@ -1441,7 +1439,7 @@
                     .closest('.bantuan-item');
 
                 let jenis = item
-                    .find('input[name="jenis_bantuan[]"]')
+                    .find('[name="jenis_bantuan[]"]')
                     .val()
                     .trim()
                     .toLowerCase();
@@ -1506,7 +1504,7 @@
 
 
                 let jenis = item
-                    .find('input[name="jenis_bantuan[]"]')
+                    .find('[name="jenis_bantuan[]"]')
                     .val()
                     .trim()
                     .toLowerCase();
@@ -1596,11 +1594,10 @@
                             Jenis Bantuan
                         </label>
 
-                        <input
-                            type="text"
+                        <textarea
                             name="jenis_bantuan[]"
                             class="form-control"
-                            required>
+                            required></textarea>
 
                     </div>
 
@@ -1846,7 +1843,7 @@
             function reindexBantuan(wrapperSelector) {
                 $(wrapperSelector).find('.bantuan-item').each(function (index) {
 
-                    $(this).find('input[name="jenis_bantuan[]"]')
+                    $(this).find('[name="jenis_bantuan[]"]')
                         .attr('name', `bantuan[${index}][jenis]`);
 
                     $(this).find('input[name="jumlah_barang[]"]')
