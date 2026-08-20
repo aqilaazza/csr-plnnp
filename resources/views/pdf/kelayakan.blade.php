@@ -466,12 +466,15 @@
         </div>
 
         <div class="data-row">
-            <div class="label">Bantuan yang diajukan</div>
+            <div class="label">Nilai Bantuan diajukan</div>
             <div class="separator">:</div>
-            <div class="value">
-                Proposal {{ $data->proposal->judul }} senilai Rp
-                {{ number_format($data->proposal->nominal_pengajuan, 0, ',', '.') }}
-            </div>
+            <div class="value">Rp {{ number_format($data->proposal->nominal_pengajuan, 0, ',', '.') }}</div>
+        </div>
+
+        <div class="data-row">
+            <div class="label">Barang Bantuan diajukan</div>
+            <div class="separator">:</div>
+            <div class="value">{{ !empty($data->proposal->barang_pengajuan) ? $data->proposal->barang_pengajuan : '-' }}</div>
         </div>
     </div>
 
@@ -565,13 +568,13 @@
         </div>
 
         <div class="data-row">
-            <div class="label">Nilai Bantuan yang disetujui</div>
+            <div class="label">Nilai Bantuan disetujui</div>
             <div class="separator">:</div>
             <div class="value">Rp {{ number_format($data->proposal->nominal_disetujui, 0, ',', '.') }}</div>
         </div>
 
         <div class="data-row">
-            <div class="label">Barang yang disetujui</div>
+            <div class="label">Barang Bantuan disetujui</div>
             <div class="separator">:</div>
             <div class="value">{{ !empty($data->proposal->barang_disetujui) ? $data->proposal->barang_disetujui : '-' }}</div>
         </div>
