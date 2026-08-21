@@ -252,7 +252,13 @@ class DashboardController extends Controller
         // misal: $user->is_admin, $user->role === 'admin', $user->hasRole('admin'), dst.
         $isAdmin = ($user->role ?? null) === 'admin';
 
-        $myProposalsQuery = Proposal::with('checklist.subProses');
+        $myProposalsQuery = Proposal::with('checklist.subProses')
+            // Proposal yang sudah ditolak tidak perlu diingatkan lagi, jadi
+            // dikecualikan dari reminder dashboard. Hanya status 'pending'
+            // dan 'setuju' yang masih relevan menunggu berkas. Nilai status
+            // ini disamakan dengan yang dipakai di bagian lain controller
+            // ini (mis. $jumlahSetuju, $tolakList, $pendingList di bawah).
+            ->whereIn('status', ['pending', 'setuju']);
 
         if (!$isAdmin) {
             $myProposalsQuery->where('nama_pic_id', $user->id);

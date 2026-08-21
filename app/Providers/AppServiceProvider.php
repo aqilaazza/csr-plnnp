@@ -54,7 +54,7 @@ class AppServiceProvider extends ServiceProvider
                     // Proposal yang sudah ditolak tidak perlu diingatkan lagi,
                     // jadi dikecualikan dari reminder. Hanya status pending
                     // dan disetujui yang masih relevan menunggu berkas.
-                    ->whereIn('status', ['pending', 'disetujui']);
+                    ->whereIn('status', ['pending', 'setuju']);
 
                 // Admin melihat reminder dari SEMUA proposal (semua PIC).
                 // Non-admin hanya melihat reminder milik proposal yang PIC-nya
