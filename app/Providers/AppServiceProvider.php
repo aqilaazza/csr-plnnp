@@ -50,7 +50,11 @@ class AppServiceProvider extends ServiceProvider
                 // misal: $user->is_admin, $user->role === 'admin', $user->hasRole('admin'), dst.
                 $isAdmin = ($user->role ?? null) === 'admin';
 
-                $proposalQuery = Proposal::with(['checklist.subProses']);
+                $proposalQuery = Proposal::with(['checklist.subProses'])
+                    // Proposal yang sudah ditolak tidak perlu diingatkan lagi,
+                    // jadi dikecualikan dari reminder. Hanya status pending
+                    // dan disetujui yang masih relevan menunggu berkas.
+                    ->whereIn('status', ['pending', 'disetujui']);
 
                 // Admin melihat reminder dari SEMUA proposal (semua PIC).
                 // Non-admin hanya melihat reminder milik proposal yang PIC-nya
